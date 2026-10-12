@@ -17,3 +17,7 @@ private photos, or brand source files (.ai/.cdr). Those live in `tega-content` (
 - All changes via pull request; CI (`mlog check`, `mlog audit`) must be green.
 - Secrets only in server environment variables / GitHub Actions secrets.
 - Docs in English.
+
+## Licence
+
+Proprietary, all rights reserved by ООО «ТЭГА ПЛЮС». See `LICENSE`.
