@@ -14,7 +14,7 @@ pattern Page(title: String, content: String) -> Html {
 <meta charset=\"utf-8\">
 <meta name=\"viewport\" content = \"width=device-width, initial-scale=1\">
 <title>{{ title }} — ТЭГА ПЛЮС</title>
-<meta name=\"description\" content = \"ТЭГА ПЛЮС — ремонтно-строительные работы в Минске и по Беларуси. Более 20 лет опыта, более 1000 объектов.\">
+<meta name=\"description\" content = \"ТЭГА ПЛЮС — ремонтно-строительные работы в Минске и по Беларуси. Элегантный инженерный подход. Более 20 лет опыта, более 1000 объектов.\">
 <link rel=\"stylesheet\" href=\"/static/site.css\">
 </head>
 <body>
@@ -39,6 +39,7 @@ pattern Page(title: String, content: String) -> Html {
 
 pattern HomeBody(_x: String) -> String {
   return "<section class=\"hero\">
+<p class=\"slogan\">Элегантный инженерный подход</p>
 <h1>Ремонтно-строительные работы в Минске и по Беларуси</h1>
 <p>Более 20 лет на рынке. Более 1000 выполненных объектов.</p>
 <p><a class=\"btn\" href=\"/kontakty\">Обсудить объект</a> <a class=\"btn ghost\" href=\"/portfolio\">Наши объекты</a></p>
@@ -57,7 +58,23 @@ pattern ServicesBody(_x: String) -> String {
 
 pattern PortfolioBody(_x: String) -> String {
   return "<h1>Объекты</h1>
-<p>Раздел наполняется: каждый объект с описанием задачи, сроками, площадью и фотографиями.</p>"
+<p>Выполненные объекты на карте. Нажмите на метку или выберите объект в списке.</p>
+<link rel=\"stylesheet\" href=\"/static/vendor/leaflet/leaflet.css\">
+<div class=\"mapwrap\">
+<div id=\"map\" role=\"application\" aria-label=\"Карта выполненных объектов\"></div>
+<div class=\"side\">
+<div class=\"filters\">
+<input id=\"obj-q\" type=\"search\" placeholder=\"Поиск: название, город, тип работ\" aria-label=\"Поиск по объектам\">
+<select id=\"obj-type\" aria-label=\"Тип работ\"><option value=\"\">Все типы работ</option></select>
+</div>
+<div id=\"obj-count\" class=\"muted\" aria-live=\"polite\"></div>
+<ul id=\"obj-list\"></ul>
+<div id=\"obj-card\" class=\"card\" hidden></div>
+</div>
+</div>
+<noscript><p>Для просмотра карты включите JavaScript.</p></noscript>
+<script src=\"/static/vendor/leaflet/leaflet.js\"></script>
+<script src=\"/static/portfolio.js\"></script>"
 }
 
 pattern AboutBody(_x: String) -> String {

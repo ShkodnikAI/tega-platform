@@ -1,0 +1,5 @@
+[
+  {"id":"test-office","title":"ТЕСТ: Офис (не реальный объект)","type":"Офисы","year":2024,"area_m2":500,"city":"Минск","place":"Тестовый район","lat":53.9,"lng":27.56,"summary":"Тестовая запись для проверки карты.","photos":[]},
+  {"id":"test-shop","title":"ТЕСТ: Магазин (не реальный объект)","type":"Торговые помещения","year":2023,"area_m2":300,"city":"Брест","place":"Тестовый район","lat":52.09,"lng":23.69,"summary":"Тестовая запись.","photos":[]},
+  {"id":"test-xss","title":"<img src=x onerror=\"window.__xss=1\">Опасное имя","type":"Производство","year":2022,"city":"Гомель","place":"<b>x</b>","lat":52.43,"lng":30.98,"summary":"<script>window.__xss=1</script>","photos":["javascript:window.__xss=1"]}
+]

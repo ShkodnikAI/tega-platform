@@ -19,3 +19,20 @@ main{max-width:1040px;margin:0 auto;padding:40px 24px}
 .req dt{color:var(--muted)}.req dd{margin:0}
 footer{border-top:1px solid var(--line);padding:24px;color:var(--muted);font-size:14px;text-align:center}
 @media (max-width:600px){.top nav{margin-left:0;width:100%}.req{grid-template-columns:1fr}.req dt{margin-top:8px}}
+.slogan{margin:0;color:var(--red);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:14px}
+.mapwrap{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:16px;margin:20px 0}
+#map{height:520px;border:1px solid var(--line);background:var(--soft)}
+.side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters input,.filters select{font:inherit;padding:10px 12px;border:1px solid var(--line);min-width:0;flex:1}
+.filters input{flex:2 1 160px}
+#obj-list{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto;border-top:1px solid var(--line)}
+#obj-list .row{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 4px;cursor:pointer}
+#obj-list .row:hover,#obj-list .row:focus{background:var(--soft)}
+#obj-list .row b,#obj-list .row span{display:block}
+.muted{color:var(--muted);font-size:14px}
+.card{border-left:4px solid var(--red);padding:4px 16px;background:var(--soft)}
+.card img{max-width:100%;height:auto;margin:6px 0}
+.pin{width:22px;height:22px;border-radius:50% 50% 50% 0;background:var(--red);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);transform:rotate(-45deg)}
+.pop .btn-sm{display:inline-block;margin-top:6px;color:var(--red);font-weight:700}
+@media (max-width:800px){.mapwrap{grid-template-columns:1fr}#map{height:380px}}
