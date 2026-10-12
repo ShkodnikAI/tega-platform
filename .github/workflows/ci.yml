@@ -1,0 +1,32 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar xz gitleaks
+          ./gitleaks detect --source . --redact --verbose
+  mlog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install mlog (verify checksum)
+        run: |
+          base=https://github.com/ShkodnikAI/Metalogos-/releases/latest/download
+          curl -sSLO $base/mlog-linux-x86_64
+          curl -sSLO $base/SHA256SUMS
+          grep ' mlog-linux-x86_64$' SHA256SUMS | sha256sum -c -
+          chmod +x mlog-linux-x86_64 && sudo mv mlog-linux-x86_64 /usr/local/bin/mlog
+      - name: check and audit
+        run: |
+          shopt -s nullglob
+          for f in site/*.mlog agents/*.mlog; do mlog check "$f" && mlog audit "$f"; done

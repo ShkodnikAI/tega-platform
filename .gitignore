@@ -1,0 +1,13 @@
+# secrets and runtime data: never commit
+.env
+.env.*
+*.db
+*.sqlite*
+data/
+exports/
+secrets/
+*.pem
+*.key
+node_modules/
+dist/
+target/
