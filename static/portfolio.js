@@ -26,7 +26,7 @@
     return n;
   }
   function norm(s) { return String(s == null ? '' : s).toLowerCase().replace(/ё/g, 'е'); }
-  function safeSrc(u) { return typeof u === 'string' && (u.indexOf('/static/') === 0 || u.indexOf('https://') === 0); }
+  function safeSrc(u) { return typeof u === 'string' && (u.indexOf('/static/') === 0 || u.indexOf('/media/') === 0 || u.indexOf('https://') === 0); }
   function meta(o) {
     var p = [];
     if (o.type) p.push(o.type);

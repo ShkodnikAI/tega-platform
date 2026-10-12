@@ -10,7 +10,7 @@ services:
     disk:
       name: tega-data
       mountPath: /data
-      sizeGB: 1
+      sizeGB: 10
     envVars:
       - key: METALOGOS_LLM_PROVIDER
         value: openai
