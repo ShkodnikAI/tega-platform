@@ -1,0 +1,26 @@
+# Render Blueprint. Secret values (sync: false) are entered in the Render dashboard, never in git.
+services:
+  - type: web
+    name: tega-site
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeploy: false
+    disk:
+      name: tega-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: METALOGOS_LLM_PROVIDER
+        value: openai
+      - key: METALOGOS_OPENAI_BASE_URL
+        value: https://api.z.ai/api/paas/v4
+      - key: METALOGOS_LLM_MODEL
+        value: glm-5.3-flash
+      - key: METALOGOS_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TG_WEBHOOK_SECRET
+        sync: false
