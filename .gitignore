@@ -11,3 +11,4 @@ secrets/
 node_modules/
 dist/
 target/
+!.env.example
