@@ -1,0 +1,26 @@
+# Inside the Render container: Render terminates TLS and forwards to $PORT.
+{
+	auto_https off
+	admin off
+}
+:{$PORT} {
+	encode zstd gzip
+	handle_path /static/* {
+		root * /srv/static
+		file_server
+		header Cache-Control "public, max-age=86400"
+	}
+	# Telegram webhook: only requests carrying the secret header reach the app
+	@tg_ok {
+		path /telegram/webhook
+		header X-Telegram-Bot-Api-Secret-Token {$TG_WEBHOOK_SECRET}
+	}
+	handle @tg_ok {
+		reverse_proxy 127.0.0.1:8080
+	}
+	@tg_bad path /telegram/webhook
+	handle @tg_bad {
+		respond 403
+	}
+	reverse_proxy 127.0.0.1:8080
+}
