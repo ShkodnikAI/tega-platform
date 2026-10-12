@@ -3,6 +3,7 @@
 # If either process exits, the container exits so Render restarts it.
 set -eu
 export PORT="${PORT:-10000}"
+mkdir -p /data/media
 mlog serve /app/site/main.mlog &
 MLOG_PID=$!
 caddy run --config /etc/caddy/Caddyfile --adapter caddyfile &

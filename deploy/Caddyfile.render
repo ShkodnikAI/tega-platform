@@ -14,6 +14,12 @@
 		file_server
 		header Cache-Control "public, max-age=86400"
 	}
+	# Compressed portfolio media live on the persistent disk (originals stay on the owner's local server)
+	handle_path /media/* {
+		root * /data/media
+		file_server
+		header Cache-Control "public, max-age=604800"
+	}
 	# Telegram webhook: only requests carrying the secret header reach the app
 	@tg_ok {
 		path /telegram/webhook
