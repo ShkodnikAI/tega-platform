@@ -2,6 +2,10 @@
 {
 	auto_https off
 	admin off
+	servers {
+		# Render's load balancer is in a private range; keep the real client IP from its X-Forwarded-For
+		trusted_proxies static private_ranges
+	}
 }
 :{$PORT} {
 	encode zstd gzip
@@ -16,11 +20,17 @@
 		header X-Telegram-Bot-Api-Secret-Token {$TG_WEBHOOK_SECRET}
 	}
 	handle @tg_ok {
-		reverse_proxy 127.0.0.1:8080
+		reverse_proxy 127.0.0.1:8080 {
+			header_up X-Forwarded-For {client_ip}
+			header_up X-Real-IP {client_ip}
+		}
 	}
 	@tg_bad path /telegram/webhook
 	handle @tg_bad {
 		respond 403
 	}
-	reverse_proxy 127.0.0.1:8080
+	reverse_proxy 127.0.0.1:8080 {
+		header_up X-Forwarded-For {client_ip}
+		header_up X-Real-IP {client_ip}
+	}
 }

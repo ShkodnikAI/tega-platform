@@ -15,6 +15,12 @@ RUN apt-get update \
  && chmod +x /usr/local/bin/mlog
 
 COPY --from=caddy /usr/bin/caddy /usr/local/bin/caddy
+# The official image sets file capabilities (cap_net_bind_service) on caddy; Render's runtime rejects
+# exec of such a binary ("Operation not permitted"). We listen on $PORT (>1024), so a plain copy
+# without extended attributes is enough.
+RUN cp --no-preserve=all /usr/local/bin/caddy /tmp/caddy.plain \
+ && mv -f /tmp/caddy.plain /usr/local/bin/caddy \
+ && chmod 755 /usr/local/bin/caddy
 
 RUN useradd --system --create-home --home-dir /app tega \
  && mkdir -p /data /srv/static && chown tega:tega /data
