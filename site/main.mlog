@@ -1,0 +1,98 @@
+// TEGA PLUS — public site skeleton (v0).
+// Run:  mlog serve site/main.mlog
+// Static files (/static/*: logo, css, fonts, photos) are served by the reverse proxy (see deploy/Caddyfile),
+// not by mlog serve. Page texts are placeholders built only from facts supplied by the owner.
+//
+// Conventions learned while building this (see docs/mlog-findings.md):
+//  - render() always escapes and has no `| safe`; use template_render() with {{{ raw }}} for trusted fragments.
+//  - A route returns an Html value directly (`return Page(...)`); respond_html() takes a String only.
+
+pattern Page(title: String, content: String) -> Html {
+  return template_render("<!doctype html>
+<html lang=\"ru\">
+<head>
+<meta charset=\"utf-8\">
+<meta name=\"viewport\" content = \"width=device-width, initial-scale=1\">
+<title>{{ title }} — ТЭГА ПЛЮС</title>
+<meta name=\"description\" content = \"ТЭГА ПЛЮС — ремонтно-строительные работы в Минске и по Беларуси. Более 20 лет опыта, более 1000 объектов.\">
+<link rel=\"stylesheet\" href=\"/static/site.css\">
+</head>
+<body>
+<header class=\"top\">
+<a class=\"brand\" href=\"/\"><img src=\"/static/logo-ru.png\" alt=\"ТЭГА ПЛЮС\" height=\"44\"></a>
+<nav>
+<a href=\"/uslugi\">Услуги</a>
+<a href=\"/portfolio\">Объекты</a>
+<a href=\"/o-kompanii\">О компании</a>
+<a href=\"/kontakty\">Контакты</a>
+</nav>
+<a class=\"tel\" href=\"tel:+375173471109\">+375 17 347-11-09</a>
+</header>
+<main>{{{ content }}}</main>
+<footer>
+<div>ООО «ТЭГА ПЛЮС» · УНП 190729589 · 220059, г. Минск, ул. Шамякина, 9, пом. 1Н</div>
+<div>Тел. +375 17 347-11-09 · факс +375 17 347-11-06 · tegabymi@gmail.com</div>
+</footer>
+</body>
+</html>", {title: title, content: content})
+}
+
+pattern HomeBody(_x: String) -> String {
+  return "<section class=\"hero\">
+<h1>Ремонтно-строительные работы в Минске и по Беларуси</h1>
+<p>Более 20 лет на рынке. Более 1000 выполненных объектов.</p>
+<p><a class=\"btn\" href=\"/kontakty\">Обсудить объект</a> <a class=\"btn ghost\" href=\"/portfolio\">Наши объекты</a></p>
+</section>
+<section class=\"facts\">
+<div><b>20+</b><span>лет работаем</span></div>
+<div><b>1000+</b><span>объектов сдано</span></div>
+<div><b>Минск</b><span>и вся Беларусь</span></div>
+</section>"
+}
+
+pattern ServicesBody(_x: String) -> String {
+  return "<h1>Услуги</h1>
+<p>Раздел наполняется: виды работ, этапы, сроки и примеры по каждому направлению.</p>"
+}
+
+pattern PortfolioBody(_x: String) -> String {
+  return "<h1>Объекты</h1>
+<p>Раздел наполняется: каждый объект с описанием задачи, сроками, площадью и фотографиями.</p>"
+}
+
+pattern AboutBody(_x: String) -> String {
+  return "<h1>О компании</h1>
+<p>ООО «ТЭГА ПЛЮС» занимается ремонтно-строительными работами в Минске и по Беларуси более 20 лет и выполнила более 1000 объектов.</p>
+<p>Директор — Лоханский Сергей Александрович.</p>"
+}
+
+pattern ContactsBody(_x: String) -> String {
+  return "<h1>Контакты</h1>
+<dl class=\"req\">
+<dt>Адрес</dt><dd>220059, Беларусь, г. Минск, ул. Шамякина, 9, пом. 1Н</dd>
+<dt>Телефон</dt><dd>+375 17 347-11-09</dd>
+<dt>Факс</dt><dd>+375 17 347-11-06</dd>
+<dt>E-mail</dt><dd>tegabymi@gmail.com</dd>
+</dl>
+<h2>Реквизиты</h2>
+<dl class=\"req\">
+<dt>Организация</dt><dd>ООО «ТЭГА ПЛЮС»</dd>
+<dt>УНП</dt><dd>190729589</dd>
+<dt>ОКПО</dt><dd>376949605000</dd>
+<dt>Расчётный счёт</dt><dd>BY65 UNBS 3012 0037 0500 4000 0933</dd>
+<dt>Банк</dt><dd>ЗАО «БСБ Банк», BIC UNBSBY2X, 220004, г. Минск, пр. Победителей, 23, корп. 3</dd>
+<dt>Директор</dt><dd>Лоханский Сергей Александрович (на основании Устава)</dd>
+</dl>"
+}
+
+server {
+  port: 8080
+  middleware: [security_headers, rate_limit]
+  route "/" method=GET { return Page("Главная", HomeBody("")) }
+  route "/uslugi" method=GET { return Page("Услуги", ServicesBody("")) }
+  route "/portfolio" method=GET { return Page("Объекты", PortfolioBody("")) }
+  route "/o-kompanii" method=GET { return Page("О компании", AboutBody("")) }
+  route "/kontakty" method=GET { return Page("Контакты", ContactsBody("")) }
+  route "/health" method=GET { respond("ok") }
+  route "/robots.txt" method=GET { respond("User-agent: *\nAllow: /\nSitemap: https://REPLACE-DOMAIN/sitemap.xml\n") }
+}
