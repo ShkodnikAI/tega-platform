@@ -18,6 +18,10 @@ services:
         value: https://api.z.ai/api/paas/v4
       - key: METALOGOS_LLM_MODEL
         value: glm-5.3-flash
+      - key: METALOGOS_HMAC_KEY
+        generateValue: true
+      - key: METALOGOS_TRUSTED_PROXIES
+        value: 127.0.0.1
       - key: METALOGOS_API_KEY
         sync: false
       - key: TELEGRAM_BOT_TOKEN
