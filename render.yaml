@@ -18,8 +18,8 @@ services:
         value: https://api.z.ai/api/paas/v4
       - key: METALOGOS_LLM_MODEL
         value: glm-5.3-flash
-      - key: METALOGOS_HMAC_KEY
-        generateValue: true
+      - key: METALOGOS_HMAC_KEY   # 64 hex chars (openssl rand -hex 32); Render's generateValue format is rejected by mlog
+        sync: false
       - key: METALOGOS_TRUSTED_PROXIES
         value: 127.0.0.1
       - key: METALOGOS_API_KEY
