@@ -111,5 +111,5 @@ server {
   route "/o-kompanii" method=GET { return Page("О компании", AboutBody("")) }
   route "/kontakty" method=GET { return Page("Контакты", ContactsBody("")) }
   route "/health" method=GET { respond("ok") }
-  route "/robots.txt" method=GET { respond("User-agent: *\nAllow: /\nSitemap: https://REPLACE-DOMAIN/sitemap.xml\n") }
+  route "/robots.txt" method=GET { respond("User-agent: *\nAllow: /\nSitemap: https://tega.plus/sitemap.xml\n") }
 }
