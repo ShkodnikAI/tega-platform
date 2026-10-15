@@ -34,8 +34,12 @@ if ($Register) {
 
 $out = Join-Path $Dest ("tega-data-{0:yyyy-MM-dd}.tar.gz.age" -f (Get-Date))
 $tmp = "$out.part"
-# cmd.exe keeps the pipe binary-safe (PowerShell 5.1 would re-encode it)
-cmd /c "ssh -o BatchMode=yes $Ssh `"tar czf - -C /data .`" | age -r $PublicKey -o `"$tmp`""
+# A .cmd file keeps the pipe binary-safe and avoids PowerShell 5.1 quoting problems
+$bat = Join-Path $env:TEMP "tega-backup.cmd"
+$line = 'ssh -o BatchMode=yes {0} "tar czf - -C /data ." | age -r {1} -o "{2}"' -f $Ssh, $PublicKey, $tmp
+Set-Content -Path $bat -Encoding ASCII -Value @("@echo off", $line, "exit /b %errorlevel%")
+& $bat
+Remove-Item $bat -ErrorAction SilentlyContinue
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $tmp) -or (Get-Item $tmp).Length -lt 200) { Remove-Item $tmp -ErrorAction SilentlyContinue; throw "backup failed" }
 Move-Item -Force $tmp $out
 Get-ChildItem $Dest -Filter "tega-data-*.age" | Sort-Object Name -Descending | Select-Object -Skip $Keep | Remove-Item
