@@ -1,115 +1,422 @@
-// TEGA PLUS — public site skeleton (v0).
+// TEGA PLUS: public site (RU / BY / EN).
 // Run:  mlog serve site/main.mlog
-// Static files (/static/*: logo, css, fonts, photos) are served by the reverse proxy (see deploy/Caddyfile),
-// not by mlog serve. Page texts are placeholders built only from facts supplied by the owner.
+// Static files (/static/*, /media/*, robots.txt, sitemap.xml) are served by the reverse proxy (deploy/Caddyfile.render).
 //
-// Conventions learned while building this (see docs/mlog-findings.md):
-//  - render() always escapes and has no `| safe`; use template_render() with {{{ raw }}} for trusted fragments.
-//  - A route returns an Html value directly (`return Page(...)`); respond_html() takes a String only.
+// Conventions (see docs/mlog-findings.md):
+//  - render() always escapes; template_render() with {{{ raw }}} is for trusted fragments only. All page text goes through {{ }}.
+//  - A route returns an Html value directly (`return Page(...)`).
+//  - Page templates are Strings; the shell (head, header, footer) wraps the page body into ONE template_render call.
+//  - Texts live in the Dict* patterns, one per language; adding a text means adding the key to all three.
 
-pattern Page(title: String, content: String) -> Html {
-  return template_render("<!doctype html>
-<html lang=\"ru\">
+pattern DictRu(_x: String) -> Map {
+  return {
+  brand: "ТЭГА ПЛЮС",
+  slogan: "Элегантный инженерный подход",
+  desc: "ТЭГА ПЛЮС: ремонтно-строительные работы в Минске и по Беларуси. Элегантный инженерный подход. Более 20 лет опыта, более 1000 объектов.",
+  nav_aria: "Основное меню",
+  lang_aria: "Язык сайта",
+  nav_services: "Услуги",
+  nav_objects: "Объекты",
+  nav_about: "О компании",
+  nav_contacts: "Контакты",
+  discuss: "Обсудить объект",
+  h1: "Ремонтно-строительные работы в Минске и по Беларуси",
+  lead: "Более 20 лет на рынке. Более 1000 выполненных объектов. Берём проект от замысла до сдачи.",
+  our_map: "Наши объекты на карте",
+  f1: "лет работаем",
+  f2: "объектов сдано",
+  f3a: "Минск",
+  f3b: "и вся Беларусь",
+  map_title: "Объекты на карте",
+  map_text: "Найдите выполненные работы по городу, типу объекта или названию. Нажмите на метку, чтобы увидеть фото и описание.",
+  map_btn: "Открыть карту",
+  cta_title: "Обсудим ваш объект",
+  cta_text: "ООО «ТЭГА ПЛЮС» занимается ремонтно-строительными работами в Минске и по Беларуси более 20 лет. Позвоните или напишите, расскажем, с чего начать.",
+  call: "Позвонить",
+  lbl_addr: "Адрес",
+  lbl_phone: "Телефон",
+  lbl_fax: "Факс",
+  address: "220059, г. Минск, ул. Шамякина, 9, пом. 1Н",
+  legal: "ООО «ТЭГА ПЛЮС» · УНП 190729589",
+  title_home: "Главная",
+  services_text: "Раздел наполняется: виды работ, этапы, сроки и примеры по каждому направлению.",
+  portfolio_text: "Выполненные объекты на карте. Нажмите на метку или выберите объект в списке.",
+  map_aria: "Карта выполненных объектов",
+  search_ph: "Поиск: название, город, тип работ",
+  search_aria: "Поиск по объектам",
+  type_aria: "Тип работ",
+  all_types: "Все типы работ",
+  no_js: "Для просмотра карты включите JavaScript.",
+  about_text: "ООО «ТЭГА ПЛЮС» занимается ремонтно-строительными работами в Минске и по Беларуси более 20 лет и выполнила более 1000 объектов.",
+  about_dir: "Директор — Лоханский Сергей Александрович.",
+  req_title: "Реквизиты",
+  lbl_org: "Организация",
+  lbl_unp: "УНП",
+  lbl_okpo: "ОКПО",
+  lbl_acc: "Расчётный счёт",
+  lbl_bank: "Банк",
+  lbl_dir: "Директор",
+  org: "ООО «ТЭГА ПЛЮС»",
+  bank: "ЗАО «БСБ Банк», BIC UNBSBY2X, 220004, г. Минск, пр. Победителей, 23, корп. 3",
+  director: "Лоханский Сергей Александрович (на основании Устава)"
+  }
+}
+
+pattern DictBe(_x: String) -> Map {
+  return {
+  brand: "ТЭГА ПЛЮС",
+  slogan: "Элегантны інжынерны падыход",
+  desc: "ТЭГА ПЛЮС: рамонтна-будаўнічыя работы ў Мінску і па Беларусі. Элегантны інжынерны падыход. Больш за 20 гадоў вопыту, больш за 1000 аб’ектаў.",
+  nav_aria: "Асноўнае меню",
+  lang_aria: "Мова сайта",
+  nav_services: "Паслугі",
+  nav_objects: "Аб’екты",
+  nav_about: "Пра кампанію",
+  nav_contacts: "Кантакты",
+  discuss: "Абмеркаваць аб’ект",
+  h1: "Рамонтна-будаўнічыя работы ў Мінску і па Беларусі",
+  lead: "Больш за 20 гадоў на рынку. Больш за 1000 выкананых аб’ектаў. Вядзём праект ад задумы да здачы.",
+  our_map: "Нашы аб’екты на карце",
+  f1: "гадоў працуем",
+  f2: "аб’ектаў здадзена",
+  f3a: "Мінск",
+  f3b: "і ўся Беларусь",
+  map_title: "Аб’екты на карце",
+  map_text: "Знайдзіце выкананыя работы па горадзе, тыпе аб’екта або назве. Націсніце на пазнаку, каб убачыць фота і апісанне.",
+  map_btn: "Адкрыць карту",
+  cta_title: "Абмяркуем ваш аб’ект",
+  cta_text: "ТАА «ТЭГА ПЛЮС» займаецца рамонтна-будаўнічымі работамі ў Мінску і па Беларусі больш за 20 гадоў. Патэлефануйце або напішыце, раскажам, з чаго пачаць.",
+  call: "Патэлефанаваць",
+  lbl_addr: "Адрас",
+  lbl_phone: "Тэлефон",
+  lbl_fax: "Факс",
+  address: "220059, г. Мінск, вул. Шамякіна, 9, пам. 1Н",
+  legal: "ТАА «ТЭГА ПЛЮС» · УНП 190729589",
+  title_home: "Галоўная",
+  services_text: "Раздзел напаўняецца: віды работ, этапы, тэрміны і прыклады па кожным кірунку.",
+  portfolio_text: "Выкананыя аб’екты на карце. Націсніце на пазнаку або абярыце аб’ект у спісе.",
+  map_aria: "Карта выкананых аб’ектаў",
+  search_ph: "Пошук: назва, горад, тып работ",
+  search_aria: "Пошук па аб’ектах",
+  type_aria: "Тып работ",
+  all_types: "Усе тыпы работ",
+  no_js: "Каб убачыць карту, уключыце JavaScript.",
+  about_text: "ТАА «ТЭГА ПЛЮС» займаецца рамонтна-будаўнічымі работамі ў Мінску і па Беларусі больш за 20 гадоў і выканала больш за 1000 аб’ектаў.",
+  about_dir: "Дырэктар — Лаханскі Сяргей Аляксандравіч.",
+  req_title: "Рэквізіты",
+  lbl_org: "Арганізацыя",
+  lbl_unp: "УНП",
+  lbl_okpo: "АКПА",
+  lbl_acc: "Разліковы рахунак",
+  lbl_bank: "Банк",
+  lbl_dir: "Дырэктар",
+  org: "ТАА «ТЭГА ПЛЮС»",
+  bank: "ЗАТ «БСБ Банк», BIC UNBSBY2X, 220004, г. Мінск, пр. Пераможцаў, 23, корп. 3",
+  director: "Лаханскі Сяргей Аляксандравіч (на падставе Статута)"
+  }
+}
+
+pattern DictEn(_x: String) -> Map {
+  return {
+  brand: "TEGA PLUS",
+  slogan: "Elegant engineering approach",
+  desc: "TEGA PLUS: renovation and construction in Minsk and across Belarus. Elegant engineering approach. Over 20 years of experience, more than 1,000 completed projects.",
+  nav_aria: "Main menu",
+  lang_aria: "Site language",
+  nav_services: "Services",
+  nav_objects: "Projects",
+  nav_about: "About us",
+  nav_contacts: "Contacts",
+  discuss: "Discuss your project",
+  h1: "Renovation and construction in Minsk and across Belarus",
+  lead: "Over 20 years on the market. More than 1,000 completed projects. We take a project from concept to handover.",
+  our_map: "Our projects on the map",
+  f1: "years in business",
+  f2: "projects delivered",
+  f3a: "Minsk",
+  f3b: "and all of Belarus",
+  map_title: "Projects on the map",
+  map_text: "Find completed work by city, project type or name. Click a marker to see photos and a description.",
+  map_btn: "Open the map",
+  cta_title: "Let’s discuss your project",
+  cta_text: "TEGA PLUS LLC has been carrying out renovation and construction work in Minsk and across Belarus for more than 20 years. Call or write, and we will tell you where to start.",
+  call: "Call",
+  lbl_addr: "Address",
+  lbl_phone: "Phone",
+  lbl_fax: "Fax",
+  address: "220059, Minsk, Shamyakina St., 9, room 1N",
+  legal: "TEGA PLUS LLC · UNP 190729589",
+  title_home: "Home",
+  services_text: "This section is being filled in: types of work, stages, timelines and examples for each area.",
+  portfolio_text: "Completed projects on the map. Click a marker or choose a project from the list.",
+  map_aria: "Map of completed projects",
+  search_ph: "Search: name, city, type of work",
+  search_aria: "Search projects",
+  type_aria: "Type of work",
+  all_types: "All types of work",
+  no_js: "Please enable JavaScript to view the map.",
+  about_text: "TEGA PLUS LLC has been carrying out renovation and construction work in Minsk and across Belarus for more than 20 years and has completed more than 1,000 projects.",
+  about_dir: "Director: Sergey A. Lokhansky.",
+  req_title: "Company details",
+  lbl_org: "Company",
+  lbl_unp: "UNP",
+  lbl_okpo: "OKPO",
+  lbl_acc: "Bank account",
+  lbl_bank: "Bank",
+  lbl_dir: "Director",
+  org: "TEGA PLUS LLC",
+  bank: "BSB Bank CJSC, BIC UNBSBY2X, 23/3 Pobediteley Ave., 220004 Minsk",
+  director: "Sergey A. Lokhansky (acting under the Articles of Association)"
+  }
+}
+
+pattern Dict(lang: String) -> Map {
+  if lang == "be" { return DictBe("") }
+  if lang == "en" { return DictEn("") }
+  return DictRu("")
+}
+
+pattern Prefix(lang: String) -> String {
+  if lang == "be" { return "/be" }
+  if lang == "en" { return "/en" }
+  return ""
+}
+
+pattern Href(lang: String, slug: String) -> String {
+  if slug == "/" {
+    if lang == "ru" { return "/" }
+    return "/" + lang + "/"
+  }
+  return Prefix(lang) + slug
+}
+
+pattern LogoFor(lang: String) -> String {
+  if lang == "be" { return "/static/logo-be.png" }
+  if lang == "en" { return "/static/logo-en.png" }
+  return "/static/logo-ru.png"
+}
+
+pattern HeadTpl(_x: String) -> String {
+  return "<!doctype html>
+<html lang=\"{{ lang }}\">
 <head>
 <meta charset=\"utf-8\">
 <meta name=\"viewport\" content = \"width=device-width, initial-scale=1\">
-<title>{{ title }} — ТЭГА ПЛЮС</title>
-<meta name=\"description\" content = \"ТЭГА ПЛЮС — ремонтно-строительные работы в Минске и по Беларуси. Элегантный инженерный подход. Более 20 лет опыта, более 1000 объектов.\">
+<title>{{ title }} — {{ t.brand }}</title>
+<meta name=\"description\" content = \"{{ t.desc }}\">
+<link rel=\"canonical\" href=\"https://tega.plus{{ self }}\">
+<link rel=\"alternate\" hreflang=\"ru\" href=\"https://tega.plus{{ h_ru }}\">
+<link rel=\"alternate\" hreflang=\"be\" href=\"https://tega.plus{{ h_be }}\">
+<link rel=\"alternate\" hreflang=\"en\" href=\"https://tega.plus{{ h_en }}\">
+<link rel=\"alternate\" hreflang=\"x-default\" href=\"https://tega.plus{{ h_ru }}\">
+<meta property=\"og:type\" content = \"website\">
+<meta property=\"og:title\" content = \"{{ title }} — {{ t.brand }}\">
+<meta property=\"og:description\" content = \"{{ t.desc }}\">
+<meta property=\"og:url\" content = \"https://tega.plus{{ self }}\">
+<link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
+<link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
 <link rel=\"stylesheet\" href=\"/static/site.css\">
 </head>
 <body>
-<header class=\"top\">
-<a class=\"brand\" href=\"/\"><img src=\"/static/logo-ru.png\" alt=\"ТЭГА ПЛЮС\" height=\"44\"></a>
-<nav>
-<a href=\"/uslugi\">Услуги</a>
-<a href=\"/portfolio\">Объекты</a>
-<a href=\"/o-kompanii\">О компании</a>
-<a href=\"/kontakty\">Контакты</a>
+<header class=\"top\"><div class=\"wrap\">
+<a class=\"brand\" href=\"{{ home }}\" aria-label=\"{{ t.brand }}\"><img src=\"{{ logo }}\" width=\"318\" height=\"96\" alt=\"{{ t.brand }} — {{ t.slogan }}\"></a>
+<nav aria-label=\"{{ t.nav_aria }}\">
+<a href=\"{{ p }}/uslugi\">{{ t.nav_services }}</a>
+<a href=\"{{ p }}/portfolio\">{{ t.nav_objects }}</a>
+<a href=\"{{ p }}/o-kompanii\">{{ t.nav_about }}</a>
+<a href=\"{{ p }}/kontakty\">{{ t.nav_contacts }}</a>
 </nav>
+<div class=\"right\">
+<div class=\"lang\" role=\"group\" aria-label=\"{{ t.lang_aria }}\">
+<a href=\"{{ h_ru }}\" lang=\"ru\" hreflang=\"ru\" {{#if is_ru}}aria-current=\"true\"{{/if}}>RU</a>
+<a href=\"{{ h_be }}\" lang=\"be\" hreflang=\"be\" {{#if is_be}}aria-current=\"true\"{{/if}}>BY</a>
+<a href=\"{{ h_en }}\" lang=\"en\" hreflang=\"en\" {{#if is_en}}aria-current=\"true\"{{/if}}>EN</a>
+</div>
 <a class=\"tel\" href=\"tel:+375173471109\">+375 17 347-11-09</a>
-</header>
-<main>{{{ content }}}</main>
-<footer>
-<div>ООО «ТЭГА ПЛЮС» · УНП 190729589 · 220059, г. Минск, ул. Шамякина, 9, пом. 1Н</div>
-<div>Тел. +375 17 347-11-09 · факс +375 17 347-11-06 · tegabymi@gmail.com</div>
-</footer>
+</div>
+</div></header>
+<main{{#if inner}} class=\"page\"{{/if}}>
+"
+}
+
+pattern FootTpl(_x: String) -> String {
+  return "
+</main>
+<footer><div class=\"wrap\">
+<div>{{ t.legal }}</div>
+<div>{{ t.slogan }}</div>
+</div></footer>
 </body>
-</html>", {title: title, content: content})
+</html>"
 }
 
-pattern HomeBody(_x: String) -> String {
-  return "<section class=\"hero\">
-<p class=\"slogan\">Элегантный инженерный подход</p>
-<h1>Ремонтно-строительные работы в Минске и по Беларуси</h1>
-<p>Более 20 лет на рынке. Более 1000 выполненных объектов.</p>
-<p><a class=\"btn\" href=\"/kontakty\">Обсудить объект</a> <a class=\"btn ghost\" href=\"/portfolio\">Наши объекты</a></p>
-</section>
-<section class=\"facts\">
-<div><b>20+</b><span>лет работаем</span></div>
-<div><b>1000+</b><span>объектов сдано</span></div>
-<div><b>Минск</b><span>и вся Беларусь</span></div>
-</section>"
+pattern HomeTpl(_x: String) -> String {
+  return "<section class=\"hero\"><div class=\"wrap\">
+<div class=\"text\">
+<p class=\"slogan\">{{ t.slogan }}</p>
+<h1>{{ t.h1 }}</h1>
+<p class=\"lead\">{{ t.lead }}</p>
+<div class=\"actions\">
+<a class=\"btn\" href=\"{{ p }}/kontakty\">{{ t.discuss }}</a>
+<a class=\"btn ghost\" href=\"{{ p }}/portfolio\">{{ t.our_map }}</a>
+</div>
+</div>
+<div class=\"art\" aria-hidden=\"true\">
+<svg viewBox=\"0 0 520 400\" preserveAspectRatio=\"xMidYMid slice\" focusable=\"false\">
+<defs><pattern id=\"hg\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><path d=\"M40 0H0V40\" fill=\"none\" stroke=\"#e4e5e8\" stroke-width=\"1\"/></pattern></defs>
+<rect width=\"520\" height=\"400\" fill=\"url(#hg)\"/>
+<g fill=\"none\" stroke=\"#1d1f23\" stroke-width=\"2\">
+<path d=\"M80 340V150L200 90V340\"/><path d=\"M200 340V120H330V340\"/><path d=\"M330 340V190H440V340\"/>
+<path d=\"M50 340H480\"/>
+<path d=\"M110 200h60M110 250h60M110 300h60\"/><path d=\"M230 160h70M230 220h70M230 280h70\"/>
+</g>
+<g stroke=\"#e3000f\" stroke-width=\"2\" fill=\"none\"><path d=\"M80 372H200M80 366v12M200 366v12\"/><path d=\"M470 120V340M464 120h12M464 340h12\"/></g>
+<circle cx=\"392\" cy=\"150\" r=\"9\" fill=\"#e3000f\" stroke=\"#fff\" stroke-width=\"2\"/>
+</svg>
+</div>
+</div></section>
+<section class=\"facts\"><div class=\"wrap\">
+<div><b>20+</b><span>{{ t.f1 }}</span></div>
+<div><b>1000+</b><span>{{ t.f2 }}</span></div>
+<div><b>{{ t.f3a }}</b><span>{{ t.f3b }}</span></div>
+</div></section>
+<section class=\"teaser\"><div class=\"wrap\">
+<div class=\"text\">
+<h2>{{ t.map_title }}</h2>
+<p>{{ t.map_text }}</p>
+<a class=\"btn\" href=\"{{ p }}/portfolio\">{{ t.map_btn }}</a>
+</div>
+<div class=\"art\" aria-hidden=\"true\">
+<svg viewBox=\"0 0 640 400\" focusable=\"false\">
+<defs><pattern id=\"mg\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><path d=\"M40 0H0V40\" fill=\"none\" stroke=\"#3a3d44\" stroke-width=\"1\"/></pattern></defs>
+<rect width=\"640\" height=\"400\" fill=\"url(#mg)\"/>
+<path d=\"M0 290 C140 240 230 330 360 250 S560 200 640 230\" fill=\"none\" stroke=\"#4a4d55\" stroke-width=\"10\"/>
+<path d=\"M150 0 C170 120 120 220 210 400\" fill=\"none\" stroke=\"#4a4d55\" stroke-width=\"6\"/>
+<g fill=\"#e3000f\" stroke=\"#ffffff\" stroke-width=\"2\"><circle cx=\"210\" cy=\"150\" r=\"9\"/><circle cx=\"330\" cy=\"245\" r=\"9\"/><circle cx=\"440\" cy=\"120\" r=\"9\"/><circle cx=\"520\" cy=\"215\" r=\"9\"/><circle cx=\"270\" cy=\"330\" r=\"9\"/></g>
+</svg>
+</div>
+</div></section>
+<section class=\"cta\"><div class=\"wrap\">
+<div class=\"text\">
+<h2>{{ t.cta_title }}</h2>
+<p>{{ t.cta_text }}</p>
+<a class=\"btn\" href=\"tel:+375173471109\">{{ t.call }} +375 17 347-11-09</a>
+</div>
+<dl class=\"req\">
+<dt>{{ t.lbl_addr }}</dt><dd>{{ t.address }}</dd>
+<dt>{{ t.lbl_phone }}</dt><dd>+375 17 347-11-09</dd>
+<dt>{{ t.lbl_fax }}</dt><dd>+375 17 347-11-06</dd>
+<dt>E-mail</dt><dd>tegabymi@gmail.com</dd>
+</dl>
+</div></section>"
 }
 
-pattern ServicesBody(_x: String) -> String {
-  return "<h1>Услуги</h1>
-<p>Раздел наполняется: виды работ, этапы, сроки и примеры по каждому направлению.</p>"
+pattern ServicesTpl(_x: String) -> String {
+  return "<h1>{{ t.nav_services }}</h1>
+<p>{{ t.services_text }}</p>"
 }
 
-pattern PortfolioBody(_x: String) -> String {
-  return "<h1>Объекты</h1>
-<p>Выполненные объекты на карте. Нажмите на метку или выберите объект в списке.</p>
+pattern PortfolioTpl(_x: String) -> String {
+  return "<h1>{{ t.nav_objects }}</h1>
+<p>{{ t.portfolio_text }}</p>
 <link rel=\"stylesheet\" href=\"/static/vendor/leaflet/leaflet.css\">
 <div class=\"mapwrap\">
-<div id=\"map\" role=\"application\" aria-label=\"Карта выполненных объектов\"></div>
+<div id=\"map\" role=\"application\" aria-label=\"{{ t.map_aria }}\"></div>
 <div class=\"side\">
 <div class=\"filters\">
-<input id=\"obj-q\" type=\"search\" placeholder=\"Поиск: название, город, тип работ\" aria-label=\"Поиск по объектам\">
-<select id=\"obj-type\" aria-label=\"Тип работ\"><option value=\"\">Все типы работ</option></select>
+<input id=\"obj-q\" type=\"search\" placeholder=\"{{ t.search_ph }}\" aria-label=\"{{ t.search_aria }}\">
+<select id=\"obj-type\" aria-label=\"{{ t.type_aria }}\"><option value=\"\">{{ t.all_types }}</option></select>
 </div>
 <div id=\"obj-count\" class=\"muted\" aria-live=\"polite\"></div>
 <ul id=\"obj-list\"></ul>
 <div id=\"obj-card\" class=\"card\" hidden></div>
 </div>
 </div>
-<noscript><p>Для просмотра карты включите JavaScript.</p></noscript>
+<noscript><p>{{ t.no_js }}</p></noscript>
 <script src=\"/static/vendor/leaflet/leaflet.js\"></script>
 <script src=\"/static/portfolio.js\"></script>"
 }
 
-pattern AboutBody(_x: String) -> String {
-  return "<h1>О компании</h1>
-<p>ООО «ТЭГА ПЛЮС» занимается ремонтно-строительными работами в Минске и по Беларуси более 20 лет и выполнила более 1000 объектов.</p>
-<p>Директор — Лоханский Сергей Александрович.</p>"
+pattern AboutTpl(_x: String) -> String {
+  return "<h1>{{ t.nav_about }}</h1>
+<p>{{ t.about_text }}</p>
+<p>{{ t.about_dir }}</p>"
 }
 
-pattern ContactsBody(_x: String) -> String {
-  return "<h1>Контакты</h1>
+pattern ContactsTpl(_x: String) -> String {
+  return "<h1>{{ t.nav_contacts }}</h1>
 <dl class=\"req\">
-<dt>Адрес</dt><dd>220059, Беларусь, г. Минск, ул. Шамякина, 9, пом. 1Н</dd>
-<dt>Телефон</dt><dd>+375 17 347-11-09</dd>
-<dt>Факс</dt><dd>+375 17 347-11-06</dd>
+<dt>{{ t.lbl_addr }}</dt><dd>{{ t.address }}</dd>
+<dt>{{ t.lbl_phone }}</dt><dd>+375 17 347-11-09</dd>
+<dt>{{ t.lbl_fax }}</dt><dd>+375 17 347-11-06</dd>
 <dt>E-mail</dt><dd>tegabymi@gmail.com</dd>
 </dl>
-<h2>Реквизиты</h2>
+<h2>{{ t.req_title }}</h2>
 <dl class=\"req\">
-<dt>Организация</dt><dd>ООО «ТЭГА ПЛЮС»</dd>
-<dt>УНП</dt><dd>190729589</dd>
-<dt>ОКПО</dt><dd>376949605000</dd>
-<dt>Расчётный счёт</dt><dd>BY65 UNBS 3012 0037 0500 4000 0933</dd>
-<dt>Банк</dt><dd>ЗАО «БСБ Банк», BIC UNBSBY2X, 220004, г. Минск, пр. Победителей, 23, корп. 3</dd>
-<dt>Директор</dt><dd>Лоханский Сергей Александрович (на основании Устава)</dd>
+<dt>{{ t.lbl_org }}</dt><dd>{{ t.org }}</dd>
+<dt>{{ t.lbl_unp }}</dt><dd>190729589</dd>
+<dt>{{ t.lbl_okpo }}</dt><dd>376949605000</dd>
+<dt>{{ t.lbl_acc }}</dt><dd>BY65 UNBS 3012 0037 0500 4000 0933</dd>
+<dt>{{ t.lbl_bank }}</dt><dd>{{ t.bank }}</dd>
+<dt>{{ t.lbl_dir }}</dt><dd>{{ t.director }}</dd>
 </dl>"
+}
+
+pattern Shell(lang: String, slug: String, title: String, inner: Bool, body: String) -> Html {
+  return template_render(HeadTpl("") + body + FootTpl(""), {
+    t: Dict(lang), lang: lang, title: title, inner: inner, p: Prefix(lang), logo: LogoFor(lang),
+    home: Href(lang, "/"), self: Href(lang, slug),
+    h_ru: Href("ru", slug), h_be: Href("be", slug), h_en: Href("en", slug),
+    is_ru: lang == "ru", is_be: lang == "be", is_en: lang == "en"
+  })
+}
+
+pattern HomePage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/", d.title_home, false, HomeTpl(""))
+}
+
+pattern ServicesPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/uslugi", d.nav_services, true, ServicesTpl(""))
+}
+
+pattern PortfolioPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/portfolio", d.nav_objects, true, PortfolioTpl(""))
+}
+
+pattern AboutPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/o-kompanii", d.nav_about, true, AboutTpl(""))
+}
+
+pattern ContactsPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/kontakty", d.nav_contacts, true, ContactsTpl(""))
 }
 
 server {
   port: 8080
   middleware: [security_headers, rate_limit]
-  route "/" method=GET { return Page("Главная", HomeBody("")) }
-  route "/uslugi" method=GET { return Page("Услуги", ServicesBody("")) }
-  route "/portfolio" method=GET { return Page("Объекты", PortfolioBody("")) }
-  route "/o-kompanii" method=GET { return Page("О компании", AboutBody("")) }
-  route "/kontakty" method=GET { return Page("Контакты", ContactsBody("")) }
+
+  route "/" method=GET { return HomePage("ru") }
+  route "/uslugi" method=GET { return ServicesPage("ru") }
+  route "/portfolio" method=GET { return PortfolioPage("ru") }
+  route "/o-kompanii" method=GET { return AboutPage("ru") }
+  route "/kontakty" method=GET { return ContactsPage("ru") }
+  route "/be/" method=GET { return HomePage("be") }
+  route "/be" method=GET { return HomePage("be") }
+  route "/be/uslugi" method=GET { return ServicesPage("be") }
+  route "/be/portfolio" method=GET { return PortfolioPage("be") }
+  route "/be/o-kompanii" method=GET { return AboutPage("be") }
+  route "/be/kontakty" method=GET { return ContactsPage("be") }
+  route "/en/" method=GET { return HomePage("en") }
+  route "/en" method=GET { return HomePage("en") }
+  route "/en/uslugi" method=GET { return ServicesPage("en") }
+  route "/en/portfolio" method=GET { return PortfolioPage("en") }
+  route "/en/o-kompanii" method=GET { return AboutPage("en") }
+  route "/en/kontakty" method=GET { return ContactsPage("en") }
   route "/health" method=GET { respond("ok") }
   route "/robots.txt" method=GET { respond("User-agent: *\nAllow: /\nSitemap: https://tega.plus/sitemap.xml\n") }
 }

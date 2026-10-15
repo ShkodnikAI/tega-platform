@@ -9,6 +9,9 @@
 }
 :{$PORT} {
 	encode zstd gzip
+	# www -> apex (canonical host)
+	@www host www.tega.plus
+	redir @www https://tega.plus{uri} permanent
 	handle_path /static/* {
 		root * /srv/static
 		file_server
