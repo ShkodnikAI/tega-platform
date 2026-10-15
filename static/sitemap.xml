@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://tega.plus/</loc></url>
-<url><loc>https://tega.plus/uslugi</loc></url>
-<url><loc>https://tega.plus/portfolio</loc></url>
-<url><loc>https://tega.plus/o-kompanii</loc></url>
-<url><loc>https://tega.plus/kontakty</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<url><loc>https://tega.plus/</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/"/></url>
+<url><loc>https://tega.plus/be/</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/"/></url>
+<url><loc>https://tega.plus/en/</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/"/></url>
+<url><loc>https://tega.plus/uslugi</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/uslugi"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/uslugi"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/uslugi"/></url>
+<url><loc>https://tega.plus/be/uslugi</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/uslugi"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/uslugi"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/uslugi"/></url>
+<url><loc>https://tega.plus/en/uslugi</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/uslugi"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/uslugi"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/uslugi"/></url>
+<url><loc>https://tega.plus/portfolio</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/portfolio"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/portfolio"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/portfolio"/></url>
+<url><loc>https://tega.plus/be/portfolio</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/portfolio"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/portfolio"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/portfolio"/></url>
+<url><loc>https://tega.plus/en/portfolio</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/portfolio"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/portfolio"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/portfolio"/></url>
+<url><loc>https://tega.plus/o-kompanii</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/o-kompanii"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/o-kompanii"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/o-kompanii"/></url>
+<url><loc>https://tega.plus/be/o-kompanii</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/o-kompanii"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/o-kompanii"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/o-kompanii"/></url>
+<url><loc>https://tega.plus/en/o-kompanii</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/o-kompanii"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/o-kompanii"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/o-kompanii"/></url>
+<url><loc>https://tega.plus/kontakty</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/kontakty"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/kontakty"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/kontakty"/></url>
+<url><loc>https://tega.plus/be/kontakty</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/kontakty"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/kontakty"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/kontakty"/></url>
+<url><loc>https://tega.plus/en/kontakty</loc><xhtml:link rel="alternate" hreflang="ru" href="https://tega.plus/kontakty"/><xhtml:link rel="alternate" hreflang="be" href="https://tega.plus/be/kontakty"/><xhtml:link rel="alternate" hreflang="en" href="https://tega.plus/en/kontakty"/></url>
 </urlset>

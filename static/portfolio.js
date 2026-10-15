@@ -25,13 +25,30 @@
     if (text != null) n.textContent = text;
     return n;
   }
+  var LANG = (document.documentElement.lang || 'ru').slice(0, 2);
+  var S = {
+    ru: { sqm: 'м²', more: 'Подробнее', found: 'Найдено: ', of: ' из ', soon: 'Объекты скоро появятся на карте.', fail: 'Не удалось загрузить список объектов.' },
+    be: { sqm: 'м²', more: 'Падрабязней', found: 'Знойдзена: ', of: ' з ', soon: 'Аб\u2019екты хутка з\u2019явяцца на карце.', fail: 'Не ўдалося загрузіць спіс аб\u2019ектаў.' },
+    en: { sqm: 'm\u00b2', more: 'Details', found: 'Found: ', of: ' of ', soon: 'Projects will appear on the map soon.', fail: 'Could not load the list of projects.' }
+  };
+  var T = S[LANG] || S.ru;
+  // Per-language fields: title_be / title_en etc. fall back to the Russian base field.
+  function localize(o) {
+    var r = {};
+    Object.keys(o).forEach(function (k) { r[k] = o[k]; });
+    ['title', 'type', 'city', 'place', 'summary'].forEach(function (f) {
+      var v = o[f + '_' + LANG];
+      if (typeof v === 'string' && v) r[f] = v;
+    });
+    return r;
+  }
   function norm(s) { return String(s == null ? '' : s).toLowerCase().replace(/ё/g, 'е'); }
   function safeSrc(u) { return typeof u === 'string' && (u.indexOf('/static/') === 0 || u.indexOf('/media/') === 0 || u.indexOf('https://') === 0); }
   function meta(o) {
     var p = [];
     if (o.type) p.push(o.type);
     if (o.year) p.push(o.year);
-    if (o.area_m2) p.push(o.area_m2 + ' м²');
+    if (o.area_m2) p.push(o.area_m2 + ' ' + T.sqm);
     if (o.city) p.push(o.city);
     return p.join(' · ');
   }
@@ -56,7 +73,7 @@
     var box = el('div', 'pop');
     box.appendChild(el('b', null, o.title));
     box.appendChild(el('div', 'muted', meta(o)));
-    var a = el('a', 'btn-sm', 'Подробнее'); a.href = '#' + encodeURIComponent(o.id);
+    var a = el('a', 'btn-sm', T.more); a.href = '#' + encodeURIComponent(o.id);
     a.addEventListener('click', function (e) { e.preventDefault(); showCard(o, false); });
     box.appendChild(a);
     return box;
@@ -83,14 +100,14 @@
       b.addEventListener('click', function () { showCard(o, true); });
       li.appendChild(b); listEl.appendChild(li);
     });
-    countEl.textContent = items.length ? ('Найдено: ' + shown.length + ' из ' + items.length) : '';
+    countEl.textContent = items.length ? (T.found + shown.length + T.of + items.length) : '';
     if (pts.length) map.fitBounds(pts, { padding: [40, 40], maxZoom: 12 });
   }
 
   function init(data) {
-    items = (Array.isArray(data) ? data : []).filter(function (o) { return o && o.id && o.title; });
+    items = (Array.isArray(data) ? data : []).filter(function (o) { return o && o.id && o.title; }).map(localize);
     if (!items.length) {
-      countEl.textContent = 'Объекты скоро появятся на карте.';
+      countEl.textContent = T.soon;
       return;
     }
     var types = {};
@@ -113,5 +130,5 @@
   fetch('/static/data/objects.json', { cache: 'no-cache' })
     .then(function (r) { return r.json(); })
     .then(init)
-    .catch(function () { countEl.textContent = 'Не удалось загрузить список объектов.'; });
+    .catch(function () { countEl.textContent = T.fail; });
 })();
