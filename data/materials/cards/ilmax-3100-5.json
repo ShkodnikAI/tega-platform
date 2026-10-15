@@ -29,7 +29,9 @@
     "max_tile_format": "свыше 60x60 см (керамика); 60x60 см (керамогранит, водопоглощение менее 1 %)",
     "bulk_density_kg_per_m3": null,
     "shrinkage": null,
-    "shelf_life_months": null
+    "shelf_life_months": null,
+    "min_layer_mm": 3,
+    "min_layer_note": "правило проекта: менее 3 мм клеевой слой не бывает"
   },
   "derived": {
     "hardened_density_kg_per_m3": {
