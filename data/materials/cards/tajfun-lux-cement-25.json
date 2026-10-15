@@ -1,0 +1,52 @@
+{
+  "id": "tajfun-lux-cement-25",
+  "name": "Тайфун Люкс (цементная штукатурка, 25 кг)",
+  "brand": "Тайфун",
+  "category": "штукатурка",
+  "unit": {
+    "pack_kg": 25,
+    "pack_type": "мешок"
+  },
+  "manufacturer": "ПТ ООО «Тайфун», г. Гродно",
+  "declared": {
+    "layer_mm": {
+      "min": 5,
+      "max": 20,
+      "note": "при 20 мм армировать сеткой"
+    },
+    "consumption_min_kg_per_m2_per_mm": 1.8,
+    "consumption_max_kg_per_m2_per_mm": 2.0,
+    "water_l_per_pack": {
+      "pack_kg": 25,
+      "min": 5.0,
+      "max": 5.5
+    },
+    "adhesion_mpa_min": 0.8,
+    "bulk_density_kg_per_m3": null,
+    "shrinkage": null,
+    "shelf_life_months": null
+  },
+  "derived": {
+    "yield_l_per_pack_min": {
+      "value": 12.5,
+      "formula": "pack_kg / consumption_max_kg_per_m2_per_mm"
+    },
+    "yield_l_per_pack_max": {
+      "value": 13.9,
+      "formula": "pack_kg / consumption_min_kg_per_m2_per_mm"
+    }
+  },
+  "source": {
+    "title": "Тайфун Люкс 25 кг, карточка 21vek.by",
+    "url": "https://www.21vek.by/plaster/tajfun_06.html",
+    "doc_date": "не указана",
+    "accessed": "2026-10-15",
+    "note": "Карточка товара у розничного продавца, цифры воспроизводят данные изготовителя. Официальный технический лист не получен: перед публикацией сверить."
+  },
+  "reference": {
+    "text": "Цементная выравнивающая штукатурка, слой 5–20 мм (при 20 мм армировать сеткой). Расход 1,8–2,0 кг/м² на 1 мм.",
+    "physics_note": "Насыпная плотность, усадка и срок годности в карточке не указаны. Расход на 1 мм дан для ровного основания: реальный расход растёт с неровностью, потерями при замесе и остатками в мешке.",
+    "kind": "reference"
+  },
+  "status": "retailer_listing"
+}

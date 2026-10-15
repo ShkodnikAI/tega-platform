@@ -1,0 +1,64 @@
+{
+  "id": "ceresit-screed-25",
+  "name": "Ceresit Стяжка (цементная, для выравнивания горизонтальных оснований)",
+  "brand": "Ceresit (Henkel)",
+  "category": "стяжки и полы",
+  "unit": {
+    "pack_kg": 25,
+    "pack_type": "мешок"
+  },
+  "declared": {
+    "layer_mm": {
+      "min": 30,
+      "max": 100
+    },
+    "consumption_kg_per_m2_per_mm": 2.0,
+    "bulk_density_kg_per_m3": 1800,
+    "water_l_per_pack": {
+      "min": 3.0,
+      "max": 3.5
+    },
+    "fresh_mortar_density_kg_per_m3": null,
+    "strength": "сжатие не менее 20 МПа (28 сут.); марка M200, Пк2",
+    "shrinkage": null,
+    "pot_life_min": 30,
+    "walkable_after_h": 24,
+    "ready_for_finish_after_days": 7,
+    "temperature_c": {
+      "min": 5,
+      "max": 30
+    },
+    "base": "бетон старше 3 мес., цементная стяжка старше 28 сут., влажность основания не более 8 %",
+    "shelf_life_months": 12
+  },
+  "derived": {
+    "hardened_density_kg_per_m3": {
+      "value": 2000,
+      "formula": "consumption_kg_per_m2_per_mm * 1000"
+    },
+    "yield_l_per_pack": {
+      "value": 12.5,
+      "formula": "pack_kg / consumption_kg_per_m2_per_mm"
+    },
+    "area_m2_at_10mm_per_pack": {
+      "value": 1.25,
+      "formula": "pack_kg / (consumption_kg_per_m2_per_mm * 10)"
+    },
+    "compaction_ratio": {
+      "value": 1.111,
+      "formula": "hardened_density / bulk_density"
+    }
+  },
+  "source": {
+    "title": "Ceresit Стяжка, технический лист (ru, BY)",
+    "url": "https://datasheets.tdx.henkel.com/CERESIT-SCREED-ru_BY.pdf",
+    "doc_date": "2025-11-27 (дата электронной подписи, версия не указана)",
+    "accessed": "2026-10-15"
+  },
+  "reference": {
+    "text": "Цементно-песчаная смесь с полимерными добавками для выравнивающих стяжек толщиной 30–100 мм. Расход 2 кг на 1 м² на каждый миллиметр слоя означает, что на 1 м² при 50 мм уйдёт примерно 100 кг сухой смеси (4 мешка по 25 кг). Главные риски: трещины от усадки при быстрой сушке и неровное основание: реальная средняя толщина слоя всегда больше проектной. Основание должно быть прочным, чистым, влажность не более 8 %. Не сушить сквозняком и под прямым солнцем, первые дни защищать от пересыхания.",
+    "physics_note": "Производитель не приводит значение усадки. Цементные составы при твердении и высыхании дают усадку (общие справочные данные: порядка десятых долей процента, т. е. доли миллиметра на метр и более), поэтому для деформационных швов и армирования нужны отдельные правила расчёта.",
+    "kind": "reference"
+  },
+  "status": "declared_by_manufacturer"
+}

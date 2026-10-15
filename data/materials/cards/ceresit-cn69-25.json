@@ -1,0 +1,61 @@
+{
+  "id": "ceresit-cn69-25",
+  "name": "Ceresit CN 69 (самовыравнивающаяся смесь, слой 2–15 мм)",
+  "brand": "Ceresit (Henkel)",
+  "category": "стяжки и полы",
+  "unit": {
+    "pack_kg": 25,
+    "pack_type": "мешок"
+  },
+  "declared": {
+    "layer_mm": {
+      "min": 2,
+      "max": 15
+    },
+    "consumption_kg_per_m2_per_mm": 1.8,
+    "bulk_density_kg_per_m3": 1100,
+    "water_l_per_pack": {
+      "min": 4.25,
+      "max": 4.5
+    },
+    "fresh_mortar_density_kg_per_m3": null,
+    "strength": "сжатие не менее 20 МПа, изгиб не менее 4 МПа (28 сут.)",
+    "shrinkage": null,
+    "pot_life_min": 30,
+    "walkable_after_h": 8,
+    "ready_for_finish_after_days": 3,
+    "temperature_c": {
+      "min": 5,
+      "max": 30
+    },
+    "base": "бетон не ниже C12/15 старше 3 мес. или стяжка не ниже M150 старше 28 сут., влажность не более 8 %",
+    "shelf_life_months": 12,
+    "note": "Покрытие по слою 2–10 мм через 72 ч, по слою 10–15 мм через 7 сут. Пример производителя: при слое 6 мм 25 кг покрывают около 2,3 м²."
+  },
+  "derived": {
+    "hardened_density_kg_per_m3": {
+      "value": 1800,
+      "formula": "consumption_kg_per_m2_per_mm * 1000"
+    },
+    "yield_l_per_pack": {
+      "value": 13.9,
+      "formula": "pack_kg / consumption_kg_per_m2_per_mm"
+    },
+    "area_m2_at_6mm_per_pack": {
+      "value": 2.31,
+      "formula": "pack_kg / (consumption_kg_per_m2_per_mm * 6)"
+    }
+  },
+  "source": {
+    "title": "Ceresit CN 69, технический лист (ru, BY)",
+    "url": "https://datasheets.tdx.henkel.com/CERESIT-CN-69-ru_BY.pdf",
+    "doc_date": "2025-11-27 (дата электронной подписи, версия не указана)",
+    "accessed": "2026-10-15"
+  },
+  "reference": {
+    "text": "Тонкослойный наливной пол для окончательного выравнивания под напольные покрытия, слой 2–15 мм. Расчёт по паспорту: 1,8 кг на 1 м² на каждый миллиметр, то есть при 6 мм мешок 25 кг даёт около 2,3 м². Чем неровнее основание, тем больше реальная средняя толщина и расход. Важны влажность основания (не более 8 %) и грунтование, чтобы не было пузырей и быстрого обезвоживания слоя. Пол нельзя сушить сквозняком.",
+    "physics_note": "Насыпная плотность сухой смеси (около 1100 кг/м³) заметно ниже плотности затвердевшего слоя (около 1800 кг/м³): сыпучий порошок занимает больше объёма, чем готовый слой. Поэтому пересчёт «литры в килограммы» по насыпной плотности даёт ошибку, считать надо по расходу на 1 мм.",
+    "kind": "reference"
+  },
+  "status": "declared_by_manufacturer"
+}

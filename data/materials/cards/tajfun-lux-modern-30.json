@@ -1,0 +1,51 @@
+{
+  "id": "tajfun-lux-modern-30",
+  "name": "Тайфун Люкс Modern (гипсовая штукатурка, 30 кг)",
+  "brand": "Тайфун",
+  "category": "штукатурка",
+  "unit": {
+    "pack_kg": 30,
+    "pack_type": "мешок"
+  },
+  "manufacturer": "ПТ ООО «Тайфун», г. Гродно",
+  "declared": {
+    "layer_mm": {
+      "min": 5,
+      "max": 30
+    },
+    "consumption_min_kg_per_m2_per_mm": 1.0,
+    "consumption_max_kg_per_m2_per_mm": 1.2,
+    "water_l_per_pack": {
+      "pack_kg": 30,
+      "min": 18.5,
+      "max": 19.5
+    },
+    "adhesion_mpa_min": 0.4,
+    "bulk_density_kg_per_m3": null,
+    "shrinkage": null,
+    "shelf_life_months": null
+  },
+  "derived": {
+    "yield_l_per_pack_min": {
+      "value": 25.0,
+      "formula": "pack_kg / consumption_max_kg_per_m2_per_mm"
+    },
+    "yield_l_per_pack_max": {
+      "value": 30.0,
+      "formula": "pack_kg / consumption_min_kg_per_m2_per_mm"
+    }
+  },
+  "source": {
+    "title": "Тайфун Люкс Modern 30 кг, карточка 21vek.by",
+    "url": "https://www.21vek.by/plaster/modern_tajfun.html",
+    "doc_date": "не указана",
+    "accessed": "2026-10-15",
+    "note": "Карточка товара у розничного продавца, цифры воспроизводят данные изготовителя. Официальный технический лист не получен: перед публикацией сверить."
+  },
+  "reference": {
+    "text": "Выравнивающая штукатурка для внутренних работ, слой 5–30 мм. Расход 1,0–1,2 кг/м² на 1 мм.",
+    "physics_note": "Насыпная плотность, усадка и срок годности в карточке не указаны. Расход на 1 мм дан для ровного основания: реальный расход растёт с неровностью, потерями при замесе и остатками в мешке. Расход задан диапазоном.",
+    "kind": "reference"
+  },
+  "status": "retailer_listing"
+}

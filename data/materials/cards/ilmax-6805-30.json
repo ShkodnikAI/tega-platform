@@ -1,0 +1,53 @@
+{
+  "id": "ilmax-6805-30",
+  "name": "ilmax Гипсовая штукатурка 6805 (30 кг)",
+  "brand": "ilmax",
+  "category": "штукатурка",
+  "unit": {
+    "pack_kg": 30,
+    "pack_type": "мешок"
+  },
+  "manufacturer": "ООО «ИЛМАКС», г. Минск",
+  "declared": {
+    "layer_mm": {
+      "walls_min": 5,
+      "walls_max": 30,
+      "ceilings_min": 5,
+      "ceilings_max": 15
+    },
+    "consumption_kg_per_m2_per_mm": 1.0,
+    "water_l_per_pack": {
+      "pack_kg": 30,
+      "min": 12,
+      "max": 13.5
+    },
+    "adhesion_mpa_min": 0.5,
+    "fresh_mortar_density_kg_per_m3": null,
+    "bulk_density_kg_per_m3": null,
+    "shrinkage": null,
+    "shelf_life_months": null
+  },
+  "derived": {
+    "hardened_density_kg_per_m3": {
+      "value": 1000,
+      "formula": "consumption_kg_per_m2_per_mm * 1000"
+    },
+    "yield_l_per_pack": {
+      "value": 30.0,
+      "formula": "pack_kg / consumption_kg_per_m2_per_mm"
+    }
+  },
+  "source": {
+    "title": "ilmax 6805, карточка 21vek.by",
+    "url": "https://www.21vek.by/plaster/6805_ilmax.html",
+    "doc_date": "не указана",
+    "accessed": "2026-10-15",
+    "note": "Карточка товара у розничного продавца, цифры воспроизводят данные изготовителя. Официальный технический лист не получен: перед публикацией сверить."
+  },
+  "reference": {
+    "text": "Гипсовая выравнивающая штукатурка для стен и потолков внутри помещений, слой 5–30 мм (потолки 5–15 мм). Расход по карточке 1,0 кг/м² на 1 мм, мешок 30 кг даёт около 3 м² при слое 10 мм.",
+    "physics_note": "Насыпная плотность, усадка и срок годности в карточке не указаны. Расход на 1 мм дан для ровного основания: реальный расход растёт с неровностью, потерями при замесе и остатками в мешке. Плотность готового слоя около 1000 кг/м³ получена пересчётом из расхода.",
+    "kind": "reference"
+  },
+  "status": "retailer_listing"
+}

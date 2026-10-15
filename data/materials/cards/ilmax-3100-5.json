@@ -1,0 +1,57 @@
+{
+  "id": "ilmax-3100-5",
+  "name": "ilmax Клей для плитки 3100 (5 кг)",
+  "brand": "ilmax",
+  "category": "плитка",
+  "unit": {
+    "pack_kg": 5,
+    "pack_type": "мешок"
+  },
+  "manufacturer": "ООО «ИЛМАКС», г. Минск",
+  "declared": {
+    "layer_mm": {
+      "min": 2,
+      "max": 10
+    },
+    "consumption_kg_per_m2_per_mm": 1.3,
+    "water_l_per_kg": {
+      "min": 0.2,
+      "max": 0.22
+    },
+    "adhesion_mpa_min": 1.1,
+    "compressive_strength_mpa_min": 15,
+    "pot_life_min": 120,
+    "temperature_c": {
+      "min": 5,
+      "max": 25
+    },
+    "frost_cycles_min": 75,
+    "max_tile_format": "свыше 60x60 см (керамика); 60x60 см (керамогранит, водопоглощение менее 1 %)",
+    "bulk_density_kg_per_m3": null,
+    "shrinkage": null,
+    "shelf_life_months": null
+  },
+  "derived": {
+    "hardened_density_kg_per_m3": {
+      "value": 1300,
+      "formula": "consumption_kg_per_m2_per_mm * 1000"
+    },
+    "yield_l_per_pack": {
+      "value": 3.8,
+      "formula": "pack_kg / consumption_kg_per_m2_per_mm"
+    }
+  },
+  "source": {
+    "title": "ilmax 3100, карточка 21vek.by",
+    "url": "https://www.21vek.by/tile_and_drywall_adhesive/3100_ilmax.html",
+    "doc_date": "не указана",
+    "accessed": "2026-10-15",
+    "note": "Карточка товара у розничного продавца, цифры воспроизводят данные изготовителя. Официальный технический лист не получен: перед публикацией сверить."
+  },
+  "reference": {
+    "text": "Клей для плитки, слой 2–10 мм. Расход 1,3 кг/м² на 1 мм толщины клеевого слоя; в отличие от Ceresit CM 11, расход здесь привязан к толщине слоя, а не к размеру зуба шпателя, поэтому перед применением в калькуляторе его надо сопоставить с зубом.",
+    "physics_note": "Насыпная плотность, усадка и срок годности в карточке не указаны. Расход на 1 мм дан для ровного основания: реальный расход растёт с неровностью, потерями при замесе и остатками в мешке.",
+    "kind": "reference"
+  },
+  "status": "retailer_listing"
+}
