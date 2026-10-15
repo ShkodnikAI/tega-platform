@@ -215,7 +215,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content = \"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=3\">
 </head>
 <body>
 <header class=\"top\"><div class=\"wrap\">
@@ -334,7 +334,7 @@ pattern PortfolioTpl(_x: String) -> String {
 </div>
 <noscript><p>{{ t.no_js }}</p></noscript>
 <script src=\"/static/vendor/leaflet/leaflet.js\"></script>
-<script src=\"/static/portfolio.js\"></script>"
+<script src=\"/static/portfolio.js?v=3\"></script>"
 }
 
 pattern AboutTpl(_x: String) -> String {
