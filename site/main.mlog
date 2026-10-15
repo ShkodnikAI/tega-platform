@@ -40,7 +40,8 @@ pattern DictRu(_x: String) -> Map {
   legal: "ООО «ТЭГА ПЛЮС» · УНП 190729589",
   title_home: "Главная",
   services_text: "Раздел наполняется: виды работ, этапы, сроки и примеры по каждому направлению.",
-  portfolio_text: "Выполненные объекты на карте. Нажмите на метку или выберите объект в списке.",
+  close: "Закрыть",
+  portfolio_text: "Выполненные объекты. Откройте карточку, чтобы увидеть фото и описание, или найдите объект на карте.",
   map_aria: "Карта выполненных объектов",
   search_ph: "Поиск: название, город, тип работ",
   search_aria: "Поиск по объектам",
@@ -94,7 +95,8 @@ pattern DictBe(_x: String) -> Map {
   legal: "ТАА «ТЭГА ПЛЮС» · УНП 190729589",
   title_home: "Галоўная",
   services_text: "Раздзел напаўняецца: віды работ, этапы, тэрміны і прыклады па кожным кірунку.",
-  portfolio_text: "Выкананыя аб’екты на карце. Націсніце на пазнаку або абярыце аб’ект у спісе.",
+  close: "Закрыць",
+  portfolio_text: "Выкананыя аб’екты. Адкрыйце картку, каб убачыць фота і апісанне, або знайдзіце аб’ект на карце.",
   map_aria: "Карта выкананых аб’ектаў",
   search_ph: "Пошук: назва, горад, тып работ",
   search_aria: "Пошук па аб’ектах",
@@ -148,7 +150,8 @@ pattern DictEn(_x: String) -> Map {
   legal: "TEGA PLUS LLC · UNP 190729589",
   title_home: "Home",
   services_text: "This section is being filled in: types of work, stages, timelines and examples for each area.",
-  portfolio_text: "Completed projects on the map. Click a marker or choose a project from the list.",
+  close: "Close",
+  portfolio_text: "Completed projects. Open a card to see photos and details, or find a project on the map.",
   map_aria: "Map of completed projects",
   search_ph: "Search: name, city, type of work",
   search_aria: "Search projects",
@@ -215,7 +218,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=3\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=4\">
 </head>
 <body>
 <header class=\"top\"><div class=\"wrap\">
@@ -320,21 +323,23 @@ pattern PortfolioTpl(_x: String) -> String {
   return "<h1>{{ t.nav_objects }}</h1>
 <p>{{ t.portfolio_text }}</p>
 <link rel=\"stylesheet\" href=\"/static/vendor/leaflet/leaflet.css\">
-<div class=\"mapwrap\">
-<div id=\"map\" role=\"application\" aria-label=\"{{ t.map_aria }}\"></div>
-<div class=\"side\">
 <div class=\"filters\">
 <input id=\"obj-q\" type=\"search\" placeholder=\"{{ t.search_ph }}\" aria-label=\"{{ t.search_aria }}\">
 <select id=\"obj-type\" aria-label=\"{{ t.type_aria }}\"><option value=\"\">{{ t.all_types }}</option></select>
 </div>
 <div id=\"obj-count\" class=\"muted\" aria-live=\"polite\"></div>
+<div id=\"obj-grid\" class=\"pgrid\"></div>
+<dialog id=\"obj-dialog\" class=\"pdialog\"><button type=\"button\" class=\"pclose\" aria-label=\"{{ t.close }}\">&times;</button><div id=\"obj-dialog-body\"></div></dialog>
+<div class=\"mapwrap\">
+<div id=\"map\" role=\"application\" aria-label=\"{{ t.map_aria }}\"></div>
+<div class=\"side\">
 <ul id=\"obj-list\"></ul>
 <div id=\"obj-card\" class=\"card\" hidden></div>
 </div>
 </div>
 <noscript><p>{{ t.no_js }}</p></noscript>
 <script src=\"/static/vendor/leaflet/leaflet.js\"></script>
-<script src=\"/static/portfolio.js?v=3\"></script>"
+<script src=\"/static/portfolio.js?v=4\"></script>"
 }
 
 pattern AboutTpl(_x: String) -> String {
