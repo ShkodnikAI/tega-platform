@@ -3,8 +3,8 @@
 FROM caddy:2 AS caddy
 
 FROM ubuntu:24.04
-ARG MLOG_VERSION=v0.30.1
-ARG MLOG_SHA256=22f64215348738776066bf3d1dd0b3795fa4f27607d7f99abddcf58c6e015bc3
+ARG MLOG_VERSION=v0.32.0
+ARG MLOG_SHA256=dd8164b747aa99cb953d3f7a29e084ba38d432df376aa2f05cfd2187e2bc59a2
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl libssl3 \

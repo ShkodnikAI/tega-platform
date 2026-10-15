@@ -201,18 +201,18 @@ pattern HeadTpl(_x: String) -> String {
 <html lang=\"{{ lang }}\">
 <head>
 <meta charset=\"utf-8\">
-<meta name=\"viewport\" content = \"width=device-width, initial-scale=1\">
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
 <title>{{ title }} — {{ t.brand }}</title>
-<meta name=\"description\" content = \"{{ t.desc }}\">
+<meta name=\"description\" content=\"{{ t.desc }}\">
 <link rel=\"canonical\" href=\"https://tega.plus{{ self }}\">
 <link rel=\"alternate\" hreflang=\"ru\" href=\"https://tega.plus{{ h_ru }}\">
 <link rel=\"alternate\" hreflang=\"be\" href=\"https://tega.plus{{ h_be }}\">
 <link rel=\"alternate\" hreflang=\"en\" href=\"https://tega.plus{{ h_en }}\">
 <link rel=\"alternate\" hreflang=\"x-default\" href=\"https://tega.plus{{ h_ru }}\">
-<meta property=\"og:type\" content = \"website\">
-<meta property=\"og:title\" content = \"{{ title }} — {{ t.brand }}\">
-<meta property=\"og:description\" content = \"{{ t.desc }}\">
-<meta property=\"og:url\" content = \"https://tega.plus{{ self }}\">
+<meta property=\"og:type\" content=\"website\">
+<meta property=\"og:title\" content=\"{{ title }} — {{ t.brand }}\">
+<meta property=\"og:description\" content=\"{{ t.desc }}\">
+<meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
 <link rel=\"stylesheet\" href=\"/static/site.css?v=3\">
