@@ -44,6 +44,9 @@ def download(repo, ref, token):
 def main():
     key = os.environ.get("NORMS_AGE_KEY", "").strip()
     token = os.environ.get("CONTENT_READ_TOKEN", "").strip()
+    if os.environ.get("NORMS_ENABLED") != "1" and not os.environ.get("NORMS_BUNDLE_FILE"):
+        log("disabled (set NORMS_ENABLED=1; the full build needs more RAM than a 512 MB instance has)")
+        return 0
     local = os.environ.get("NORMS_BUNDLE_FILE")  # test hook: encrypted bundle on disk instead of GitHub
     if not key or not (token or local):
         log("NORMS_AGE_KEY / CONTENT_READ_TOKEN not set: skipped")
