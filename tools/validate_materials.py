@@ -14,7 +14,10 @@ def names(card):
     return n
 def main():
     bad = 0
-    for p in sorted(glob.glob("data/materials/cards/*.json")):
+    files = sorted(glob.glob("data/materials/cards/*.json"))
+    if not files:
+        print("FAIL no material cards found"); sys.exit(1)
+    for p in files:
         c = json.load(open(p, encoding="utf-8")); err = []
         err += [f"missing {k}" for k in REQ if k not in c]
         err += [f"source.{k} missing" for k in SRC if not c.get("source", {}).get(k)]

@@ -3,7 +3,8 @@
 .env.*
 *.db
 *.sqlite*
-data/
+/data/*
+!/data/materials/
 exports/
 secrets/
 *.pem

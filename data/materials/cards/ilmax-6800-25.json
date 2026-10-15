@@ -1,0 +1,52 @@
+{
+  "id": "ilmax-6800-25",
+  "name": "ilmax Выравнивающая цементная штукатурка 6800 (25 кг)",
+  "brand": "ilmax",
+  "category": "штукатурка",
+  "unit": {
+    "pack_kg": 25,
+    "pack_type": "мешок"
+  },
+  "manufacturer": "ООО «ИЛМАКС», г. Минск",
+  "declared": {
+    "layer_mm": {
+      "min": 5,
+      "max": 20
+    },
+    "consumption_kg_per_m2_per_mm": 1.7,
+    "water_l_per_pack": {
+      "pack_kg": 25,
+      "min": 4.0,
+      "max": 4.75
+    },
+    "adhesion_mpa_min": 0.6,
+    "frost_cycles_min": 75,
+    "base_strength_mpa_min": 5,
+    "bulk_density_kg_per_m3": null,
+    "shrinkage": null,
+    "shelf_life_months": null
+  },
+  "derived": {
+    "hardened_density_kg_per_m3": {
+      "value": 1700,
+      "formula": "consumption_kg_per_m2_per_mm * 1000"
+    },
+    "yield_l_per_pack": {
+      "value": 14.7,
+      "formula": "pack_kg / consumption_kg_per_m2_per_mm"
+    }
+  },
+  "source": {
+    "title": "ilmax 6800, карточка 21vek.by",
+    "url": "https://www.21vek.by/plaster/6800_ilmax.html",
+    "doc_date": "не указана",
+    "accessed": "2026-10-15",
+    "note": "Карточка товара у розничного продавца, цифры воспроизводят данные изготовителя. Официальный технический лист не получен: перед публикацией сверить."
+  },
+  "reference": {
+    "text": "Цементная выравнивающая штукатурка, слой 5–20 мм, основания прочностью не менее 5 МПа. Расход 1,7 кг/м² на 1 мм.",
+    "physics_note": "Насыпная плотность, усадка и срок годности в карточке не указаны. Расход на 1 мм дан для ровного основания: реальный расход растёт с неровностью, потерями при замесе и остатками в мешке.",
+    "kind": "reference"
+  },
+  "status": "retailer_listing"
+}
