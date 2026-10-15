@@ -94,7 +94,10 @@ def main():
             (len(d["works"]), len(d["materials"]), len(d["machines"]), time.time() - t0))
         return 0
     except Exception as e:
-        log("failed: %s" % type(e).__name__)
+        import traceback
+        tb = traceback.extract_tb(e.__traceback__)[-1]
+        log("failed: %s errno=%s at %s:%d %s" % (type(e).__name__, getattr(e, "errno", None),
+                                                  os.path.basename(tb.filename), tb.lineno, tb.name))
         return 1
     finally:
         shutil.rmtree(work, ignore_errors=True)
