@@ -8,6 +8,9 @@
   var typeEl = document.getElementById('obj-type');
   var countEl = document.getElementById('obj-count');
   var cardEl = document.getElementById('obj-card');
+  var gridEl = document.getElementById('obj-grid');
+  var dlg = document.getElementById('obj-dialog');
+  var dlgBody = document.getElementById('obj-dialog-body');
 
   var map = L.map(mapEl, { scrollWheelZoom: false }).setView([53.7, 27.9], 7);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -53,16 +56,49 @@
     return p.join(' · ');
   }
 
-  function showCard(o, fly) {
-    cardEl.textContent = '';
-    cardEl.appendChild(el('h3', null, o.title));
-    cardEl.appendChild(el('p', 'muted', meta(o)));
-    if (o.place) cardEl.appendChild(el('p', null, o.place));
-    if (o.summary) cardEl.appendChild(el('p', null, o.summary));
+  function fill(box, o) {
+    box.textContent = '';
+    box.appendChild(el('h3', null, o.title));
+    box.appendChild(el('p', 'muted', meta(o)));
+    if (o.place) box.appendChild(el('p', null, o.place));
+    if (o.summary) box.appendChild(el('p', null, o.summary));
     (o.photos || []).filter(safeSrc).forEach(function (u) {
       var img = el('img'); img.src = u; img.alt = o.title; img.loading = 'lazy';
-      cardEl.appendChild(img);
+      box.appendChild(img);
     });
+  }
+
+  function openDialog(o) {
+    if (!dlg || !dlg.showModal) { showCard(o, true); return; }
+    fill(dlgBody, o);
+    if (!dlg.open) dlg.showModal();
+    if (history.replaceState) history.replaceState(null, '', '#' + encodeURIComponent(o.id));
+  }
+
+  function gridCard(o) {
+    var b = el('button', 'pcard'); b.type = 'button';
+    var cover = (o.photos || []).filter(safeSrc)[0];
+    var ph = el('div', 'pimg');
+    if (cover) {
+      var th = cover.replace(/\/([^\/]+)\.webp$/, '/$1.thumb.webp');
+      var img = el('img'); img.src = th; img.alt = o.title; img.loading = 'lazy';
+      img.onerror = function () { img.onerror = null; img.src = cover; };
+      ph.appendChild(img);
+    } else {
+      ph.className = 'pimg empty';
+      ph.appendChild(el('span', null, o.type || ''));
+    }
+    b.appendChild(ph);
+    var body = el('div', 'pbody');
+    body.appendChild(el('b', null, o.title));
+    body.appendChild(el('span', 'muted', meta(o)));
+    b.appendChild(body);
+    b.addEventListener('click', function () { openDialog(o); });
+    return b;
+  }
+
+  function showCard(o, fly) {
+    fill(cardEl, o);
     cardEl.hidden = false;
     if (history.replaceState) history.replaceState(null, '', '#' + encodeURIComponent(o.id));
     if (fly && isFinite(o.lat) && isFinite(o.lng)) map.flyTo([o.lat, o.lng], Math.max(map.getZoom(), 12));
@@ -86,7 +122,7 @@
       if (!q) return true;
       return norm([o.title, o.type, o.city, o.place, o.summary].join(' ')).indexOf(q) !== -1;
     });
-    layer.clearLayers(); markers = {}; listEl.textContent = '';
+    layer.clearLayers(); markers = {}; listEl.textContent = ''; gridEl.textContent = '';
     var pts = [];
     shown.forEach(function (o) {
       if (isFinite(o.lat) && isFinite(o.lng)) {
@@ -94,6 +130,7 @@
         m.on('click', function () { showCard(o, false); });
         m.addTo(layer); markers[o.id] = m; pts.push([o.lat, o.lng]);
       }
+      gridEl.appendChild(gridCard(o));
       var li = el('li'); var b = el('button', 'row');
       b.type = 'button';
       b.appendChild(el('b', null, o.title)); b.appendChild(el('span', 'muted', meta(o)));
@@ -124,7 +161,13 @@
 
   function openFromHash() {
     var id = decodeURIComponent((location.hash || '').slice(1));
-    items.forEach(function (o) { if (o.id === id) showCard(o, true); });
+    items.forEach(function (o) { if (o.id === id) openDialog(o); });
+  }
+
+  if (dlg) {
+    dlg.querySelector('.pclose').addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('close', function () { if (history.replaceState) history.replaceState(null, '', location.pathname); });
   }
 
   fetch('/static/data/objects.json', { cache: 'no-cache' })
