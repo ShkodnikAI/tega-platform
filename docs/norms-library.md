@@ -36,7 +36,7 @@ winget install FiloSottile.age ; winget install GitHub.cli ; gh auth login   # �
 `deploy/entrypoint.sh` в фоне запускает `tools/norms/fetch.py` (сайт не ждёт). Нужны переменные Render:
 `NORMS_AGE_KEY` (приватный ключ age), `CONTENT_READ_TOKEN` (fine-grained токен, только Contents: read для `tega-content`).
 Источник: последний релиз с `norms.zip.age`, иначе файл `norms/norms.zip.age` в ветке `main` (`CONTENT_REF`).
-Результат — `/dev/shm/norms/norms.json`; сырые таблицы удаляются сразу после сборки. Без переменных шаг пропускается.
+Результат — `/dev/shm/norms/norms.json.gz` (gzip: tmpfs хоста мал, а json ~95 МБ); сырые таблицы удаляются сразу после сборки. Без переменных шаг пропускается.
 В логе только счётчики (`[norms] ready: N works…`), содержимое и ключ не пишутся.
 
 ## Ещё не сделано

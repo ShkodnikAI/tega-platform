@@ -113,7 +113,7 @@ class NormsTest(unittest.TestCase):
         r = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools/norms/fetch.py")],
                            env=env, capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertEqual(len(json.load(open(os.path.join(out, "norms.json"), encoding="utf-8"))["works"]), 2)
+        self.assertEqual(len(json.loads(__import__("gzip").open(os.path.join(out, "norms.json.gz")).read().decode("utf-8"))["works"]), 2)
         self.assertNotIn("AGE-SECRET", r.stdout + r.stderr)
         env["NORMS_AGE_KEY"] = "AGE-SECRET" + "-KEY-1" + "Q" * 58
         r = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools/norms/fetch.py")],

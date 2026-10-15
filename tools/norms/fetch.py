@@ -10,7 +10,7 @@ Env (all optional; without them the step is skipped and the site runs without th
 Source order: latest GitHub release asset `norms.zip.age`, else repo file norms/norms.zip.age.
 Decrypted raw tables are unpacked to a temp dir, normalized by build.py, and removed.
 """
-import json, os, shutil, subprocess, sys, tempfile, time, urllib.request, zipfile
+import gzip, json, os, shutil, subprocess, sys, tempfile, time, urllib.request, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 NEED = {"rscer.dat", "rscer.fpt", "mat.dat", "mat.fpt", "meh.dat", "meh.fpt"}
@@ -87,8 +87,11 @@ def main():
         if r.returncode != 0:
             log("build failed: " + r.stderr[-300:])
             return 1
-        shutil.move(work + "/out/norms.json", os.path.join(out_dir, "norms.json"))  # /tmp and /dev/shm are different filesystems
-        with open(os.path.join(out_dir, "norms.json"), encoding="utf-8") as f:
+        # /dev/shm on the host is small (tmpfs ~64 MB) and norms.json is ~95 MB: keep it gzipped (~5 MB).
+        with open(work + "/out/norms.json", "rb") as src, gzip.open(os.path.join(out_dir, "norms.json.gz.tmp"), "wb", 6) as dst:
+            shutil.copyfileobj(src, dst)
+        os.replace(os.path.join(out_dir, "norms.json.gz.tmp"), os.path.join(out_dir, "norms.json.gz"))
+        with open(work + "/out/norms.json", encoding="utf-8") as f:
             d = json.load(f)
         log("ready: %d works, %d materials, %d machines in %.0fs" %
             (len(d["works"]), len(d["materials"]), len(d["machines"]), time.time() - t0))
