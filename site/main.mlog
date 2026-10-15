@@ -156,7 +156,7 @@ pattern DictEn(_x: String) -> Map {
   all_types: "All types of work",
   no_js: "Please enable JavaScript to view the map.",
   about_text: "TEGA PLUS LLC has been carrying out renovation and construction work in Minsk and across Belarus for more than 20 years and has completed more than 1,000 projects.",
-  about_dir: "Director: Sergey A. Lokhansky.",
+  about_dir: "Director: Siarhei Lakhanski.",
   req_title: "Company details",
   lbl_org: "Company",
   lbl_unp: "UNP",
@@ -166,7 +166,7 @@ pattern DictEn(_x: String) -> Map {
   lbl_dir: "Director",
   org: "TEGA PLUS LLC",
   bank: "BSB Bank CJSC, BIC UNBSBY2X, 23/3 Pobediteley Ave., 220004 Minsk",
-  director: "Sergey A. Lokhansky (acting under the Articles of Association)"
+  director: "Siarhei Lakhanski (acting under the Articles of Association)"
   }
 }
 
