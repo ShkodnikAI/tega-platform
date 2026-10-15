@@ -16,6 +16,8 @@
 		root * /srv/static
 		file_server
 		header Cache-Control "public, max-age=86400"
+		@code path *.css *.js
+		header @code Cache-Control "public, max-age=300, must-revalidate"
 	}
 	# Crawler files are static (correct content types, no app round-trip)
 	@seo path /robots.txt /sitemap.xml
