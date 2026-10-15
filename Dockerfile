@@ -7,7 +7,7 @@ ARG MLOG_VERSION=v0.32.0
 ARG MLOG_SHA256=dd8164b747aa99cb953d3f7a29e084ba38d432df376aa2f05cfd2187e2bc59a2
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl libssl3 \
+ && apt-get install -y --no-install-recommends ca-certificates curl libssl3 python3 age \
  && rm -rf /var/lib/apt/lists/* \
  && curl -fsSL -o /usr/local/bin/mlog \
     "https://github.com/ShkodnikAI/Metalogos-/releases/download/${MLOG_VERSION}/mlog-linux-x86_64" \
@@ -28,6 +28,7 @@ WORKDIR /app
 COPY site/ /app/site/
 COPY static/ /srv/static/
 COPY deploy/Caddyfile.render /etc/caddy/Caddyfile
+COPY tools/norms/ /app/tools/norms/
 COPY deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

@@ -4,6 +4,8 @@
 set -eu
 export PORT="${PORT:-10000}"
 mkdir -p /data/media
+# Norms library: fetched, decrypted and built in the background; the site does not wait for it.
+(python3 -I /app/tools/norms/fetch.py || true) &
 mlog serve /app/site/main.mlog &
 MLOG_PID=$!
 caddy run --config /etc/caddy/Caddyfile --adapter caddyfile &

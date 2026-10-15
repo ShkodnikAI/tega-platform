@@ -1,7 +1,8 @@
 """Tests for the norms pipeline on synthetic FoxPro tables (no private data needed)."""
-import json, os, struct, sys, tempfile, unittest
+import json, os, struct, sys, tempfile, unittest, zipfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "tools", "norms"))
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 from vfp import VfpTable
 import build
 
@@ -91,6 +92,33 @@ class NormsTest(unittest.TestCase):
     def test_all_sections(self):
         _, meta = build.build(self.d, os.path.join(self.d, "o2"))
         self.assertEqual(meta["works"], 2)
+
+    def test_fetch_decrypt_build(self):
+        import shutil, subprocess, sys
+        if not (shutil.which("age") and shutil.which("age-keygen")):
+            self.skipTest("age not installed")
+        kg = subprocess.run(["age-keygen"], capture_output=True, text=True).stdout
+        secret = [l for l in kg.splitlines() if l.startswith("AGE-SECRET-KEY-")][0]
+        pub = [l for l in kg.splitlines() if "public key" in l][0].split(": ")[1]
+        zp = os.path.join(self.d, "b.zip")
+        with zipfile.ZipFile(zp, "w") as z:
+            for n in os.listdir(self.d):
+                if n.lower().split(".")[0] in ("rscer", "mat", "meh"):
+                    z.write(os.path.join(self.d, n), n)
+            z.writestr("tech/x.rtf", "{\\rtf1}")
+        enc = os.path.join(self.d, "b.zip.age")
+        subprocess.run(["age", "-r", pub, "-o", enc, zp], check=True)
+        out = os.path.join(self.d, "shm")
+        env = dict(os.environ, NORMS_AGE_KEY=secret, NORMS_BUNDLE_FILE=enc, NORMS_OUT=out)
+        r = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools/norms/fetch.py")],
+                           env=env, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(len(json.load(open(os.path.join(out, "norms.json"), encoding="utf-8"))["works"]), 2)
+        self.assertNotIn("AGE-SECRET", r.stdout + r.stderr)
+        env["NORMS_AGE_KEY"] = "AGE-SECRET" + "-KEY-1" + "Q" * 58
+        r = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools/norms/fetch.py")],
+                           env=env, capture_output=True, text=True)
+        self.assertNotEqual(r.returncode, 0)
 
 
 if __name__ == "__main__":

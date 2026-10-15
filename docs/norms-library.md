@@ -31,9 +31,17 @@ winget install FiloSottile.age ; winget install GitHub.cli ; gh auth login   # �
 * `materials{}` и `machines{}` — справочники по кодам (название, единица).
 * Читалка таблиц FoxPro без зависимостей — `tools/norms/vfp.py`. Тесты на синтетических таблицах — `tests/norms/test_norms.py`.
 
+## В контейнере
+
+`deploy/entrypoint.sh` в фоне запускает `tools/norms/fetch.py` (сайт не ждёт). Нужны переменные Render:
+`NORMS_AGE_KEY` (приватный ключ age), `CONTENT_READ_TOKEN` (fine-grained токен, только Contents: read для `tega-content`).
+Источник: последний релиз с `norms.zip.age`, иначе файл `norms/norms.zip.age` в ветке `main` (`CONTENT_REF`).
+Результат — `/dev/shm/norms/norms.json`; сырые таблицы удаляются сразу после сборки. Без переменных шаг пропускается.
+В логе только счётчики (`[norms] ready: N works…`), содержимое и ключ не пишутся.
+
 ## Ещё не сделано
 
-* Скачивание и расшифровка в контейнере (нужны публичный и приватный ключи и токен только на чтение `tega-content`).
+* Модель калькулятора поверх `norms.json` (API с ограничением частоты).
 * Разбор технических частей (RTF): коэффициенты, правила определения объёмов, матрицы операций.
 * Модель калькулятора поверх библиотеки.
 
