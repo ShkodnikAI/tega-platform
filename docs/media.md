@@ -8,3 +8,7 @@
 
 Upload (from the machine with the web copies), via the Render Shell or scp to the service: copy `OUT/<object-id>/` into `/data/media/`.
 Before publishing an object: client's consent for photos and address; for sensitive objects show the district, not the exact point.
+
+## Резервная копия
+
+`tools/backup/backup-site.ps1` раз в 4 недели забирает `/data` с Render по SSH на компьютер владельца, шифрует age и хранит 12 последних копий. Настройка — в шапке скрипта.
