@@ -87,7 +87,7 @@ def main():
         if r.returncode != 0:
             log("build failed: " + r.stderr[-300:])
             return 1
-        os.replace(work + "/out/norms.json", os.path.join(out_dir, "norms.json"))
+        shutil.move(work + "/out/norms.json", os.path.join(out_dir, "norms.json"))  # /tmp and /dev/shm are different filesystems
         with open(os.path.join(out_dir, "norms.json"), encoding="utf-8") as f:
             d = json.load(f)
         log("ready: %d works, %d materials, %d machines in %.0fs" %
