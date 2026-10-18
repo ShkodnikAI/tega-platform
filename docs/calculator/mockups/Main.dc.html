@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сметный калькулятор — таблица</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;font-family:'Onest',system-ui,sans-serif;color:#1d1f23;background:#fff}
+.mono{font-family:'IBM Plex Mono',monospace}
+.lbl{font-size:13px;font-weight:600;letter-spacing:.02em;color:#4a4d55}
+.fld{height:48px;border:1.5px solid #c6c8cd;padding:0 14px;display:flex;align-items:center;justify-content:space-between;font-size:16px;background:#fff}
+.chk{display:flex;align-items:center;gap:12px;font-size:16px;min-height:44px}
+.box{width:22px;height:22px;border:1.5px solid #1d1f23;flex:0 0 22px;display:flex;align-items:center;justify-content:center}
+.on{background:#e3000f;border-color:#e3000f}
+.sec td{background:#f6f6f7;font-weight:600;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:10px 14px;color:#4a4d55}
+td,th{padding:12px 14px;text-align:left;font-size:16px;border-bottom:1px solid #e4e5e8}
+th{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#4a4d55;border-bottom:1.5px solid #1d1f23}
+.r{text-align:right}
+</style>
+</helmet>
+<div style="min-height:1000px;background:#fff">
+<div style="border-bottom:1px solid #e4e5e8"><div style="max-width:1200px;margin:0 auto;padding:22px 40px;display:flex;flex-wrap:wrap;gap:16px 40px;align-items:center;justify-content:space-between">
+<div style="font-size:34px;font-weight:700;color:#e3000f;letter-spacing:-.01em">ТЭГА<span style="color:#1d1f23"> +</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 32px;font-size:18px;font-weight:500"><span>Услуги</span><span>Объекты</span><span style="color:#e3000f">Калькулятор</span><span>О компании</span><span>Контакты</span></div>
+</div></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:48px 40px 64px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div class="mono" style="color:#e3000f;font-size:14px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:12px"><span style="width:40px;height:2px;background:#e3000f;display:block"></span>Сметный калькулятор</div>
+<h1 style="margin:0;font-size:48px;line-height:1.05;letter-spacing:-.02em">Ориентировочная смета за минуту</h1>
+<p style="margin:0;font-size:19px;color:#4a4d55;max-width:640px;line-height:1.5">Укажите объект и состав работ — получите расчёт по нормам и средним ценам. Точную смету составим после осмотра.</p>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+<div style="flex:1 1 320px;max-width:380px;display:flex;flex-direction:column;gap:22px;border:1.5px solid #1d1f23;padding:28px;position:relative">
+<div style="position:absolute;top:-1.5px;right:-1.5px;width:8px;height:72px;background:#e3000f"></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="lbl">Тип объекта</span><div class="fld"><span>Офис</span><span>▾</span></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="lbl">Площадь, м²</span><div class="fld mono"><span>120</span><span style="color:#4a4d55;font-family:'Onest'">м²</span></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="lbl">Высота потолков, м</span><div class="fld mono"><span>3,0</span><span style="color:#4a4d55;font-family:'Onest'">м</span></div></div>
+<div style="display:flex;flex-direction:column;gap:2px"><span class="lbl" style="margin-bottom:6px">Состав работ</span>
+<div class="chk"><span class="box on"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.4"><path d="M2 7.5l3.2 3L12 3.5"/></svg></span>Демонтаж</div>
+<div class="chk"><span class="box on"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.4"><path d="M2 7.5l3.2 3L12 3.5"/></svg></span>Черновые работы</div>
+<div class="chk"><span class="box on"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.4"><path d="M2 7.5l3.2 3L12 3.5"/></svg></span>Чистовая отделка</div>
+<div class="chk"><span class="box"></span>Электрика</div>
+<div class="chk"><span class="box"></span>Сантехника и вентиляция</div>
+</div>
+<a href="#" style="display:flex;align-items:center;justify-content:center;min-height:52px;background:#e3000f;color:#fff;font-weight:600;font-size:17px;text-decoration:none">Пересчитать</a>
+</div>
+
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:0">
+<div style="overflow-x:auto"><table style="width:100%;min-width:560px;border-collapse:collapse">
+<thead><tr><th>Работа</th><th>Ед.</th><th class="r">Объём</th><th class="r">Цена, руб.</th><th class="r">Сумма, руб.</th></tr></thead>
+<tbody>
+<tr class="sec"><td colspan="5">Демонтаж</td></tr>
+<tr><td>Демонтаж перегородок</td><td>м²</td><td class="r mono">42</td><td class="r mono">18,00</td><td class="r mono">756,00</td></tr>
+<tr><td>Демонтаж напольных покрытий</td><td>м²</td><td class="r mono">120</td><td class="r mono">9,50</td><td class="r mono">1 140,00</td></tr>
+<tr class="sec"><td colspan="5">Черновые работы</td></tr>
+<tr><td>Выравнивание стен</td><td>м²</td><td class="r mono">310</td><td class="r mono">24,00</td><td class="r mono">7 440,00</td></tr>
+<tr><td>Устройство стяжки пола</td><td>м²</td><td class="r mono">120</td><td class="r mono">28,00</td><td class="r mono">3 360,00</td></tr>
+<tr class="sec"><td colspan="5">Чистовая отделка</td></tr>
+<tr><td>Окраска стен</td><td>м²</td><td class="r mono">310</td><td class="r mono">12,50</td><td class="r mono">3 875,00</td></tr>
+<tr><td>Укладка напольного покрытия</td><td>м²</td><td class="r mono">120</td><td class="r mono">20,00</td><td class="r mono">2 400,00</td></tr>
+</tbody></table></div>
+
+<div style="background:#1d1f23;color:#fff;padding:28px 32px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;margin-top:24px;position:relative">
+<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;color:#c6c8cd">Итого ориентировочно</span><span class="mono" style="font-size:40px;font-weight:500;letter-spacing:-.02em">18 971 руб.</span><span style="font-size:14px;color:#c6c8cd">Расчёт-пример. Без материалов и НДС.</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:12px"><a href="#" style="display:flex;align-items:center;min-height:52px;padding:0 26px;background:#e3000f;color:#fff;font-weight:600;text-decoration:none">Получить смету на почту</a><a href="#" style="display:flex;align-items:center;min-height:52px;padding:0 26px;border:1.5px solid #fff;color:#fff;font-weight:600;text-decoration:none">Скачать PDF</a></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

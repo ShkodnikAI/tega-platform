@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сметный калькулятор — пошагово</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;font-family:'Onest',system-ui,sans-serif;color:#1d1f23;background:#fff}
+.mono{font-family:'IBM Plex Mono',monospace}
+.step{flex:1 1 160px;display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:3px solid #e4e5e8;min-width:140px}
+.step.done{border-top-color:#1d1f23}.step.cur{border-top-color:#e3000f}
+.step small{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#4a4d55}
+.step b{font-size:16px;font-weight:600}
+.card{border:1.5px solid #c6c8cd;padding:22px;display:flex;flex-direction:column;gap:10px;min-height:150px;position:relative;background:#fff}
+.card.sel{border-color:#1d1f23;border-width:2px}
+.card.sel:after{content:"";position:absolute;top:-2px;right:-2px;width:8px;height:56px;background:#e3000f}
+.card h3{margin:0;font-size:20px}
+.card p{margin:0;font-size:15px;color:#4a4d55;line-height:1.45}
+.card .pr{margin-top:auto;font-size:15px}
+.row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #3a3d44;font-size:15px}
+</style>
+</helmet>
+<div style="min-height:1000px;background:#fff">
+<div style="border-bottom:1px solid #e4e5e8"><div style="max-width:1200px;margin:0 auto;padding:22px 40px;display:flex;flex-wrap:wrap;gap:16px 40px;align-items:center;justify-content:space-between">
+<div style="font-size:34px;font-weight:700;color:#e3000f;letter-spacing:-.01em">ТЭГА<span style="color:#1d1f23"> +</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 32px;font-size:18px;font-weight:500"><span>Услуги</span><span>Объекты</span><span style="color:#e3000f">Калькулятор</span><span>О компании</span><span>Контакты</span></div>
+</div></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:44px 40px 64px;display:flex;flex-direction:column;gap:36px">
+<h1 style="margin:0;font-size:44px;line-height:1.05;letter-spacing:-.02em">Рассчитайте стоимость работ</h1>
+
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<div class="step done"><small>01</small><b>Объект</b></div>
+<div class="step cur"><small>02</small><b>Состав работ</b></div>
+<div class="step"><small>03</small><b>Уровень отделки</b></div>
+<div class="step"><small>04</small><b>Контакты</b></div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:24px">
+<div><h2 style="margin:0 0 6px;font-size:28px">Что нужно сделать на объекте?</h2><p style="margin:0;color:#4a4d55;font-size:17px">Отметьте всё подходящее. Это можно изменить на любом шаге.</p></div>
+
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+<div class="card sel"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#1d1f23" stroke-width="2" aria-hidden="true"><path d="M4 30h28M8 30V12l10-6 10 6v18M14 30V20h8v10"/></svg><h3>Демонтаж</h3><p>Перегородки, покрытия, подготовка помещения.</p><div class="pr mono">от 9,50 руб./м²</div></div>
+<div class="card sel"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#1d1f23" stroke-width="2" aria-hidden="true"><path d="M4 8h28v6H4zM8 14v16M28 14v16M4 30h28"/></svg><h3>Черновые работы</h3><p>Стены, стяжка, перегородки, штукатурка.</p><div class="pr mono">от 24,00 руб./м²</div></div>
+<div class="card sel"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#1d1f23" stroke-width="2" aria-hidden="true"><path d="M6 6h24v18H6zM12 30h12M18 24v6"/></svg><h3>Чистовая отделка</h3><p>Окраска, обои, полы, потолки.</p><div class="pr mono">от 12,50 руб./м²</div></div>
+<div class="card"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#1d1f23" stroke-width="2" aria-hidden="true"><path d="M20 3L9 20h8l-1 13 11-18h-8z"/></svg><h3>Электрика</h3><p>Проводка, щиты, освещение, слаботочные сети.</p><div class="pr mono">от 35,00 руб./м²</div></div>
+<div class="card"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#1d1f23" stroke-width="2" aria-hidden="true"><path d="M18 4c5 7 8 11 8 16a8 8 0 0 1-16 0c0-5 3-9 8-16z"/></svg><h3>Сантехника</h3><p>Водоснабжение, канализация, отопление.</p><div class="pr mono">от 28,00 руб./м²</div></div>
+<div class="card"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#1d1f23" stroke-width="2" aria-hidden="true"><circle cx="18" cy="18" r="6"/><path d="M18 4v6M18 26v6M4 18h6M26 18h6"/></svg><h3>Вентиляция</h3><p>Приток, вытяжка, кондиционирование.</p><div class="pr mono">от 40,00 руб./м²</div></div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding-top:8px">
+<a href="#" style="display:flex;align-items:center;min-height:52px;padding:0 28px;border:1.5px solid #1d1f23;color:#1d1f23;font-weight:600;text-decoration:none">Назад</a>
+<a href="#" style="display:flex;align-items:center;min-height:52px;padding:0 32px;background:#e3000f;color:#fff;font-weight:600;font-size:17px;text-decoration:none">Далее: уровень отделки</a>
+</div>
+</div>
+
+<div style="flex:1 1 300px;max-width:360px;background:#1d1f23;color:#fff;padding:28px;display:flex;flex-direction:column;gap:6px;position:relative">
+<div style="position:absolute;top:0;right:0;width:8px;height:72px;background:#e3000f"></div>
+<span style="font-size:14px;color:#c6c8cd">Ваш расчёт</span>
+<div class="row"><span style="color:#c6c8cd">Объект</span><span>Офис, 120 м²</span></div>
+<div class="row"><span style="color:#c6c8cd">Выбрано работ</span><span>3</span></div>
+<span style="font-size:14px;color:#c6c8cd;margin-top:14px">Ориентировочно</span>
+<span class="mono" style="font-size:34px;font-weight:500;letter-spacing:-.02em">17 000 – 21 000</span>
+<span style="font-size:14px;color:#c6c8cd">руб., без материалов. Вилка уточнится на шаге 3.</span>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
