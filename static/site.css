@@ -133,3 +133,6 @@ body.pg-contacts{background-image:url(/static/bg-plan-3.svg?v=2);background-posi
 .car-dots button:after{content:"";position:absolute;left:4px;right:4px;top:10px;height:4px;background:rgba(255,255,255,.55)}
 .car-dots button[aria-current=true]:after{background:var(--red)}
 @media(prefers-reduced-motion:reduce){.car-track{transition:none}}
+
+/* плашка «сайт в разработке» */
+.wip{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;max-width:calc(100% - 32px);padding:10px 20px;background:rgba(29,31,35,.72);color:#fff;font-size:15px;line-height:1.35;text-align:center;border-left:4px solid var(--red);pointer-events:none;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
