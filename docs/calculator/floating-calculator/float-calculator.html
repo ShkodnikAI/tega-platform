@@ -56,8 +56,8 @@ h1{margin:0;font-size:clamp(32px,6vw,48px);line-height:1.05;letter-spacing:-.02e
 .tb:hover{color:var(--cf);background:var(--cs2)}
 .tb.on{color:var(--accent)}
 .tb:focus-visible,.k:focus-visible,.chip:focus-visible,.ins:focus-visible,.wtab:focus-visible,.openbtn:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
-.wtabs{display:flex;gap:16px;padding:0 18px;border-bottom:1px solid var(--cl);overflow-x:auto;scrollbar-width:none}.wtabs::-webkit-scrollbar{display:none}
-.wtab{padding:10px 0 11px;border:0;background:transparent;color:var(--cm);font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;position:relative;white-space:nowrap;flex:0 0 auto}
+.wtabs{display:flex;gap:12px;padding:0 16px;border-bottom:1px solid var(--cl);overflow-x:auto;scrollbar-width:none}.wtabs::-webkit-scrollbar{display:none}
+.wtab{padding:10px 0 11px;border:0;background:transparent;color:var(--cm);font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;position:relative;white-space:nowrap;flex:0 0 auto}
 .wtab[aria-selected="true"]{color:var(--cf)}
 .wtab[aria-selected="true"]:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent)}
 .disp{padding:14px 20px 0;text-align:right}
@@ -106,6 +106,12 @@ h1{margin:0;font-size:clamp(32px,6vw,48px);line-height:1.05;letter-spacing:-.02e
 .fld select{height:40px;border:0;border-bottom:1px solid var(--cl);background:var(--cs);color:var(--cf);padding:0;font:400 17px var(--mono);width:100%;border-radius:0;cursor:pointer}
 .fld select:focus{outline:0;border-bottom-color:var(--accent)}
 .fld select option,.fld select optgroup{background:var(--cs2);color:var(--cf)}
+.dlist{position:relative;max-height:150px;overflow-y:auto;border:1px solid var(--cl);background:var(--cs);scrollbar-width:thin}
+.dlist .dg{position:sticky;top:0;background:var(--cs2);padding:6px 12px;font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cm);border-bottom:1px solid var(--cl)}
+.dlist button{display:flex;justify-content:space-between;gap:12px;width:100%;padding:8px 12px;border:0;border-bottom:1px solid var(--cl);background:transparent;color:var(--cf);font:400 13px var(--sans);text-align:left;cursor:pointer}
+.dlist button:hover{background:var(--cs2)}
+.dlist button[aria-current="true"]{background:var(--cs2);box-shadow:inset 2px 0 var(--accent)}
+.dlist button i{font:400 13px var(--mono);font-style:normal;color:var(--cm);white-space:nowrap}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .ins{display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;margin:6px 20px 18px;background:var(--accent);color:#fff;border:0;font:600 14px var(--sans);letter-spacing:.02em;cursor:pointer;transition:filter .15s}
 .ins:hover{filter:brightness(1.1)}
@@ -165,6 +171,7 @@ h1{margin:0;font-size:clamp(32px,6vw,48px);line-height:1.05;letter-spacing:-.02e
     <button class="wtab" id="tabMetal" role="tab" aria-selected="false" type="button">Металл</button>
     <button class="wtab" id="tabConc" role="tab" aria-selected="false" type="button">Бетон</button>
     <button class="wtab" id="tabForm" role="tab" aria-selected="false" type="button">Формулы</button>
+    <button class="wtab" id="tabDens" role="tab" aria-selected="false" type="button">Плотность</button>
   </div>
 
   <div id="paneCalc">
@@ -206,6 +213,21 @@ h1{margin:0;font-size:clamp(32px,6vw,48px);line-height:1.05;letter-spacing:-.02e
       <p class="formula" id="fFormula"></p>
       <div class="res" id="fRes"></div>
       <p class="note">Все величины вводятся в одних единицах: результат получится в тех же единицах (в квадрате или в кубе). Нажмите на значение, чтобы перенести его в калькулятор.</p>
+    </div>
+  </div>
+
+  <div id="paneDens" hidden>
+    <div class="tools">
+      <div class="fld"><label for="dMat">Материал</label><select id="dMat"></select></div>
+      <p class="formula" id="dInfo"></p>
+      <div class="two">
+        <div class="fld"><label for="dRho">Плотность, кг/м³</label><input id="dRho" inputmode="decimal" autocomplete="off"></div>
+        <div class="fld"><label for="dVol">Объём, м³</label><input id="dVol" inputmode="decimal" autocomplete="off" value="1"></div>
+      </div>
+      <div class="fld"><label for="dMass">Масса, кг</label><input id="dMass" inputmode="decimal" autocomplete="off"></div>
+      <div class="res" id="dRes"></div>
+      <div class="dlist" id="dList" role="list" aria-label="Справочник плотностей"></div>
+      <p class="note">Типовые справочные значения. Для расчёта поставки берите плотность из паспорта материала. Объём и масса пересчитываются друг из друга. Нажмите на строку списка, чтобы выбрать материал, или на результат, чтобы перенести его в калькулятор.</p>
     </div>
   </div>
   <div class="foot"><span class="dot"></span><span id="footTxt">Закреплён поверх страницы</span></div>
@@ -483,7 +505,58 @@ h1{margin:0;font-size:clamp(32px,6vw,48px);line-height:1.05;letter-spacing:-.02e
   fTypeEl.addEventListener('change',buildForm);
   buildForm();
 
-  var TABS=[['calc','paneCalc','tabCalc'],['build','paneBuild','tabBuild'],['metal','paneMetal','tabMetal'],['conc','paneConc','tabConc'],['form','paneForm','tabForm']];
+
+  /* ---------- вкладка «Плотность»: объёмные массы ---------- */
+  var DENS=[
+   ['Бетоны и растворы',[['Бетон тяжёлый',2400,'2200–2500'],['Железобетон',2500,'2400–2500'],['Керамзитобетон',1400,'800–1800'],['Газобетон',500,'300–800'],['Пенобетон',600,'300–1000'],['Раствор цементно-песчаный',1800,'1700–2100'],['Раствор известковый',1700,'1600–1700'],['Штукатурка гипсовая',1200,'1000–1300']]],
+   ['Кладка и камень',[['Кирпич керамический полнотелый',1800,'1600–1900'],['Кирпич керамический пустотелый',1300,'1000–1450'],['Кирпич силикатный',1800,'1700–1900'],['Гранит',2700,'2600–2900'],['Мрамор',2700,'2600–2900'],['Известняк плотный',2400,'2000–2600'],['Песчаник',2400,'2200–2600']]],
+   ['Сыпучие (насыпная плотность)',[['Песок сухой',1600,'1400–1700'],['Песок влажный',1900,'1800–2000'],['Щебень гранитный',1450,'1350–1550'],['Гравий',1650,'1500–1700'],['Керамзит',500,'250–800'],['Цемент',1300,'1100–1600'],['Глина',1800,'1600–2100']]],
+   ['Металлы',[['Сталь',7850,''],['Чугун',7200,'7000–7400'],['Алюминий',2700,''],['Медь',8900,''],['Латунь',8500,'8400–8700'],['Свинец',11340,''],['Цинк',7140,'']]],
+   ['Древесина и плиты',[['Сосна воздушно-сухая',500,'400–600'],['Ель воздушно-сухая',450,'400–500'],['Дуб',700,'650–800'],['Берёза',650,'600–700'],['Лиственница',650,'600–700'],['Фанера берёзовая',680,'650–750'],['OSB',650,'600–680'],['ДСП',650,'550–750'],['МДФ',750,'650–850'],['ДВП твёрдая',950,'850–1000']]],
+   ['Отделочные материалы',[['Гипсокартон',850,'700–900'],['Стекло листовое',2500,''],['Плитка керамическая, керамогранит',2300,'2000–2500']]],
+   ['Утеплители',[['Минеральная (каменная) вата',100,'30–200'],['Стекловата',30,'15–70'],['Пенополистирол ППС',25,'15–35'],['Экструдированный пенополистирол',35,'28–45'],['Пенополиуретан',40,'30–80'],['Пеностекло',150,'100–200']]],
+   ['Прочее',[['Вода',1000,''],['Лёд',920,''],['Битум',1050,'950–1100'],['Асфальтобетон',2350,'2300–2400'],['ПВХ',1400,''],['Полиэтилен',950,''],['Полипропилен',900,'']]]
+  ];
+  var DFLAT=[]; DENS.forEach(function(g){g[1].forEach(function(m){DFLAT.push({g:g[0],n:m[0],r:m[1],rg:m[2]})})});
+  var dSel=$('dMat'), dRho=$('dRho'), dVol=$('dVol'), dMass=$('dMass'), dList=$('dList');
+  var dIdx=0;
+  (function(){
+    var k=0;
+    DENS.forEach(function(g){
+      var og=document.createElement('optgroup'); og.label=g[0]; dSel.appendChild(og);
+      var d=document.createElement('div'); d.className='dg'; d.textContent=g[0]; dList.appendChild(d);
+      g[1].forEach(function(m){
+        var i=k++;
+        var o=document.createElement('option'); o.value=i; o.textContent=m[0]; og.appendChild(o);
+        var b=document.createElement('button'); b.type='button'; b.dataset.i=i; b.setAttribute('role','listitem');
+        b.innerHTML='<span>'+esc(m[0])+'</span><i>'+fmt(m[1],0)+'</i>';
+        b.addEventListener('click',function(){ dSel.value=i; pickDens(i); });
+        dList.appendChild(b);
+      });
+    });
+  })();
+  function setIn(el,x){ el.value=isFinite(x)?str(Math.round(x*10000)/10000):''; }
+  function pickDens(i){
+    dIdx=+i; var m=DFLAT[dIdx];
+    setIn(dRho,m.r);
+    $('dInfo').textContent=m.g.replace(' (насыпная плотность)','')+'  ·  '+fmt(m.r,0)+' кг/м³'+(m.rg?'  ·  диапазон '+m.rg:'')+(/насып/.test(m.g)?'  ·  насыпная':'');
+    var bs=dList.querySelectorAll('button');
+    for(var j=0;j<bs.length;j++) bs[j].setAttribute('aria-current',+bs[j].dataset.i===dIdx?'true':'false');
+    var cur=dList.querySelector('button[aria-current="true"]');
+    if(cur&&dList.scrollHeight>dList.clientHeight){ var t=cur.offsetTop-dList.clientHeight/2; dList.scrollTop=Math.max(0,t); }
+    fromVol();
+  }
+  function densOut(){
+    var r=num(dRho.value), v=num(dVol.value), m=num(dMass.value);
+    showRes($('dRes'),[['Масса',m,'кг',2],['Масса',m/1000,'т',3],['Объём',v,'м³',3],['Объём',v*1000,'л',1]]);
+  }
+  function fromVol(){ var r=num(dRho.value), v=num(dVol.value); setIn(dMass, r*v); densOut(); }
+  function fromMass(){ var r=num(dRho.value), m=num(dMass.value); setIn(dVol, r?m/r:NaN); densOut(); }
+  dRho.addEventListener('input',fromVol); dVol.addEventListener('input',fromVol); dMass.addEventListener('input',fromMass);
+  dSel.addEventListener('change',function(){pickDens(dSel.value)});
+  dSel.value=0; pickDens(0);
+
+  var TABS=[['calc','paneCalc','tabCalc'],['build','paneBuild','tabBuild'],['metal','paneMetal','tabMetal'],['conc','paneConc','tabConc'],['form','paneForm','tabForm'],['dens','paneDens','tabDens']];
   function showTab(w){
     TABS.forEach(function(t){
       var on=(t[0]===w); $(t[1]).hidden=!on; $(t[2]).setAttribute('aria-selected',on?'true':'false');
