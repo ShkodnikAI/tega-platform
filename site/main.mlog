@@ -218,9 +218,9 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=4\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=6\">
 </head>
-<body>
+<body class=\"pg-{{ page }}\">
 <header class=\"top\"><div class=\"wrap\">
 <a class=\"brand\" href=\"{{ home }}\" aria-label=\"{{ t.brand }}\"><img src=\"{{ logo }}\" width=\"318\" height=\"96\" alt=\"{{ t.brand }} — {{ t.slogan }}\"></a>
 <nav aria-label=\"{{ t.nav_aria }}\">
@@ -264,19 +264,7 @@ pattern HomeTpl(_x: String) -> String {
 <a class=\"btn ghost\" href=\"{{ p }}/portfolio\">{{ t.our_map }}</a>
 </div>
 </div>
-<div class=\"art\" aria-hidden=\"true\">
-<svg viewBox=\"0 0 520 400\" preserveAspectRatio=\"xMidYMid slice\" focusable=\"false\">
-<defs><pattern id=\"hg\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><path d=\"M40 0H0V40\" fill=\"none\" stroke=\"#e4e5e8\" stroke-width=\"1\"/></pattern></defs>
-<rect width=\"520\" height=\"400\" fill=\"url(#hg)\"/>
-<g fill=\"none\" stroke=\"#1d1f23\" stroke-width=\"2\">
-<path d=\"M80 340V150L200 90V340\"/><path d=\"M200 340V120H330V340\"/><path d=\"M330 340V190H440V340\"/>
-<path d=\"M50 340H480\"/>
-<path d=\"M110 200h60M110 250h60M110 300h60\"/><path d=\"M230 160h70M230 220h70M230 280h70\"/>
-</g>
-<g stroke=\"#e3000f\" stroke-width=\"2\" fill=\"none\"><path d=\"M80 372H200M80 366v12M200 366v12\"/><path d=\"M470 120V340M464 120h12M464 340h12\"/></g>
-<circle cx=\"392\" cy=\"150\" r=\"9\" fill=\"#e3000f\" stroke=\"#fff\" stroke-width=\"2\"/>
-</svg>
-</div>
+<div class=\"art\"><img src=\"/static/home-plan.jpg?v=1\" width=\"1280\" height=\"720\" alt=\"\" decoding=\"async\"></div>
 </div></section>
 <section class=\"facts\"><div class=\"wrap\">
 <div><b>20+</b><span>{{ t.f1 }}</span></div>
@@ -367,9 +355,9 @@ pattern ContactsTpl(_x: String) -> String {
 </dl>"
 }
 
-pattern Shell(lang: String, slug: String, title: String, inner: Bool, body: String) -> Html {
+pattern Shell(lang: String, slug: String, page: String, title: String, inner: Bool, body: String) -> Html {
   return template_render(HeadTpl("") + body + FootTpl(""), {
-    t: Dict(lang), lang: lang, title: title, inner: inner, p: Prefix(lang), logo: LogoFor(lang),
+    t: Dict(lang), lang: lang, title: title, page: page, inner: inner, p: Prefix(lang), logo: LogoFor(lang),
     home: Href(lang, "/"), self: Href(lang, slug),
     h_ru: Href("ru", slug), h_be: Href("be", slug), h_en: Href("en", slug),
     is_ru: lang == "ru", is_be: lang == "be", is_en: lang == "en"
@@ -378,27 +366,27 @@ pattern Shell(lang: String, slug: String, title: String, inner: Bool, body: Stri
 
 pattern HomePage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/", d.title_home, false, HomeTpl(""))
+  return Shell(lang, "/", "home", d.title_home, false, HomeTpl(""))
 }
 
 pattern ServicesPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/uslugi", d.nav_services, true, ServicesTpl(""))
+  return Shell(lang, "/uslugi", "services", d.nav_services, true, ServicesTpl(""))
 }
 
 pattern PortfolioPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/portfolio", d.nav_objects, true, PortfolioTpl(""))
+  return Shell(lang, "/portfolio", "portfolio", d.nav_objects, true, PortfolioTpl(""))
 }
 
 pattern AboutPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/o-kompanii", d.nav_about, true, AboutTpl(""))
+  return Shell(lang, "/o-kompanii", "about", d.nav_about, true, AboutTpl(""))
 }
 
 pattern ContactsPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/kontakty", d.nav_contacts, true, ContactsTpl(""))
+  return Shell(lang, "/kontakty", "contacts", d.nav_contacts, true, ContactsTpl(""))
 }
 
 server {

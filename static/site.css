@@ -43,6 +43,8 @@ a{color:inherit}
 .hero p.lead{margin:0;font-size:20px;line-height:1.5;color:var(--muted);max-width:560px}
 .hero .actions{display:flex;flex-wrap:wrap;gap:16px}
 .hero .art{flex:1 1 380px;min-width:0;position:relative;min-height:360px;background:#fff;border:1.5px solid var(--ink)}
+.hero .art:has(img){min-height:0;background:#fff}
+.hero .art img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
 .hero .art svg{display:block;width:100%;height:100%;min-height:360px}
 .hero .art:after{content:"";position:absolute;top:-1.5px;right:-1.5px;width:8px;height:96px;background:var(--red)}
 .slogan{margin:0;display:flex;align-items:center;gap:12px;color:var(--red);font-family:var(--mono);font-size:14px;letter-spacing:.08em;text-transform:uppercase}
@@ -105,3 +107,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
 .pop .btn-sm{display:inline-block;margin-top:6px;color:var(--red);font-weight:700}
 @media (max-width:560px){.filters input,.filters select{flex:1 1 100%}.pdialog{padding:20px 16px}}
 @media (max-width:800px){.mapwrap{grid-template-columns:1fr}#map{height:380px}}
+
+/* разная сетка на разных страницах */
+body.pg-home{background-image:none}
+body.pg-services{background-image:url(/static/bg-plan-2.svg?v=2),url(/static/bg-plan-1.svg?v=2);background-position:left -160px top 200px,right -160px top 1100px;background-size:960px auto,900px auto}
+body.pg-portfolio{background-image:url(/static/bg-plan-3.svg?v=2);background-position:right -120px top 120px;background-size:820px auto}
+body.pg-about{background-image:url(/static/bg-plan-1.svg?v=2),url(/static/bg-plan-2.svg?v=2);background-position:left -200px top 160px,right -180px top 900px;background-size:900px auto,940px auto}
+body.pg-contacts{background-image:url(/static/bg-plan-3.svg?v=2);background-position:left -140px top 240px;background-size:760px auto}
+@media(max-width:900px){body.pg-services,body.pg-about,body.pg-portfolio,body.pg-contacts{background-size:560px auto;background-position:right -200px top 160px,left -200px top 1000px}}
