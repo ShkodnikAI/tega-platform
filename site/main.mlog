@@ -218,7 +218,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=6\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=7\">
 </head>
 <body class=\"pg-{{ page }}\">
 <header class=\"top\"><div class=\"wrap\">
@@ -264,7 +264,11 @@ pattern HomeTpl(_x: String) -> String {
 <a class=\"btn ghost\" href=\"{{ p }}/portfolio\">{{ t.our_map }}</a>
 </div>
 </div>
-<div class=\"art\"><img src=\"/static/home-plan.jpg?v=1\" width=\"1280\" height=\"720\" alt=\"\" decoding=\"async\"></div>
+<div class=\"art car\" data-carousel>
+<div class=\"car-view\"><div class=\"car-track\"><div class=\"car-slide\"><img src=\"/static/home-plan.jpg?v=1\" width=\"1280\" height=\"720\" alt=\"\" decoding=\"async\"></div></div></div>
+<button type=\"button\" class=\"car-prev\" aria-label=\"&lsaquo;\">&lsaquo;</button><button type=\"button\" class=\"car-next\" aria-label=\"&rsaquo;\">&rsaquo;</button>
+<div class=\"car-dots\"></div>
+</div>
 </div></section>
 <section class=\"facts\"><div class=\"wrap\">
 <div><b>20+</b><span>{{ t.f1 }}</span></div>
@@ -299,7 +303,8 @@ pattern HomeTpl(_x: String) -> String {
 <dt>{{ t.lbl_fax }}</dt><dd>+375 17 347-11-06</dd>
 <dt>E-mail</dt><dd>tegabymi@gmail.com</dd>
 </dl>
-</div></section>"
+</div></section>
+<script src=\"/static/carousel.js?v=1\"></script>"
 }
 
 pattern ServicesTpl(_x: String) -> String {

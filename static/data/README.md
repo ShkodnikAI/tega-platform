@@ -18,3 +18,13 @@ Array of objects. Only public information: do not publish exact client addresses
   "photos": ["/media/<id>/1.webp"]
 }
 ```
+
+# feed.json — news and articles for the home page carousel
+
+Array; the carousel shows the 5 newest records of feed.json + objects.json (by `date`).
+Text fields may be a string or `{"ru": "...", "be": "...", "en": "..."}`.
+
+```json
+{ "kind": "news | article", "title": "Заголовок", "summary": "Одна-две строки",
+  "date": "2026-10-18", "url": "/novosti/slug", "image": "/media/news/slug.webp" }
+```

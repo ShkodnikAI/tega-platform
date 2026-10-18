@@ -115,3 +115,21 @@ body.pg-portfolio{background-image:url(/static/bg-plan-3.svg?v=2);background-pos
 body.pg-about{background-image:url(/static/bg-plan-1.svg?v=2),url(/static/bg-plan-2.svg?v=2);background-position:left -200px top 160px,right -180px top 900px;background-size:900px auto,940px auto}
 body.pg-contacts{background-image:url(/static/bg-plan-3.svg?v=2);background-position:left -140px top 240px;background-size:760px auto}
 @media(max-width:900px){body.pg-services,body.pg-about,body.pg-portfolio,body.pg-contacts{background-size:560px auto;background-position:right -200px top 160px,left -200px top 1000px}}
+
+/* карусель на главной */
+.car{overflow:visible}
+.car-view{overflow:hidden;position:relative}
+.car-track{display:flex;transition:transform .5s ease}
+.car-slide{flex:0 0 100%;min-width:0;position:relative;display:block;color:inherit;text-decoration:none}
+.car-slide img,.car-slide .car-ph{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--soft)}
+.car-cap{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:4px;padding:18px 20px 44px;color:#fff;background:linear-gradient(transparent,rgba(29,31,35,.88) 55%)}
+.car-cap b{font-size:20px;line-height:1.25}.car-cap span{font-size:15px;line-height:1.4}
+.car-kind{font-family:var(--mono);font-size:12px!important;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--red);align-self:flex-start;padding:2px 8px}
+.car-prev,.car-next,.car-dots{display:none}
+.car.on .car-prev,.car.on .car-next{display:flex;position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;align-items:center;justify-content:center;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font-size:26px;line-height:1;cursor:pointer;padding:0}
+.car.on .car-prev{left:0}.car.on .car-next{right:0}
+.car.on .car-dots{display:flex;position:absolute;left:0;right:0;bottom:12px;justify-content:center;gap:4px}
+.car-dots button{width:24px;height:24px;padding:0;border:0;background:none;cursor:pointer;position:relative}
+.car-dots button:after{content:"";position:absolute;left:4px;right:4px;top:10px;height:4px;background:rgba(255,255,255,.55)}
+.car-dots button[aria-current=true]:after{background:var(--red)}
+@media(prefers-reduced-motion:reduce){.car-track{transition:none}}
