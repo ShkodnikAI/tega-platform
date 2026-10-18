@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Условный чертёж помещения для калькулятора материалов. УТВЕРЖДЁН, не менять без решения владельца. -->
+<svg viewBox="0 0 560 432" xmlns="http://www.w3.org/2000/svg" width="1120" height="864" role="img" aria-label="Условная схема помещения: окно и дверь, откосы отмечены красным">
+<defs>
+<pattern id="ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V6" stroke="#8d9097" stroke-width="1"/></pattern>
+<pattern id="gr" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#f0f0f2" stroke-width="1"/></pattern>
+</defs>
+<rect x="4" y="4" width="552" height="424" fill="url(#gr)" stroke="#1d1f23" stroke-width="1.5"/>
+
+<!-- оси -->
+<g stroke="#9a9da4" stroke-width="1" stroke-dasharray="14 3 2 3" fill="none"><path d="M116 34V330M404 34V330"/><path d="M84 69H440M84 308H440"/></g>
+<g fill="#fff" stroke="#1d1f23" stroke-width="1.2"><circle cx="116" cy="22" r="10"/><circle cx="404" cy="22" r="10"/><circle cx="68" cy="69" r="10"/><circle cx="68" cy="308" r="10"/></g>
+<g font-family="IBM Plex Mono, monospace" font-size="12" fill="#1d1f23" text-anchor="middle"><text x="116" y="26">А</text><text x="404" y="26">Б</text><text x="68" y="73">1</text><text x="68" y="312">2</text></g>
+
+<!-- стены: наружная с окном 400, остальные 140 -->
+<path d="M112 58H408V312H112Z M120 80V304H400V80Z" fill="url(#ht)" fill-rule="evenodd"/>
+<rect x="112" y="58" width="296" height="254" fill="none" stroke="#1d1f23" stroke-width="2.2"/>
+<rect x="120" y="80" width="280" height="224" fill="none" stroke="#1d1f23" stroke-width="2.2"/>
+
+<!-- окно в стене 400: наружный откос 100, коробка 60, отделываемый откос 240 (красный) -->
+<rect x="260" y="57" width="78" height="24" fill="#fff"/>
+<path d="M260 58V80M338 58V80" stroke="#1d1f23" stroke-width="1.5"/>
+<path d="M260 63.6H338M260 67H338" stroke="#1d1f23" stroke-width="1.2"/>
+<path d="M260 65.3H338" stroke="#1d1f23" stroke-width="0.8"/>
+<path d="M260 67V80M338 67V80" stroke="#e3000f" stroke-width="4"/>
+<text x="299" y="97" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="500" fill="#1d1f23" text-anchor="middle">ОК-1</text>
+
+<!-- дверь: откосы красным, номер в прямоугольнике внутри проёма -->
+<rect x="154" y="303" width="50" height="10" fill="#fff"/>
+<path d="M154 309.6V312M204 309.6V312" stroke="#1d1f23" stroke-width="2"/><path d="M154 304V309.6M204 304V309.6" stroke="#e3000f" stroke-width="4"/>
+<path d="M154 304V254" stroke="#1d1f23" stroke-width="2"/>
+<path d="M204 304A50 50 0 0 0 154 254" fill="none" stroke="#1d1f23" stroke-width="1" stroke-dasharray="4 2"/>
+<rect x="168" y="303" width="22" height="10" fill="#fff" stroke="#1d1f23" stroke-width="1"/>
+<text x="179" y="311.2" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="500" fill="#1d1f23" text-anchor="middle">Д-1</text>
+
+<!-- название и параметры, одна под другой -->
+<g text-anchor="middle"><text x="260" y="176" font-family="Onest, sans-serif" font-size="19" font-weight="700" fill="#1d1f23">01 · КАБИНЕТ 1</text>
+<text x="260" y="198" font-family="IBM Plex Mono, monospace" font-size="12" fill="#4a4d55">Площадь 20,0 м²</text>
+<text x="260" y="215" font-family="IBM Plex Mono, monospace" font-size="12" fill="#4a4d55">Периметр 18,0 м</text>
+<text x="260" y="232" font-family="IBM Plex Mono, monospace" font-size="12" fill="#4a4d55">Высота 2,7 м</text></g>
+
+<!-- размерные цепочки -->
+<g stroke="#1d1f23" stroke-width="1" fill="none">
+<path d="M120 322V346M154 322V346M204 322V346M400 322V346"/>
+<path d="M114 340H406"/>
+<path d="M117 343l6-6M151 343l6-6M201 343l6-6M397 343l6-6"/>
+<path d="M120 352V372M400 352V372"/><path d="M114 366H406"/><path d="M117 369l6-6M397 369l6-6"/>
+<path d="M120 54V40M260 54V40M338 54V40M400 54V40"/>
+<path d="M114 44H406"/><path d="M117 47l6-6M257 47l6-6M335 47l6-6M397 47l6-6"/>
+<path d="M412 80H452M412 304H452"/><path d="M446 74V310"/><path d="M443 83l6-6M443 307l6-6"/>
+</g>
+<g font-family="IBM Plex Mono, monospace" font-size="12" fill="#1d1f23" text-anchor="middle"><text x="137" y="336" font-size="10">600</text><text x="179" y="336">900</text><text x="302" y="336">3500</text><text x="260" y="362">5000</text>
+<text x="190" y="40">2500</text><text x="299" y="40">1400</text><text x="369" y="40">1100</text></g>
+<text x="438" y="192" transform="rotate(-90 438 192)" font-family="IBM Plex Mono, monospace" font-size="12" fill="#1d1f23" text-anchor="middle">4000</text>
+
+<!-- легенда -->
+<g><path d="M20 408h22" stroke="#e3000f" stroke-width="4"/><text x="50" y="412" font-family="Onest, sans-serif" font-size="12" fill="#1d1f23">откосы: укажите ширину отделываемой части</text></g>
+</svg>
