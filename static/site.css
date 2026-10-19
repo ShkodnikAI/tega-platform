@@ -147,3 +147,8 @@ body.pg-contacts{background-image:url(/static/bg-plan-3.svg?v=2);background-posi
 .help-card h3{margin:0;font-size:21px;line-height:1.25;letter-spacing:-.01em}
 .help-card p{margin:0;color:var(--muted);font-size:16px;line-height:1.5}
 .help-tag{align-self:flex-start;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);padding:1px 8px}
+
+a.help-card{color:inherit;text-decoration:none}
+a.help-card:hover h3{color:var(--red)}
+body.pg-calc main.page{gap:20px}
+body.pg-calc .lead{max-width:640px}
