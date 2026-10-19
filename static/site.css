@@ -136,3 +136,13 @@ body.pg-contacts{background-image:url(/static/bg-plan-3.svg?v=2);background-posi
 
 /* плашка «сайт в разработке» */
 .wip{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;max-width:calc(100% - 32px);padding:10px 20px;background:rgba(29,31,35,.72);color:#fff;font-size:15px;line-height:1.35;text-align:center;border-left:4px solid var(--red);pointer-events:none;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+
+/* справка на главной */
+.help .wrap{padding-top:72px;padding-bottom:72px;display:flex;flex-direction:column;gap:16px}
+.help h2{margin:0;font-size:clamp(28px,3.4vw,40px);line-height:1.1;letter-spacing:-.02em;font-weight:700}
+.help p.lead{margin:0;max-width:640px;color:var(--muted);font-size:19px;line-height:1.5}
+.help-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;margin-top:16px;border-top:1.5px solid var(--ink);border-left:1px solid var(--line);background:rgba(255,255,255,.9)}
+.help-card{position:relative;padding:28px 28px 32px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;min-width:0}
+.help-card h3{margin:0;font-size:21px;line-height:1.25;letter-spacing:-.01em}
+.help-card p{margin:0;color:var(--muted);font-size:16px;line-height:1.5}
+.help-tag{align-self:flex-start;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);padding:1px 8px}

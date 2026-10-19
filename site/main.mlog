@@ -13,6 +13,15 @@ pattern DictRu(_x: String) -> Map {
   brand: "ТЭГА ПЛЮС",
   slogan: "Элегантный инженерный подход",
   wip: "Сайт в разработке — часть разделов пока наполняется",
+  sp_title: "Справка",
+  sp_lead: "Полезные материалы для тех, кто планирует ремонт или считает смету.",
+  sp1_t: "Как определяются объёмы работ",
+  sp1_d: "Что вычитается, что добавляется и какие применяются коэффициенты.",
+  sp2_t: "Строительный калькулятор",
+  sp2_d: "Площадь, объём, уклон, запас материала. Окно калькулятора всегда под рукой.",
+  sp3_t: "Обозначения на чертежах",
+  sp3_d: "Окна, двери и размерные цепочки: как читать условные обозначения.",
+  sp_soon: "Скоро",
   desc: "ТЭГА ПЛЮС: ремонтно-строительные работы в Минске и по Беларуси. Элегантный инженерный подход. Более 20 лет опыта, более 1000 объектов.",
   nav_aria: "Основное меню",
   lang_aria: "Язык сайта",
@@ -69,6 +78,15 @@ pattern DictBe(_x: String) -> Map {
   brand: "ТЭГА ПЛЮС",
   slogan: "Элегантны інжынерны падыход",
   wip: "Сайт у распрацоўцы — частка раздзелаў яшчэ напаўняецца",
+  sp_title: "Даведка",
+  sp_lead: "Карысныя матэрыялы для тых, хто плануе рамонт або лічыць кошт.",
+  sp1_t: "Як вызначаюцца аб’ёмы работ",
+  sp1_d: "Што аднімаецца, што дадаецца і якія каэфіцыенты ўжываюцца.",
+  sp2_t: "Будаўнічы калькулятар",
+  sp2_d: "Плошча, аб’ём, ухіл, запас матэрыялу. Акно калькулятара заўсёды пад рукой.",
+  sp3_t: "Абазначэнні на чарцяжах",
+  sp3_d: "Вокны, дзверы і памерныя ланцужкі: як чытаць умоўныя абазначэнні.",
+  sp_soon: "Хутка",
   desc: "ТЭГА ПЛЮС: рамонтна-будаўнічыя работы ў Мінску і па Беларусі. Элегантны інжынерны падыход. Больш за 20 гадоў вопыту, больш за 1000 аб’ектаў.",
   nav_aria: "Асноўнае меню",
   lang_aria: "Мова сайта",
@@ -125,6 +143,15 @@ pattern DictEn(_x: String) -> Map {
   brand: "TEGA PLUS",
   slogan: "Elegant engineering approach",
   wip: "Site under construction — some sections are still being filled in",
+  sp_title: "Reference",
+  sp_lead: "Useful material for anyone planning a renovation or building an estimate.",
+  sp1_t: "How work volumes are measured",
+  sp1_d: "What is deducted, what is added and which coefficients apply.",
+  sp2_t: "Construction calculator",
+  sp2_d: "Area, volume, slope, material reserve. The calculator window is always at hand.",
+  sp3_t: "Drawing symbols",
+  sp3_d: "Windows, doors and dimension chains: how to read the conventions.",
+  sp_soon: "Soon",
   desc: "TEGA PLUS: renovation and construction in Minsk and across Belarus. Elegant engineering approach. Over 20 years of experience, more than 1,000 completed projects.",
   nav_aria: "Main menu",
   lang_aria: "Site language",
@@ -221,7 +248,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=8\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=9\">
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
@@ -293,6 +320,15 @@ pattern HomeTpl(_x: String) -> String {
 <path d=\"M150 0 C170 120 120 220 210 400\" fill=\"none\" stroke=\"#4a4d55\" stroke-width=\"6\"/>
 <g fill=\"#e3000f\" stroke=\"#ffffff\" stroke-width=\"2\"><circle cx=\"210\" cy=\"150\" r=\"9\"/><circle cx=\"330\" cy=\"245\" r=\"9\"/><circle cx=\"440\" cy=\"120\" r=\"9\"/><circle cx=\"520\" cy=\"215\" r=\"9\"/><circle cx=\"270\" cy=\"330\" r=\"9\"/></g>
 </svg>
+</div>
+</div></section>
+<section class=\"help\"><div class=\"wrap\">
+<h2>{{ t.sp_title }}</h2>
+<p class=\"lead\">{{ t.sp_lead }}</p>
+<div class=\"help-grid\">
+<div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp1_t }}</h3><p>{{ t.sp1_d }}</p></div>
+<div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></div>
+<div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp3_t }}</h3><p>{{ t.sp3_d }}</p></div>
 </div>
 </div></section>
 <section class=\"cta\"><div class=\"wrap\">
