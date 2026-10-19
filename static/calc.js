@@ -1,0 +1,401 @@
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var win=$('win'), pill=$('pill'), bar=$('bar');
+
+  /* ---------- вычисления ---------- */
+  var tapeLines=[]; var cur='0', acc=null, op=null, fresh=false, hist='', err=false;
+  function num(s){return parseFloat(String(s).replace(',','.'))}
+  function str(n){
+    if(!isFinite(n)) return 'Ошибка';
+    var r=parseFloat(n.toFixed(10));
+    var s=String(r);
+    if(/e/.test(s)) s=r.toExponential(6);
+    return s.replace('.',',');
+  }
+  function group(s){
+    if(/e|Ош|Дел/.test(s)) return s;
+    var neg=s[0]==='-'; if(neg) s=s.slice(1);
+    var p=s.split(','); p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+    return (neg?'−':'')+p.join(',');
+  }
+  function calc(a,o,b){
+    if(o==='+') return a+b; if(o==='−') return a-b; if(o==='×') return a*b;
+    if(o==='÷') return b===0?NaN:a/b;
+  }
+  function render(){
+    var v=$('val'), txt=err?'Деление на 0':group(cur);
+    v.textContent=txt;
+    v.className='val'+(err?' err':(txt.length>11?' small':''));
+    $('hist').textContent=hist;
+    var tp=$('tape'); tp.innerHTML=''; tapeLines.slice(-2).forEach(function(t){var d=document.createElement('div'); d.textContent=t; tp.appendChild(d);});
+    $('dimLbl').textContent=err?'ошибка':(op&&fresh?'ожидает число':(hist.indexOf('=')>0?'результат':'ввод'));
+    $('pillVal').textContent=err?'—':group(cur);
+    var ops=document.querySelectorAll('.k.op');
+    for(var i=0;i<ops.length;i++) ops[i].classList.toggle('act', !!op && fresh && ops[i].dataset.k===op);
+  }
+  function digit(d){
+    if(err) clearAll();
+    if(fresh){cur='0'; fresh=false; if(!op) hist='';}
+    if(d===','){ if(cur.indexOf(',')<0) cur+=','; }
+    else if(cur==='0') cur=d;
+    else if(cur.replace(/[^0-9]/g,'').length<12) cur+=d;
+    render();
+  }
+  function operate(o){
+    if(err) return;
+    if(op && !fresh){
+      var r=calc(acc,op,num(cur));
+      if(isNaN(r)){err=true; acc=null; op=null; render(); return;}
+      acc=r; cur=str(r);
+    } else if(!op){ acc=num(cur); }
+    op=o; fresh=true; hist=group(str(acc))+' '+o; render();
+  }
+  function equals(){
+    if(err||!op) return;
+    var b=num(cur), r=calc(acc,op,b);
+    if(isNaN(r)){err=true; acc=null; op=null; hist=''; render(); return;}
+    hist=group(str(acc))+' '+op+' '+group(str(b))+' =';
+    cur=str(r); tapeLines.push(hist+' '+group(cur)); if(tapeLines.length>6) tapeLines.shift(); acc=null; op=null; fresh=true; render();
+  }
+  function percent(){
+    if(err) return;
+    var b=num(cur);
+    if(op && acc!==null){ b=(op==='+'||op==='−')? acc*b/100 : b/100; }
+    else b=b/100;
+    cur=str(b); fresh=false; render();
+  }
+  function negate(){ if(err||cur==='0') return; cur=cur[0]==='-'?cur.slice(1):'-'+cur; render(); }
+  function back(){
+    if(err){clearAll();return;}
+    if(fresh) return;
+    cur=cur.length>1&&!(cur.length===2&&cur[0]==='-')?cur.slice(0,-1):'0'; render();
+  }
+  function clearAll(){cur='0';acc=null;op=null;fresh=false;hist='';err=false;render();}
+  function setValue(n){ err=false; cur=str(n); acc=null; op=null; fresh=true; hist='из справочной вкладки'; render(); }
+
+  var keys=[['C','fn'],['⌫','fn'],['%','fn'],['÷','op'],['7'],['8'],['9'],['×','op'],['4'],['5'],['6'],['−','op'],['1'],['2'],['3'],['+','op'],['±','fn'],['0'],[','],['=','eq']];
+  var pad=$('pad');
+  keys.forEach(function(k){
+    var b=document.createElement('button'); b.type='button';
+    b.className='k'+(k[1]?' '+k[1]:' num'); b.textContent=k[0]; b.dataset.k=k[0];
+    b.setAttribute('aria-label',{'C':'Сбросить','⌫':'Стереть','%':'Процент','÷':'Разделить','×':'Умножить','−':'Вычесть','+':'Сложить','±':'Сменить знак','=':'Равно',',':'Запятая'}[k[0]]||k[0]);
+    b.addEventListener('click',function(){
+      var c=k[0];
+      if(c==='C') clearAll(); else if(c==='⌫') back(); else if(c==='%') percent();
+      else if(c==='±') negate(); else if(c==='=') equals();
+      else if('÷×−+'.indexOf(c)>=0) operate(c); else digit(c);
+    });
+    pad.appendChild(b);
+  });
+
+  /* ---------- общие помощники для вкладок ---------- */
+  function fmt(x,d){ if(!isFinite(x)) return '—'; var k=Math.pow(10,d===undefined?3:d); return group(str(Math.round(x*k)/k)); }
+  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+  function fieldHTML(id,f,saved){
+    var v=(saved[id]!==undefined)?saved[id]:f.def;
+    if(f.s){
+      var o=f.s.map(function(x){return '<option value="'+esc(x[0])+'"'+(String(x[0])===String(v)?' selected':'')+'>'+esc(x[1])+'</option>'}).join('');
+      return '<label for="'+id+'">'+f.l+'</label><select id="'+id+'">'+o+'</select>';
+    }
+    return '<label for="'+id+'">'+f.l+'</label><input id="'+id+'" inputmode="decimal" autocomplete="off" value="'+esc(v)+'">';
+  }
+  function mkFields(box,pid,spec,saved,onChange,pairs){
+    box.innerHTML='';
+    var row=null;
+    spec.forEach(function(f,j){
+      var id=pid+'_'+j, d=document.createElement('div'); d.className='fld'; d.innerHTML=fieldHTML(id,f,saved);
+      var el=d.querySelector('input,select');
+      el.addEventListener(f.s?'change':'input',function(e){saved[id]=e.target.value; onChange();});
+      if(pairs&&f.half){ if(!row){row=document.createElement('div');row.className='two';box.appendChild(row);} row.appendChild(d); if(row.children.length===2) row=null; }
+      else { row=null; box.appendChild(d); }
+    });
+  }
+  function readVals(pid,spec){ return spec.map(function(f,j){var el=$(pid+'_'+j); return f.s?el.value:num(el.value);}); }
+  function showRes(el,out){
+    el.innerHTML=out.map(function(r,i){
+      var ok=isFinite(r[1]); var d=(r[3]===undefined?3:r[3]);
+      return '<button type="button" class="rc" data-i="'+i+'"'+(ok?'':' disabled')+' title="Перенести в калькулятор"><span>'+r[0]+'</span><b>'+(ok?fmt(r[1],d)+(r[2]?'<small>'+r[2]+'</small>':''):'—')+'</b></button>';
+    }).join('');
+    var bs=el.querySelectorAll('.rc');
+    for(var i=0;i<bs.length;i++) (function(i){ bs[i].addEventListener('click',function(){
+      var v=out[i][1]; if(!isFinite(v)) return; setValue(Math.round(v*1000)/1000); showTab('calc');
+    });})(i);
+  }
+
+  /* ---------- вкладка «Стройка» ---------- */
+  var tools=[
+    {id:'area',name:'Площадь',f:[['Длина, м','5'],['Ширина, м','4']],
+     out:function(v){return [['Площадь',v[0]*v[1],'м²'],['Периметр',2*(v[0]+v[1]),'м']]}},
+    {id:'vol',name:'Объём',f:[['Длина, м','5'],['Ширина, м','4'],['Высота или толщина, м','0,05']],
+     out:function(v){return [['Объём',v[0]*v[1]*v[2],'м³'],['Площадь',v[0]*v[1],'м²']]}},
+    {id:'diag',name:'Диагональ',f:[['Катет a, м','3'],['Катет b, м','4']],
+     out:function(v){return [['Гипотенуза',Math.sqrt(v[0]*v[0]+v[1]*v[1]),'м'],['Сумма катетов',v[0]+v[1],'м']]}},
+    {id:'slope',name:'Уклон',f:[['Длина, м','3'],['Перепад высот, мм','15']],
+     out:function(v){return [['Уклон',v[0]?v[1]/10/v[0]/10:NaN,'%'],['На 1 м',v[0]?v[1]/v[0]:NaN,'мм']]}},
+    {id:'reserve',name:'Запас',f:[['Количество','20'],['Запас, %','10']],
+     out:function(v){return [['С запасом',v[0]*(1+v[1]/100),''],['Запас',v[0]*v[1]/100,'']]}}
+  ];
+  var tIdx=0, toolVals={};
+  var chips=$('chips'), fields=$('fields'), res=$('res');
+  tools.forEach(function(t,i){
+    var b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=t.name;
+    b.setAttribute('aria-pressed',i===0?'true':'false');
+    b.addEventListener('click',function(){tIdx=i; buildTool();});
+    chips.appendChild(b);
+  });
+  var lastRes=null;
+  function buildTool(){
+    var t=tools[tIdx], cs=chips.children;
+    for(var i=0;i<cs.length;i++) cs[i].setAttribute('aria-pressed',i===tIdx?'true':'false');
+    mkFields(fields,'tf_'+t.id,t.f.map(function(f){return {l:f[0],def:f[1]}}),toolVals,calcTool);
+    calcTool();
+  }
+  function calcTool(){
+    var t=tools[tIdx], v=readVals('tf_'+t.id,t.f.map(function(f){return {l:f[0]}}));
+    var ok=v.every(function(x){return isFinite(x)});
+    var o=ok?t.out(v):[['—',NaN,''],['—',NaN,'']];
+    lastRes=o[0][1]; showRes(res,o);
+  }
+  $('insBtn').addEventListener('click',function(){
+    if(lastRes===null||!isFinite(lastRes)) return;
+    setValue(Math.round(lastRes*10000)/10000); showTab('calc');
+  });
+  buildTool();
+
+  /* ---------- вкладка «Металл»: сортамент ---------- */
+  function r3(x){return Math.round(x*1000)/1000}
+  function rng(a){return a.map(function(x){return x})}
+  var REB=[6,8,10,12,14,16,18,20,22,25,28,32,36,40];
+  var CH=[['5','4,84'],['6,5','5,90'],['8','7,05'],['10','8,59'],['12','10,4'],['14','12,3'],['14а','13,3'],['16','14,2'],['16а','15,3'],['18','16,3'],['18а','17,4'],['20','18,4'],['20а','19,8'],['22','21,0'],['22а','22,6'],['24','24,0'],['24а','25,8'],['27','27,7'],['30','31,8'],['33','36,5'],['36','41,9'],['40','48,3']];
+  var IB=[['10','9,46'],['12','11,5'],['14','13,7'],['16','15,9'],['18','18,4'],['18а','19,9'],['20','21,0'],['20а','22,7'],['22','24,0'],['22а','25,8'],['24','27,3'],['24а','29,4'],['27','31,5'],['27а','33,9'],['30','36,5'],['30а','39,2'],['33','42,2'],['36','48,6'],['40','57,0'],['45','66,5'],['50','78,5'],['55','92,6'],['60','108']];
+  var AN=[['20×3','0,89'],['20×4','1,15'],['25×3','1,12'],['25×4','1,46'],['28×3','1,27'],['32×3','1,46'],['32×4','1,91'],['36×3','1,65'],['36×4','2,16'],['40×3','1,85'],['40×4','2,42'],['45×3','2,08'],['45×4','2,73'],['45×5','3,37'],['50×3','2,32'],['50×4','3,05'],['50×5','3,77'],['56×3,5','3,03'],['56×4','3,44'],['56×5','4,25'],['63×4','3,90'],['63×5','4,81'],['63×6','5,72'],['70×4,5','4,87'],['70×5','5,38'],['70×6','6,39'],['70×7','7,39'],['70×8','8,37'],['75×5','5,80'],['75×6','6,89'],['75×7','7,96'],['75×8','9,02'],['75×9','10,1'],['80×5,5','6,78'],['80×6','7,36'],['80×7','8,51'],['80×8','9,65'],['90×6','8,33'],['90×7','9,64'],['90×8','10,9'],['90×9','12,2'],['100×6,5','10,1'],['100×7','10,8'],['100×8','12,2'],['100×10','15,1'],['100×12','17,9'],['100×14','20,6'],['100×16','23,3'],['110×7','11,9'],['110×8','13,5'],['125×8','15,5'],['125×9','17,3'],['125×10','19,1'],['125×12','22,7'],['125×14','26,2'],['125×16','29,6'],['140×9','19,4'],['140×10','21,5'],['140×12','25,5'],['160×10','24,7'],['160×11','27,0'],['160×12','29,4'],['160×14','34,0'],['160×16','38,5'],['160×18','43,0'],['160×20','47,4'],['180×11','30,5'],['180×12','33,1'],['200×12','37,0'],['200×13','39,9'],['200×14','42,8'],['200×16','48,7'],['200×20','60,1'],['200×25','74,0'],['200×30','87,6'],['220×14','47,4'],['220×16','53,8'],['250×16','61,5'],['250×18','68,9'],['250×20','76,1'],['250×22','83,3'],['250×25','94,0'],['250×28','104,5'],['250×30','111,4']];
+  function tbl(a){return a.map(function(x){return [x[0],num(x[1])]})}
+  var METAL=[
+    {id:'reb',name:'Арматура, диаметр (ГОСТ 34028)',unit:'м',sizes:REB.map(function(d){return ['Ø'+d+' мм',d*d*0.00617]}),note:'Масса 1 м = d² × 0,00617, плотность стали 7850 кг/м³. Диаметр d в мм.'},
+    {id:'ch',name:'Швеллер, серия У (ГОСТ 8240)',unit:'м',sizes:tbl(CH).map(function(x){return ['№'+x[0],x[1]]}),note:'Масса 1 м по ГОСТ 8240-97, серия У. Сверяйте с действующим стандартом.'},
+    {id:'ib',name:'Двутавр, балка (ГОСТ 8239)',unit:'м',sizes:tbl(IB).map(function(x){return ['№'+x[0],x[1]]}),note:'Масса 1 м по ГОСТ 8239-89. Сверяйте с действующим стандартом.'},
+    {id:'an',name:'Уголок равнополочный (ГОСТ 8509)',unit:'м',sizes:tbl(AN).map(function(x){return [x[0]+' мм',x[1]]}),note:'Размер: ширина полки × толщина, мм. Масса 1 м по ГОСТ 8509-93.'},
+    {id:'sh',name:'Лист стальной',unit:'м²',sizes:[0.5,0.7,0.8,1,1.2,1.5,2,2.5,3,4,5,6,8,10,12,14,16,20,25,30].map(function(t){return [String(t).replace('.',',')+' мм',t*7.85]}),note:'Масса 1 м² = толщина в мм × 7,85.'},
+    {id:'rd',name:'Круг стальной',unit:'м',sizes:[6,8,10,12,14,16,18,20,22,25,28,30,32,36,40,45,50,60,80,100].map(function(d){return ['Ø'+d+' мм',d*d*0.00617]}),note:'Масса 1 м = d² × 0,00617.'},
+    {id:'sq',name:'Квадрат стальной',unit:'м',sizes:[8,10,12,14,16,18,20,25,30,40,50].map(function(a){return [a+'×'+a+' мм',a*a*0.00785]}),note:'Масса 1 м = a² × 0,00785, сторона a в мм.'},
+    {id:'st',name:'Полоса стальная',unit:'м',sizes:[[20,3],[20,4],[25,4],[30,4],[40,4],[40,5],[50,4],[50,5],[50,6],[60,5],[60,6],[80,6],[100,6],[100,8],[120,8],[150,10]].map(function(x){return [x[0]+'×'+x[1]+' мм',x[0]*x[1]*0.00785]}),note:'Масса 1 м = ширина × толщина (мм) × 0,00785.'},
+    {id:'pr',name:'Труба круглая (расчётная)',unit:'м',sizes:[[20,2],[25,2],[32,2],[40,2.5],[48,3],[57,3],[76,3],[89,3.5],[108,4],[133,4],[159,4.5],[219,6]].map(function(x){return [x[0]+'×'+String(x[1]).replace('.',',')+' мм',(x[0]-x[1])*x[1]*0.02466]}),note:'Масса 1 м = (D − s) × s × 0,02466, D наружный диаметр и s стенка в мм.'},
+    {id:'pp',name:'Труба профильная (расчётная)',unit:'м',sizes:[[20,20,2],[25,25,2],[30,30,2],[40,20,2],[40,40,2],[50,25,2],[50,50,3],[60,40,3],[60,60,3],[80,40,3],[80,80,4],[100,50,3],[100,100,4],[120,120,5],[140,140,5],[160,160,6]].map(function(x){return [x[0]+'×'+x[1]+'×'+x[2]+' мм',2*x[2]*(x[0]+x[1]-2*x[2])*0.00785]}),note:'Расчёт по площади сечения без скругления углов, фактическая масса по ГОСТ 30245 чуть меньше.'}
+  ];
+  var mSaved={}, mTypeEl=$('mType');
+  METAL.forEach(function(m,i){var o=document.createElement('option');o.value=i;o.textContent=m.name;mTypeEl.appendChild(o);});
+  function mSpec(m){
+    var f=[{l:'Размер',s:m.sizes.map(function(z,i){return [i,z[0]]}),def:Math.min(4,m.sizes.length-1)}];
+    if(m.unit==='м'){ f.push({l:'Длина одного, м',def:'6',half:true}); f.push({l:'Количество, шт',def:'10',half:true}); }
+    else f.push({l:'Площадь, м²',def:'10'});
+    return f;
+  }
+  function buildMetal(){
+    var m=METAL[+mTypeEl.value], spec=mSpec(m), pid='mf_'+m.id;
+    mkFields($('mFields'),pid,spec,mSaved,calcMetal,true);
+    $('mNote').textContent=m.note; calcMetal();
+  }
+  function calcMetal(){
+    var m=METAL[+mTypeEl.value], spec=mSpec(m), pid='mf_'+m.id, v=readVals(pid,spec);
+    var w=m.sizes[+v[0]][1], out;
+    if(m.unit==='м'){
+      var L=v[1]*v[2], tot=w*L;
+      out=[['Масса 1 м',w,'кг',3],['Всего',tot,'кг',1],['Всего',tot/1000,'т',3],['Общая длина',L,'м',2]];
+    } else {
+      var tot2=w*v[1];
+      out=[['Масса 1 м²',w,'кг',2],['Всего',tot2,'кг',1],['Всего',tot2/1000,'т',3],['Площадь',v[1],'м²',2]];
+    }
+    showRes($('mRes'),out);
+  }
+  mTypeEl.addEventListener('change',buildMetal);
+  buildMetal();
+
+  /* ---------- вкладка «Бетон»: состав ---------- */
+  var CONC=[['М100','B7,5',159,820,1207,175,'1,10'],['М150','B10',183,812,1195,175,'0,96'],['М200','B15',231,796,1171,175,'0,76'],['М250','B20',278,779,1147,175,'0,63'],['М300','B22,5',302,771,1135,175,'0,58'],['М350','B25',326,763,1123,175,'0,54'],['М400','B30',374,747,1099,175,'0,47'],['М450','B35',429,725,1067,178,'0,41'],['М550','B40',518,685,1008,187,'0,36']];
+  var cSaved={};
+  var cSpec=[{l:'Марка бетона (класс)',s:CONC.map(function(c,i){return [i,c[0]+' ('+c[1]+')']}),def:2},{l:'Объём бетона, м³',def:'1',half:true},{l:'Запас, %',def:'0',half:true}];
+  function buildConc(){ mkFields($('cFields'),'cf',cSpec,cSaved,calcConc,true); calcConc(); }
+  function calcConc(){
+    var v=readVals('cf',cSpec), c=CONC[+v[0]], k=v[1]*(1+(v[2]||0)/100);
+    $('cInfo').textContent='Класс '+c[1]+'  ·  В/Ц '+c[6]+'  ·  Ц : П : Щ = 1 : '+(c[3]/c[2]).toFixed(1).replace('.',',')+' : '+(c[4]/c[2]).toFixed(1).replace('.',',');
+    var cem=c[2]*k, sand=c[3]*k, gr=c[4]*k, w=c[5]*k;
+    showRes($('cRes'),[['Цемент',cem,'кг',0],['Мешков по 50 кг',Math.ceil(cem/50-1e-9),'шт',0],['Песок',sand,'кг',0],['Песок',sand/1600,'м³',2],['Щебень',gr,'кг',0],['Щебень',gr/1400,'м³',2],['Вода',w,'л',0],['Масса смеси',(cem+sand+gr+w)/1000,'т',2]]);
+  }
+  buildConc();
+
+  /* ---------- вкладка «Формулы»: геометрия ---------- */
+  var PI=Math.PI;
+  function N(l,d,h){return {l:l,def:d,half:h!==false}}
+  var SHAPES=[
+    {g:'Плоские фигуры',id:'rect',n:'Прямоугольник',f:[N('Сторона a','5'),N('Сторона b','4')],tx:'S = a · b\nP = 2 · (a + b)\nd = √(a² + b²)',o:function(v){return [['Площадь S',v[0]*v[1],'',4],['Периметр P',2*(v[0]+v[1]),'',4],['Диагональ d',Math.hypot(v[0],v[1]),'',4]]}},
+    {g:'Плоские фигуры',id:'tri',n:'Треугольник по основанию и высоте',f:[N('Основание a','6'),N('Высота h','4')],tx:'S = a · h / 2',o:function(v){return [['Площадь S',v[0]*v[1]/2,'',4]]}},
+    {g:'Плоские фигуры',id:'tri3',n:'Треугольник по трём сторонам',f:[N('Сторона a','3'),N('Сторона b','4'),N('Сторона c','5')],tx:'p = (a + b + c) / 2\nS = √(p · (p − a) · (p − b) · (p − c))',o:function(v){var p=(v[0]+v[1]+v[2])/2,q=p*(p-v[0])*(p-v[1])*(p-v[2]);return [['Площадь S',q>0?Math.sqrt(q):NaN,'',4],['Периметр P',2*p,'',4]]}},
+    {g:'Плоские фигуры',id:'circ',n:'Круг',f:[N('Радиус r','2',false)],tx:'S = π · r²\nL = 2 · π · r',o:function(v){return [['Площадь S',PI*v[0]*v[0],'',4],['Длина окружности L',2*PI*v[0],'',4]]}},
+    {g:'Плоские фигуры',id:'ring',n:'Кольцо',f:[N('Внешний радиус R','5'),N('Внутренний радиус r','3')],tx:'S = π · (R² − r²)',o:function(v){return [['Площадь S',v[0]>=v[1]?PI*(v[0]*v[0]-v[1]*v[1]):NaN,'',4]]}},
+    {g:'Плоские фигуры',id:'trap',n:'Трапеция',f:[N('Основание a','6'),N('Основание b','4'),N('Высота h','3',false)],tx:'S = (a + b) · h / 2',o:function(v){return [['Площадь S',(v[0]+v[1])*v[2]/2,'',4]]}},
+    {g:'Плоские фигуры',id:'par',n:'Параллелограмм',f:[N('Основание a','5'),N('Высота h','3')],tx:'S = a · h',o:function(v){return [['Площадь S',v[0]*v[1],'',4]]}},
+    {g:'Плоские фигуры',id:'sect',n:'Сектор круга',f:[N('Радиус r','4'),N('Угол α, °','90')],tx:'S = π · r² · α / 360\nL = π · r · α / 180',o:function(v){return [['Площадь S',PI*v[0]*v[0]*v[1]/360,'',4],['Длина дуги L',PI*v[0]*v[1]/180,'',4]]}},
+    {g:'Плоские фигуры',id:'ell',n:'Эллипс',f:[N('Полуось a','5'),N('Полуось b','3')],tx:'S = π · a · b\nP ≈ π · (3(a + b) − √((3a + b)(a + 3b)))',o:function(v){return [['Площадь S',PI*v[0]*v[1],'',4],['Периметр P (прибл.)',PI*(3*(v[0]+v[1])-Math.sqrt((3*v[0]+v[1])*(v[0]+3*v[1]))),'',4]]}},
+    {g:'Объёмные тела',id:'box',n:'Параллелепипед',f:[N('Длина a','5'),N('Ширина b','4'),N('Высота c','3',false)],tx:'V = a · b · c\nS = 2 · (ab + bc + ca)',o:function(v){return [['Объём V',v[0]*v[1]*v[2],'',4],['Площадь поверхности S',2*(v[0]*v[1]+v[1]*v[2]+v[2]*v[0]),'',4]]}},
+    {g:'Объёмные тела',id:'cyl',n:'Цилиндр',f:[N('Радиус r','2'),N('Высота h','5')],tx:'V = π · r² · h\nSбок = 2 · π · r · h\nSполн = 2 · π · r · (r + h)',o:function(v){return [['Объём V',PI*v[0]*v[0]*v[1],'',4],['Боковая Sбок',2*PI*v[0]*v[1],'',4],['Полная Sполн',2*PI*v[0]*(v[0]+v[1]),'',4]]}},
+    {g:'Объёмные тела',id:'tube',n:'Труба (полый цилиндр)',f:[N('Внешний радиус R','5'),N('Внутренний радиус r','4'),N('Длина h','10',false)],tx:'V = π · h · (R² − r²)',o:function(v){return [['Объём V',v[0]>=v[1]?PI*v[2]*(v[0]*v[0]-v[1]*v[1]):NaN,'',4]]}},
+    {g:'Объёмные тела',id:'cone',n:'Конус',f:[N('Радиус r','3'),N('Высота h','4')],tx:'l = √(r² + h²)\nV = π · r² · h / 3\nS = π · r · (r + l)',o:function(v){var l=Math.hypot(v[0],v[1]);return [['Объём V',PI*v[0]*v[0]*v[1]/3,'',4],['Образующая l',l,'',4],['Полная S',PI*v[0]*(v[0]+l),'',4]]}},
+    {g:'Объёмные тела',id:'fr',n:'Усечённый конус',f:[N('Нижний радиус R','4'),N('Верхний радиус r','2'),N('Высота h','5',false)],tx:'V = π · h · (R² + R·r + r²) / 3\nl = √((R − r)² + h²)',o:function(v){var l=Math.hypot(v[0]-v[1],v[2]);return [['Объём V',PI*v[2]*(v[0]*v[0]+v[0]*v[1]+v[1]*v[1])/3,'',4],['Образующая l',l,'',4],['Боковая S',PI*(v[0]+v[1])*l,'',4]]}},
+    {g:'Объёмные тела',id:'sph',n:'Шар',f:[N('Радиус r','3',false)],tx:'V = 4 · π · r³ / 3\nS = 4 · π · r²',o:function(v){return [['Объём V',4*PI*v[0]*v[0]*v[0]/3,'',4],['Площадь поверхности S',4*PI*v[0]*v[0],'',4]]}},
+    {g:'Объёмные тела',id:'pyr',n:'Пирамида (основание прямоугольник)',f:[N('Сторона a','4'),N('Сторона b','3'),N('Высота h','6',false)],tx:'V = a · b · h / 3',o:function(v){return [['Объём V',v[0]*v[1]*v[2]/3,'',4]]}}
+  ];
+  var fTypeEl=$('fType'), fSaved={}, grp=null, og=null;
+  SHAPES.forEach(function(s,i){
+    if(s.g!==grp){og=document.createElement('optgroup');og.label=s.g;fTypeEl.appendChild(og);grp=s.g;}
+    var o=document.createElement('option');o.value=i;o.textContent=s.n;og.appendChild(o);
+  });
+  function buildForm(){
+    var s=SHAPES[+fTypeEl.value];
+    mkFields($('fFields'),'ff_'+s.id,s.f,fSaved,calcForm,true);
+    $('fFormula').innerHTML=s.tx.split('\n').map(esc).join('<br>');
+    calcForm();
+  }
+  function calcForm(){
+    var s=SHAPES[+fTypeEl.value], v=readVals('ff_'+s.id,s.f);
+    var ok=v.every(function(x){return isFinite(x)&&x>=0});
+    showRes($('fRes'),ok?s.o(v):s.o([NaN,NaN,NaN]));
+  }
+  fTypeEl.addEventListener('change',buildForm);
+  buildForm();
+
+
+  /* ---------- вкладка «Плотность»: объёмные массы ---------- */
+  var DENS=[
+   ['Бетоны и растворы',[['Бетон тяжёлый',2400,'2200–2500'],['Железобетон',2500,'2400–2500'],['Керамзитобетон',1400,'800–1800'],['Газобетон',500,'300–800'],['Пенобетон',600,'300–1000'],['Раствор цементно-песчаный',1800,'1700–2100'],['Раствор известковый',1700,'1600–1700'],['Штукатурка гипсовая',1200,'1000–1300']]],
+   ['Кладка и камень',[['Кирпич керамический полнотелый',1800,'1600–1900'],['Кирпич керамический пустотелый',1300,'1000–1450'],['Кирпич силикатный',1800,'1700–1900'],['Гранит',2700,'2600–2900'],['Мрамор',2700,'2600–2900'],['Известняк плотный',2400,'2000–2600'],['Песчаник',2400,'2200–2600']]],
+   ['Сыпучие (насыпная плотность)',[['Песок сухой',1600,'1400–1700'],['Песок влажный',1900,'1800–2000'],['Щебень гранитный',1450,'1350–1550'],['Гравий',1650,'1500–1700'],['Керамзит',500,'250–800'],['Цемент',1300,'1100–1600'],['Глина',1800,'1600–2100']]],
+   ['Металлы',[['Сталь',7850,''],['Чугун',7200,'7000–7400'],['Алюминий',2700,''],['Медь',8900,''],['Латунь',8500,'8400–8700'],['Свинец',11340,''],['Цинк',7140,'']]],
+   ['Древесина и плиты',[['Сосна воздушно-сухая',500,'400–600'],['Ель воздушно-сухая',450,'400–500'],['Дуб',700,'650–800'],['Берёза',650,'600–700'],['Лиственница',650,'600–700'],['Фанера берёзовая',680,'650–750'],['OSB',650,'600–680'],['ДСП',650,'550–750'],['МДФ',750,'650–850'],['ДВП твёрдая',950,'850–1000']]],
+   ['Отделочные материалы',[['Гипсокартон',850,'700–900'],['Стекло листовое',2500,''],['Плитка керамическая, керамогранит',2300,'2000–2500']]],
+   ['Утеплители',[['Минеральная (каменная) вата',100,'30–200'],['Стекловата',30,'15–70'],['Пенополистирол ППС',25,'15–35'],['Экструдированный пенополистирол',35,'28–45'],['Пенополиуретан',40,'30–80'],['Пеностекло',150,'100–200']]],
+   ['Прочее',[['Вода',1000,''],['Лёд',920,''],['Битум',1050,'950–1100'],['Асфальтобетон',2350,'2300–2400'],['ПВХ',1400,''],['Полиэтилен',950,''],['Полипропилен',900,'']]]
+  ];
+  var DFLAT=[]; DENS.forEach(function(g){g[1].forEach(function(m){DFLAT.push({g:g[0],n:m[0],r:m[1],rg:m[2]})})});
+  var dSel=$('dMat'), dRho=$('dRho'), dVol=$('dVol'), dMass=$('dMass'), dList=$('dList');
+  var dIdx=0;
+  (function(){
+    var k=0;
+    DENS.forEach(function(g){
+      var og=document.createElement('optgroup'); og.label=g[0]; dSel.appendChild(og);
+      var d=document.createElement('div'); d.className='dg'; d.textContent=g[0]; dList.appendChild(d);
+      g[1].forEach(function(m){
+        var i=k++;
+        var o=document.createElement('option'); o.value=i; o.textContent=m[0]; og.appendChild(o);
+        var b=document.createElement('button'); b.type='button'; b.dataset.i=i; b.setAttribute('role','listitem');
+        b.innerHTML='<span>'+esc(m[0])+'</span><i>'+fmt(m[1],0)+'</i>';
+        b.addEventListener('click',function(){ dSel.value=i; pickDens(i); });
+        dList.appendChild(b);
+      });
+    });
+  })();
+  function setIn(el,x){ el.value=isFinite(x)?str(Math.round(x*10000)/10000):''; }
+  function pickDens(i){
+    dIdx=+i; var m=DFLAT[dIdx];
+    setIn(dRho,m.r);
+    $('dInfo').textContent=m.g.replace(' (насыпная плотность)','')+'  ·  '+fmt(m.r,0)+' кг/м³'+(m.rg?'  ·  диапазон '+m.rg:'')+(/насып/.test(m.g)?'  ·  насыпная':'');
+    var bs=dList.querySelectorAll('button');
+    for(var j=0;j<bs.length;j++) bs[j].setAttribute('aria-current',+bs[j].dataset.i===dIdx?'true':'false');
+    var cur=dList.querySelector('button[aria-current="true"]');
+    if(cur&&dList.scrollHeight>dList.clientHeight){ var t=cur.offsetTop-dList.clientHeight/2; dList.scrollTop=Math.max(0,t); }
+    fromVol();
+  }
+  function densOut(){
+    var r=num(dRho.value), v=num(dVol.value), m=num(dMass.value);
+    showRes($('dRes'),[['Масса',m,'кг',2],['Масса',m/1000,'т',3],['Объём',v,'м³',3],['Объём',v*1000,'л',1]]);
+  }
+  function fromVol(){ var r=num(dRho.value), v=num(dVol.value); setIn(dMass, r*v); densOut(); }
+  function fromMass(){ var r=num(dRho.value), m=num(dMass.value); setIn(dVol, r?m/r:NaN); densOut(); }
+  dRho.addEventListener('input',fromVol); dVol.addEventListener('input',fromVol); dMass.addEventListener('input',fromMass);
+  dSel.addEventListener('change',function(){pickDens(dSel.value)});
+  dSel.value=0; pickDens(0);
+
+  var TABS=[['calc','paneCalc','tabCalc'],['build','paneBuild','tabBuild'],['metal','paneMetal','tabMetal'],['conc','paneConc','tabConc'],['form','paneForm','tabForm'],['dens','paneDens','tabDens']];
+  function showTab(w){
+    TABS.forEach(function(t){
+      var on=(t[0]===w); $(t[1]).hidden=!on; $(t[2]).setAttribute('aria-selected',on?'true':'false');
+    });
+    if(!win.hidden) clamp(), apply();
+  }
+  TABS.forEach(function(t){ $(t[2]).addEventListener('click',function(){showTab(t[0])}); });
+
+  /* ---------- окно: положение, закрепление, перетаскивание ---------- */
+  var pinned=true, pos={x:24,y:110}, minimized=false, opened=false;
+  try{ var sv=JSON.parse(localStorage.getItem('tega-calc')||'null'); if(sv){pinned=!!sv.pinned; pos={x:sv.x,y:sv.y};} }catch(e){}
+  function save(){ try{localStorage.setItem('tega-calc',JSON.stringify({pinned:pinned,x:pos.x,y:pos.y}))}catch(e){} }
+  function clamp(){
+    var w=(minimized?pill:win).offsetWidth||340, h=(minimized?pill:win).offsetHeight||500;
+    var maxX=Math.max(0,document.documentElement.clientWidth-w);
+    pos.x=Math.min(Math.max(0,pos.x),maxX);
+    if(pinned){ pos.y=Math.min(Math.max(0,pos.y),Math.max(0,window.innerHeight-h)); }
+    else { pos.y=Math.max(0,pos.y); }
+  }
+  function apply(){
+    [win,pill].forEach(function(el){
+      el.classList.toggle('floating',!pinned);
+      el.classList.toggle('pinned',pinned);
+      el.style.left=pos.x+'px'; el.style.top=pos.y+'px';
+    });
+    $('pinBtn').classList.toggle('on',pinned); $('pinBtn').setAttribute('aria-pressed',pinned?'true':'false');
+    $('pillPin').classList.toggle('on',pinned);
+    $('footTxt').textContent=pinned?'Закреплён поверх страницы':'Не закреплён, прокручивается со страницей';
+  }
+  function show(){
+    opened=true; win.hidden=minimized; pill.hidden=!minimized; clamp(); apply(); render();
+  }
+  function togglePin(){
+    var el=minimized?pill:win, r=el.getBoundingClientRect();
+    pinned=!pinned;
+    pos.y = pinned ? r.top : r.top+window.scrollY;
+    pos.x = r.left+(pinned?0:window.scrollX);
+    clamp(); apply(); save();
+  }
+  $('openBtn').addEventListener('click',function(){ minimized=false; show(); });
+  $('closeBtn').addEventListener('click',function(){ opened=false; win.hidden=true; pill.hidden=true; });
+  $('minBtn').addEventListener('click',function(){ minimized=true; show(); });
+  $('expBtn').addEventListener('click',function(){ minimized=false; show(); });
+  $('pinBtn').addEventListener('click',togglePin);
+  $('pillPin').addEventListener('click',function(e){e.stopPropagation(); togglePin();});
+
+  function dragOn(handle,el){
+    var sx,sy,ox,oy,on=false,moved=false;
+    handle.addEventListener('pointerdown',function(e){
+      if(e.target.closest('button')) return;
+      on=true; moved=false; sx=e.clientX; sy=e.clientY; ox=pos.x; oy=pos.y;
+      el.classList.add('drag'); handle.setPointerCapture(e.pointerId); e.preventDefault();
+    });
+    handle.addEventListener('pointermove',function(e){
+      if(!on) return;
+      var dx=e.clientX-sx, dy=e.clientY-sy; if(Math.abs(dx)+Math.abs(dy)>3) moved=true;
+      pos.x=ox+dx; pos.y=oy+dy; clamp(); el.style.left=pos.x+'px'; el.style.top=pos.y+'px';
+    });
+    function end(e){ if(!on) return; on=false; el.classList.remove('drag'); save(); }
+    handle.addEventListener('pointerup',end); handle.addEventListener('pointercancel',end);
+    handle.addEventListener('dblclick',function(e){ if(el===pill && !e.target.closest('button')){minimized=false; show();} });
+  }
+  dragOn(bar,win); dragOn(pill,pill);
+  window.addEventListener('resize',function(){ if(opened){clamp(); apply();} });
+
+  /* ---------- клавиатура ---------- */
+  document.addEventListener('keydown',function(e){
+    if(!opened||minimized||win.hidden||$('paneCalc').hidden) return;
+    var t=e.target; if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA')) return;
+    if(t&&t.tagName==='BUTTON'&&(e.key==='Enter'||e.key===' ')) return;
+    var k=e.key;
+    if(/^[0-9]$/.test(k)) digit(k);
+    else if(k===','||k==='.') digit(',');
+    else if(k==='+') operate('+'); else if(k==='-') operate('−');
+    else if(k==='*') operate('×'); else if(k==='/') {e.preventDefault(); operate('÷');}
+    else if(k==='Enter'||k==='=') {e.preventDefault(); equals();}
+    else if(k==='Backspace') back();
+    else if(k==='Escape') clearAll();
+    else if(k==='%') percent();
+    else return;
+  });
+
+  render();
+})();

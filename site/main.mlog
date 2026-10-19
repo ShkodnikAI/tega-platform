@@ -28,6 +28,13 @@ pattern DictRu(_x: String) -> Map {
   nav_services: "Услуги",
   nav_objects: "Объекты",
   nav_about: "О компании",
+  nav_calc: "Расчёт смет",
+  calc_h1: "Расчёт смет",
+  calc_lead: "Калькулятор в плавающем окне и справочные материалы для тех, кто считает объёмы и смету.",
+  calc_open: "Открыть калькулятор",
+  calc_hint: "Окно можно перетаскивать за заголовок, закреплять поверх страницы булавкой и сворачивать. Режимы: обычный, стройка, металл, бетон, формулы, плотность.",
+  calc_note: "Расчёты ориентировочные. Табличные данные взяты из открытых источников, для проектных решений и поставок сверяйте их с действующими стандартами и документацией производителя.",
+  sp_open: "Открыть",
   nav_contacts: "Контакты",
   discuss: "Обсудить объект",
   h1: "Ремонтно-строительные работы в Минске и по Беларуси",
@@ -93,6 +100,13 @@ pattern DictBe(_x: String) -> Map {
   nav_services: "Паслугі",
   nav_objects: "Аб’екты",
   nav_about: "Пра кампанію",
+  nav_calc: "Расчёт кошту",
+  calc_h1: "Расчёт кошту",
+  calc_lead: "Калькулятар у рухомым акне і даведачныя матэрыялы для тых, хто лічыць аб’ёмы і кошт.",
+  calc_open: "Адкрыць калькулятар",
+  calc_hint: "Акно можна перацягваць за загаловак, замацоўваць паверх старонкі шпількай і згортваць. Рэжымы: звычайны, будоўля, метал, бетон, формулы, шчыльнасць. Інтэрфейс калькулятара пакуль толькі па-руску.",
+  calc_note: "Разлікі арыентыровачныя. Табліцы ўзяты з адкрытых крыніц, для праектных рашэнняў і паставак звяраце іх з дзеючымі стандартамі і дакументацыяй вытворцы.",
+  sp_open: "Адкрыць",
   nav_contacts: "Кантакты",
   discuss: "Абмеркаваць аб’ект",
   h1: "Рамонтна-будаўнічыя работы ў Мінску і па Беларусі",
@@ -158,6 +172,13 @@ pattern DictEn(_x: String) -> Map {
   nav_services: "Services",
   nav_objects: "Projects",
   nav_about: "About us",
+  nav_calc: "Estimates",
+  calc_h1: "Estimate calculations",
+  calc_lead: "A floating calculator window and reference material for anyone working out volumes and estimates.",
+  calc_open: "Open calculator",
+  calc_hint: "Drag the window by its title bar, pin it above the page with the pin, or minimise it. Modes: basic, construction, metal, concrete, formulas, density. The calculator interface is in Russian for now.",
+  calc_note: "Figures are approximate. Tables come from open sources; check them against current standards and manufacturer documents before using them for design or supply.",
+  sp_open: "Open",
   nav_contacts: "Contacts",
   discuss: "Discuss your project",
   h1: "Renovation and construction in Minsk and across Belarus",
@@ -248,7 +269,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=9\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=10\">
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
@@ -257,6 +278,7 @@ pattern HeadTpl(_x: String) -> String {
 <nav aria-label=\"{{ t.nav_aria }}\">
 <a href=\"{{ p }}/uslugi\">{{ t.nav_services }}</a>
 <a href=\"{{ p }}/portfolio\">{{ t.nav_objects }}</a>
+<a href=\"{{ p }}/raschet-smet\">{{ t.nav_calc }}</a>
 <a href=\"{{ p }}/o-kompanii\">{{ t.nav_about }}</a>
 <a href=\"{{ p }}/kontakty\">{{ t.nav_contacts }}</a>
 </nav>
@@ -327,7 +349,7 @@ pattern HomeTpl(_x: String) -> String {
 <p class=\"lead\">{{ t.sp_lead }}</p>
 <div class=\"help-grid\">
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp1_t }}</h3><p>{{ t.sp1_d }}</p></div>
-<div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></div>
+<a class=\"help-card\" href=\"{{ p }}/raschet-smet\"><span class=\"help-tag\">{{ t.sp_open }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></a>
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp3_t }}</h3><p>{{ t.sp3_d }}</p></div>
 </div>
 </div></section>
@@ -373,6 +395,101 @@ pattern PortfolioTpl(_x: String) -> String {
 <noscript><p>{{ t.no_js }}</p></noscript>
 <script src=\"/static/vendor/leaflet/leaflet.js\"></script>
 <script src=\"/static/portfolio.js?v=4\"></script>"
+}
+
+pattern CalcTpl(_x: String) -> String {
+  return "<h1>{{ t.calc_h1 }}</h1>
+<p class=\"lead\">{{ t.calc_lead }}</p>
+<p><button class=\"btn\" id=\"openBtn\" type=\"button\">{{ t.calc_open }}</button></p>
+<p>{{ t.calc_hint }}</p>
+<p class=\"muted\">{{ t.calc_note }}</p>
+<link rel=\"stylesheet\" href=\"/static/calc.css?v=1\">
+<div id=\"tc-root\">
+<section class=\"win pinned\" id=\"win\" aria-label=\"Калькулятор\" hidden>
+  <div class=\"bar\" id=\"bar\">
+    <span class=\"mark\">ТЭГА<span> +</span></span>
+    <b>Калькулятор</b>
+    <button class=\"tb on\" id=\"pinBtn\" type=\"button\" aria-pressed=\"true\" aria-label=\"Закрепить поверх страницы\" title=\"Закрепить поверх страницы\">
+      <svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" aria-hidden=\"true\"><path d=\"M10 1.8l4.2 4.2-2 .6-2.6 2.6.2 3.2-1 1L5.6 9.6 2.2 13l-.4-.4 3.4-3.4L2.2 6.2l1-1 3.2.2L9 2.8z\"/></svg>
+    </button>
+    <button class=\"tb\" id=\"minBtn\" type=\"button\" aria-label=\"Свернуть\" title=\"Свернуть\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M3 8h10\"/></svg></button>
+    <button class=\"tb\" id=\"closeBtn\" type=\"button\" aria-label=\"Закрыть\" title=\"Закрыть\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M3.5 3.5l9 9M12.5 3.5l-9 9\"/></svg></button>
+  </div>
+  <div class=\"wtabs\" role=\"tablist\">
+    <button class=\"wtab\" id=\"tabCalc\" role=\"tab\" aria-selected=\"true\" type=\"button\">Обычный</button>
+    <button class=\"wtab\" id=\"tabBuild\" role=\"tab\" aria-selected=\"false\" type=\"button\">Стройка</button>
+    <button class=\"wtab\" id=\"tabMetal\" role=\"tab\" aria-selected=\"false\" type=\"button\">Металл</button>
+    <button class=\"wtab\" id=\"tabConc\" role=\"tab\" aria-selected=\"false\" type=\"button\">Бетон</button>
+    <button class=\"wtab\" id=\"tabForm\" role=\"tab\" aria-selected=\"false\" type=\"button\">Формулы</button>
+    <button class=\"wtab\" id=\"tabDens\" role=\"tab\" aria-selected=\"false\" type=\"button\">Плотность</button>
+  </div>
+
+  <div id=\"paneCalc\">
+    <div class=\"disp\"><div class=\"tape\" id=\"tape\"></div><div class=\"hist\" id=\"hist\"></div><div class=\"val\" id=\"val\">0</div><div class=\"dim\" aria-hidden=\"true\"><i></i><em id=\"dimLbl\">результат</em><i></i></div></div>
+    <div class=\"pad\" id=\"pad\"></div>
+  </div>
+
+  <div id=\"paneBuild\" hidden>
+    <div class=\"tools\">
+      <div class=\"chips\" id=\"chips\"></div>
+      <div id=\"fields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <div class=\"res\" id=\"res\"></div>
+    </div>
+    <button class=\"ins\" id=\"insBtn\" type=\"button\">Вставить в калькулятор &nbsp;→</button>
+  </div>
+
+  <div id=\"paneMetal\" hidden>
+    <div class=\"tools\">
+      <div class=\"fld\"><label for=\"mType\">Профиль</label><select id=\"mType\"></select></div>
+      <div id=\"mFields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <div class=\"res\" id=\"mRes\"></div>
+      <p class=\"note\" id=\"mNote\"></p>
+    </div>
+  </div>
+
+  <div id=\"paneConc\" hidden>
+    <div class=\"tools\">
+      <div id=\"cFields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <p class=\"formula\" id=\"cInfo\"></p>
+      <div class=\"res\" id=\"cRes\"></div>
+      <p class=\"note\">Расчётный начальный состав на 1 м³: цемент ПЦ 400, щебень гранитный 20–40 мм, осадка конуса 2–4 см, заполнители сухие. Проверяется пробным замесом. Насыпная плотность: песок 1600 кг/м³, щебень 1400 кг/м³. Нажмите на значение, чтобы перенести его в калькулятор.</p>
+    </div>
+  </div>
+
+  <div id=\"paneForm\" hidden>
+    <div class=\"tools\">
+      <div class=\"fld\"><label for=\"fType\">Фигура</label><select id=\"fType\"></select></div>
+      <div id=\"fFields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <p class=\"formula\" id=\"fFormula\"></p>
+      <div class=\"res\" id=\"fRes\"></div>
+      <p class=\"note\">Все величины вводятся в одних единицах: результат получится в тех же единицах (в квадрате или в кубе). Нажмите на значение, чтобы перенести его в калькулятор.</p>
+    </div>
+  </div>
+
+  <div id=\"paneDens\" hidden>
+    <div class=\"tools\">
+      <div class=\"fld\"><label for=\"dMat\">Материал</label><select id=\"dMat\"></select></div>
+      <p class=\"formula\" id=\"dInfo\"></p>
+      <div class=\"two\">
+        <div class=\"fld\"><label for=\"dRho\">Плотность, кг/м³</label><input id=\"dRho\" inputmode=\"decimal\" autocomplete=\"off\"></div>
+        <div class=\"fld\"><label for=\"dVol\">Объём, м³</label><input id=\"dVol\" inputmode=\"decimal\" autocomplete=\"off\" value=\"1\"></div>
+      </div>
+      <div class=\"fld\"><label for=\"dMass\">Масса, кг</label><input id=\"dMass\" inputmode=\"decimal\" autocomplete=\"off\"></div>
+      <div class=\"res\" id=\"dRes\"></div>
+      <div class=\"dlist\" id=\"dList\" role=\"list\" aria-label=\"Справочник плотностей\"></div>
+      <p class=\"note\">Типовые справочные значения. Для расчёта поставки берите плотность из паспорта материала. Объём и масса пересчитываются друг из друга. Нажмите на строку списка, чтобы выбрать материал, или на результат, чтобы перенести его в калькулятор.</p>
+    </div>
+  </div>
+  <div class=\"foot\"><span class=\"dot\"></span><span id=\"footTxt\">Закреплён поверх страницы</span></div>
+</section>
+
+<div class=\"pill\" id=\"pill\" hidden>
+  <span class=\"mark\">ТЭГА<span> +</span></span><span class=\"pv\" id=\"pillVal\">0</span>
+  <button class=\"tb on\" id=\"pillPin\" type=\"button\" aria-label=\"Открепить\" title=\"Закрепление\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" aria-hidden=\"true\"><path d=\"M10 1.8l4.2 4.2-2 .6-2.6 2.6.2 3.2-1 1L5.6 9.6 2.2 13l-.4-.4 3.4-3.4L2.2 6.2l1-1 3.2.2L9 2.8z\"/></svg></button>
+  <button class=\"tb\" id=\"expBtn\" type=\"button\" aria-label=\"Развернуть\" title=\"Развернуть\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"10\" height=\"10\"/></svg></button>
+</div>
+</div>
+<script src=\"/static/calc.js?v=1\"></script>"
 }
 
 pattern AboutTpl(_x: String) -> String {
@@ -424,6 +541,11 @@ pattern PortfolioPage(lang: String) -> Html {
   return Shell(lang, "/portfolio", "portfolio", d.nav_objects, true, PortfolioTpl(""))
 }
 
+pattern CalcPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet", "calc", d.nav_calc, true, CalcTpl(""))
+}
+
 pattern AboutPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/o-kompanii", "about", d.nav_about, true, AboutTpl(""))
@@ -441,6 +563,9 @@ server {
   route "/" method=GET { return HomePage("ru") }
   route "/uslugi" method=GET { return ServicesPage("ru") }
   route "/portfolio" method=GET { return PortfolioPage("ru") }
+  route "/raschet-smet" method=GET { return CalcPage("ru") }
+  route "/be/raschet-smet" method=GET { return CalcPage("be") }
+  route "/en/raschet-smet" method=GET { return CalcPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
   route "/kontakty" method=GET { return ContactsPage("ru") }
   route "/be/" method=GET { return HomePage("be") }
