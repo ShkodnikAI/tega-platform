@@ -86,17 +86,10 @@
 #tc-root .bar{flex:0 0 auto}
 #tc-root .foot{flex:0 0 auto}
 #tc-root .wbody{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--cl) transparent}
-#tc-root #paneCalc,#tc-root #paneEng{display:flex;flex-direction:column;min-height:100%}
-#tc-root #paneCalc .pad,#tc-root #paneEng .pad{flex:1 1 auto}
-#tc-root .pad5{grid-template-columns:repeat(5,1fr)}
-#tc-root .pad5 .k{min-height:46px;font-size:calc(15px*var(--u,1))}
-#tc-root .pad5 .k.op,#tc-root .pad5 .k.eq{font-size:calc(19px*var(--u,1))}
-#tc-root .pad5 .k.sci{color:var(--cf);background:var(--cs2)}
-#tc-root .pad5 .k.sci:hover{background:var(--cs3)}
-#tc-root .pad5 .k.on{background:var(--accent);color:#fff}
-#tc-root #paneEng .val{min-height:calc(50px*var(--u,1))}
-#tc-root #paneEng .hist{text-align:right;min-height:21px}
-#tc-root .ins{flex:0 0 auto}
+#tc-root #paneCalc{display:flex;flex-direction:column;min-height:100%}
+#tc-root #paneCalc .pad{flex:1 1 auto}
+#tc-root .ins{flex:0 0 auto;width:calc(100% - 40px)}
+#tc-root .res .rc:last-child:nth-child(odd){grid-column:1/-1}
 
 /* ---- растягивание за угол ---- */
 #tc-root .rz{position:absolute;right:0;bottom:0;width:28px;height:28px;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 4px 4px 0;color:var(--cm);cursor:nwse-resize;touch-action:none;z-index:3;user-select:none;-webkit-user-select:none}

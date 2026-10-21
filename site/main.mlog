@@ -403,7 +403,7 @@ pattern CalcTpl(_x: String) -> String {
 <p><button class=\"btn\" id=\"openBtn\" type=\"button\">{{ t.calc_open }}</button></p>
 <p>{{ t.calc_hint }}</p>
 <p class=\"muted\">{{ t.calc_note }}</p>
-<link rel=\"stylesheet\" href=\"/static/calc.css?v=2\">
+<link rel=\"stylesheet\" href=\"/static/calc.css?v=4\">
 <div id=\"tc-root\">
 <section class=\"win pinned\" id=\"win\" aria-label=\"Калькулятор\" hidden>
   <div class=\"bar\" id=\"bar\">
@@ -418,7 +418,6 @@ pattern CalcTpl(_x: String) -> String {
   </div>
   <div class=\"wtabs\" role=\"tablist\">
     <button class=\"wtab\" id=\"tabCalc\" role=\"tab\" aria-selected=\"true\" type=\"button\">Обычный</button>
-    <button class=\"wtab\" id=\"tabEng\" role=\"tab\" aria-selected=\"false\" type=\"button\">Инженерный</button>
     <button class=\"wtab\" id=\"tabBuild\" role=\"tab\" aria-selected=\"false\" type=\"button\">Стройка</button>
     <button class=\"wtab\" id=\"tabMetal\" role=\"tab\" aria-selected=\"false\" type=\"button\">Металл</button>
     <button class=\"wtab\" id=\"tabConc\" role=\"tab\" aria-selected=\"false\" type=\"button\">Бетон</button>
@@ -430,12 +429,6 @@ pattern CalcTpl(_x: String) -> String {
   <div id=\"paneCalc\">
     <div class=\"disp\"><div class=\"tape\" id=\"tape\"></div><div class=\"hist\" id=\"hist\"></div><div class=\"val\" id=\"val\">0</div><div class=\"dim\" aria-hidden=\"true\"><i></i><em id=\"dimLbl\">результат</em><i></i></div></div>
     <div class=\"pad\" id=\"pad\"></div>
-  </div>
-
-  <div id=\"paneEng\" hidden>
-    <div class=\"disp\"><div class=\"hist\" id=\"engExpr\"></div><div class=\"val\" id=\"engVal\">0</div><div class=\"dim\" aria-hidden=\"true\"><i></i><em id=\"engLbl\">ввод</em><i></i></div></div>
-    <div class=\"pad pad5\" id=\"engPad\"></div>
-    <button class=\"ins\" id=\"engIns\" type=\"button\">Вставить в калькулятор &nbsp;→</button>
   </div>
 
   <div id=\"paneBuild\" hidden>
@@ -500,7 +493,7 @@ pattern CalcTpl(_x: String) -> String {
   <button class=\"tb\" id=\"expBtn\" type=\"button\" aria-label=\"Развернуть\" title=\"Развернуть\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"10\" height=\"10\"/></svg></button>
 </div>
 </div>
-<script src=\"/static/calc.js?v=2\"></script>"
+<script src=\"/static/calc.js?v=3\"></script>"
 }
 
 pattern AboutTpl(_x: String) -> String {
