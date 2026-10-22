@@ -326,7 +326,7 @@ def svg_classbars(rows, unit, names=CLS, label="Допуски по класса
             col = (LIGHT, MID, INK)[i]
             ww = max(3, bw * v / mx)
             out.append(f'<rect x="{left}" y="{y + i * 15}" width="{ww:.1f}" height="11" fill="{col}"/>')
-            out.append(txt(left + ww + 8, y + i * 15 + 10, f"{fnum(v)} {unit}", 11, INK, mono=True))
+            out.append(txt(left + ww + 8, y + i * 15 + 10, f"{fnum(v)} {unit}", 11, RED, weight=500, mono=True))
         y += 58
     return svg_open(w, y, label) + "".join(out) + "</svg>"
 
@@ -366,24 +366,31 @@ def svg_layers():
         x += t * 10
         ly += 62
     out.append(f'<line x1="{x0 + bw}" y1="{y0 + hh + 14}" x2="{x}" y2="{y0 + hh + 14}" stroke="{INK}" stroke-width="2"/>')
-    out.append(txt(lx, y0 + hh - 14, "Три слоя вместе: 14 мм", 13, INK, weight=600))
+    out.append(txt(lx, y0 + hh - 14, "Три слоя вместе: 14 мм", 13, RED, weight=600))
     out.append(txt(lx, y0 + hh + 6, "Однослойно: до 15 мм (гипс), до 20 мм (прочие)", 12, MID))
     return svg_open(640, 320, "Слои штукатурки") + "".join(out) + "</svg>"
 
 
-def svg_gap(caption="Просвет под рейкой"):
+def svg_gap(caption="Размер неровности: просвет между рейкой и поверхностью"):
     out = []
-    out.append(f'<line x1="20" y1="170" x2="600" y2="170" stroke="{INK}" stroke-width="4"/>')
-    out.append(f'<path d="M20 170 L250 170 Q300 146 350 170 L600 170" fill="none" stroke="{INK}" stroke-width="4"/>')
-    out.append(f'<rect x="40" y="96" width="540" height="10" fill="{LIGHT}" stroke="{INK}" stroke-width="1.5"/>')
-    out.append(f'<line x1="300" y1="106" x2="300" y2="154" stroke="{RED}" stroke-width="3"/>')
-    out.append(f'<line x1="290" y1="106" x2="310" y2="106" stroke="{RED}" stroke-width="2"/>')
-    out.append(f'<line x1="290" y1="154" x2="310" y2="154" stroke="{RED}" stroke-width="2"/>')
-    out.append(txt(320, 134, "просвет: глубина неровности", 14, RED, weight=600))
-    out.append(txt(40, 84, "рейка", 13, MID))
-    out.append(txt(40, 196, "стена или пол", 13, MID))
-    out.append(txt(20, 232, caption, 13, INK, weight=500))
-    return svg_open(620, 250, "Схема проверки ровности рейкой") + "".join(out) + "</svg>"
+    surf = "M20 170 L230 170 Q300 170 300 126 Q300 170 370 170 L600 170"
+    # плавная выпуклость посередине
+    surf = "M20 170 L220 170 C260 170 265 128 300 128 C335 128 340 170 380 170 L600 170"
+    out.append(f'<path d="{surf} L600 225 L20 225 Z" fill="{SOFT}" opacity="0.7"/>')
+    out.append(f'<path d="{surf}" fill="none" stroke="{INK}" stroke-width="4"/>')
+    # рейка касается вершины выпуклости
+    out.append(f'<rect x="50" y="118" width="520" height="10" fill="{LIGHT}" stroke="{INK}" stroke-width="1.5"/>')
+    # размер: между низом рейки и поверхностью рядом с выпуклостью
+    out.append(f'<line x1="470" y1="128" x2="470" y2="170" stroke="{RED}" stroke-width="3"/>')
+    out.append(f'<line x1="458" y1="128" x2="482" y2="128" stroke="{RED}" stroke-width="2"/>')
+    out.append(f'<line x1="458" y1="170" x2="482" y2="170" stroke="{RED}" stroke-width="2"/>')
+    out.append(txt(494, 145, "размер", 14, RED, weight=600))
+    out.append(txt(494, 163, "неровности", 14, RED, weight=600))
+    out.append(txt(50, 108, "рейка 2 м", 13, MID))
+    out.append(txt(300, 196, "выпуклость", 13, MID, anchor="middle"))
+    out.append(txt(24, 246, "поверхность", 13, MID))
+    out.append(txt(20, 272, caption, 13, INK, weight=500))
+    return svg_open(620, 214, "Схема проверки ровности рейкой") + '<g transform="translate(0,-68)">' + "".join(out) + "</g></svg>"
 
 
 def svg_ops():
@@ -511,12 +518,12 @@ h1{margin:0 0 6px;font-size:38px;line-height:1.1;letter-spacing:-.02em}
 .q-src{font:500 13px 'IBM Plex Mono',monospace;color:#e3000f;margin:6px 0 18px}
 .q-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:12px 0 18px}
 .q-facts div{border:1.5px solid #1d1f23;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
-.q-facts b{font-size:34px;letter-spacing:-.02em;color:#1d1f23}
+.q-facts b{font-size:34px;letter-spacing:-.02em;color:#e3000f}
 .q-facts span{font-size:15px;color:#4a4d55}
 .e-tbl{width:100%;border-collapse:collapse;font-size:15px;margin:6px 0 16px}
 .e-tbl th{padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#4a4d55;border-bottom:1.5px solid #1d1f23}
 .e-tbl td{padding:9px 10px;border-bottom:1px solid #e4e5e8;vertical-align:top}
-.e-tbl .n{text-align:right;white-space:nowrap}.e-tbl .m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.e-tbl .n{text-align:right;white-space:nowrap}.e-tbl .m{font-family:'IBM Plex Mono',monospace;font-weight:500;color:#e3000f}
 .q-viz{margin:8px 0 18px;max-width:640px}.q-viz svg{width:100%;height:auto;display:block}
 .q-acc{border-left:4px solid #e3000f;background:#f6f6f7;padding:14px 18px;margin:8px 0 14px}
 .q-acc h4{margin:0 0 8px;font-size:18px}.q-acc ul{margin:0;padding-left:20px}.q-acc li{margin:0 0 6px;font-size:16px}
