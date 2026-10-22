@@ -5,10 +5,11 @@
 Текст страниц живёт здесь (и в volumes.html), стили в static/est.css, расчёты в static/elec.js.
 В HTML нет inline-стилей и скриптов: CSP сайта (default-src 'self') их не пропустит.
 """
-import pathlib
+import pathlib, sys
 
 HERE = pathlib.Path(__file__).parent
 ROOT = HERE.parent.parent
+sys.path.insert(0, str(HERE))
 
 TABS = [
     ("hub", "", "est_tab_hub"),
@@ -120,6 +121,9 @@ OPS = [  # (операция, простая, улучшенная, высоко
 
 
 def quality():
+    import cards as C
+    chips = '<div class="e-sub q-chips">' + ''.join(f'<a href="#{c["slug"]}">{c["title"]}</a>' for c in C.CARDS) + '</div>'
+    cards_html = '<div class="q-list">' + ''.join(C.page_card(c) for c in C.CARDS) + '</div>'
     rows = ""
     for name, a, b, c in OPS:
         cell = lambda v: '<td class="m yes">да</td>' if v else '<td class="m no">нет</td>'
@@ -143,19 +147,19 @@ def quality():
         + rows
         + '<tr class="tot"><td>Итого операций</td><td class="m">9</td><td class="m">17</td><td class="m">19</td></tr></tbody></table></div>'
         '<p class="e-note">Для масляных составов и других оснований (дерево, металл, сборные конструкции) набор операций отличается. Эти таблицы добавим после сверки.</p></section>'
-        '<section class="e-sec"><h2>Допуски и приёмка</h2>'
-        '<div class="e-two"><div class="e-card"><h3>Чем проверяют результат</h3><ul>'
-        "<li>Ровность: двухметровая рейка, зазор между рейкой и стеной измеряют щупом или линейкой.</li>"
-        "<li>Вертикаль и горизонталь: уровень или отвес.</li>"
-        "<li>Внешний вид: осмотр при боковом свете, без пятен, потёков, непрокрасов и следов кисти.</li>"
-        "<li>Прочность сцепления: поверхность не осыпается и не отслаивается.</li></ul></div>"
-        '<div class="e-card"><h3>Как принимают работу</h3><ul>'
-        "<li>Входной контроль: проверяют основание перед началом отделки.</li>"
-        "<li>Промежуточная приёмка: после каждого слоя, пока его ещё можно исправить.</li>"
-        "<li>Итоговая приёмка с актом: заказчик и исполнитель осматривают результат вместе.</li>"
-        "<li>Недочёты фиксируют списком и устраняют в оговорённый срок.</li></ul></div></div>"
-        '<p class="e-note">Допустимые отклонения (в миллиметрах на метр длины) задаёт белорусский СП 1.03.01-2019 «Отделочные работы». '
-        "Числа добавим на страницу после сверки с официальным текстом. До этого ориентируйтесь на договор и на класс отделки, выбранный в смете.</p></section>"
+        + '<section class="e-sec"><h2>Карточки по видам работ</h2>'
+        '<p class="e-lead2">Для каждого вида работ: допустимые отклонения, условия приёмки и схема. Числа взяты из белорусского СП 1.03.01-2019 «Отделочные работы», пункты указаны рядом. Каждую карточку можно скачать картинкой или документом с водяным знаком.</p>'
+        + chips + "</section>" + cards_html
+        + '<section class="e-sec"><h2>Как проверяют на объекте</h2>'
+        '<div class="e-two"><div class="e-card"><h3>Входной контроль</h3><ul>'
+        "<li>Проверяют документы на материалы: сертификат или декларация соответствия, документ о качестве изготовителя (п. 3.4).</li>"
+        "<li>Проверяют основание: влажность, чистоту, ровность по таблице допусков (п. 3.17, 3.18, табл. 2).</li>"
+        "<li>Проверяют условия: температуру и влажность воздуха (п. 3.14).</li></ul></div>"
+        '<div class="e-card"><h3>Приёмка</h3><ul>'
+        "<li>Сравнивают результат с таблицей допусков для вида отделки из проекта.</li>"
+        "<li>Осматривают поверхность: без пузырей, трещин, пятен, пропусков и следов кисти.</li>"
+        "<li>Измерения и порядок приёмки задают СТБ 1472–1475 и СТБ 1483 (п. 3.9). Недочёты фиксируют списком и устраняют в оговорённый срок.</li></ul></div></div>"
+        '<p class="e-note">Все числа выше изложены по тексту СП 1.03.01-2019 и перед внесением в договор сверяются с официальной редакцией документа специалистом.</p></section>'
     )
 
 
@@ -371,11 +375,11 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=2">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=2">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=2">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=2">' + elec())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=2">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=4">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=4">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=4">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=4">' + elec())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=4">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 

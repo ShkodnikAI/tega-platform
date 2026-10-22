@@ -123,3 +123,31 @@ a.e-card:hover h3{color:var(--red)}
 .e-basis:after{content:"";position:absolute;top:-1.5px;right:-1.5px;width:8px;height:56px;background:var(--red)}
 .e-basis b{font-size:20px}
 .e-basis p{margin:0;font-size:15px;color:var(--muted);line-height:1.55;max-width:900px}
+/* карточки «Качество работ» */
+.q-chips{margin-top:4px}
+.q-chips a{font-size:14px;padding:8px 14px;min-height:40px}
+.q-list{display:flex;flex-direction:column;gap:32px}
+.q-card{border:1.5px solid var(--ink);background:rgba(255,255,255,.95);padding:28px 32px;display:flex;flex-direction:column;gap:14px;position:relative;scroll-margin-top:24px}
+.q-card:after{content:"";position:absolute;top:-1.5px;right:-1.5px;width:8px;height:56px;background:var(--red)}
+.q-card header h3{margin:0 0 6px;font-size:26px;letter-spacing:-.01em}
+.q-card header p{margin:0;font-size:16px;color:var(--muted);line-height:1.5;max-width:760px}
+.q-src{font:500 13px var(--mono);color:var(--red);margin-top:8px}
+.q-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.q-facts div{border:1.5px solid var(--ink);padding:14px 16px;display:flex;flex-direction:column;gap:2px;background:#fff}
+.q-facts b{font-size:32px;letter-spacing:-.02em;line-height:1.1}
+.q-facts span{font-size:14px;color:var(--muted);line-height:1.4}
+.q-tbl{min-width:560px}
+.q-tbl th.n,.q-tbl td.n{text-align:right;white-space:nowrap}
+.q-tbl .u{text-transform:none;letter-spacing:0}
+.q-viz{max-width:660px}
+.q-viz .e-svg{width:100%;height:auto;display:block}
+.q-acc{border-left:4px solid var(--red);background:var(--soft);padding:16px 20px}
+.q-acc h4{margin:0 0 8px;font-size:18px}
+.q-acc ul{margin:0;padding-left:20px;font-size:15px;line-height:1.55;color:#2d3036}
+.q-acc li{margin:0 0 6px}
+.q-dl{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding-top:8px;border-top:1px solid var(--line)}
+.q-dl span{font-size:14px;color:var(--muted)}
+.e-btn.sm{min-height:44px;margin-top:0;font-size:15px;text-decoration:none}
+.e-card ul{margin:0;padding-left:20px}
+.q-chips a{max-width:100%;white-space:normal;text-align:left}
+.q-chips{max-width:100%}
