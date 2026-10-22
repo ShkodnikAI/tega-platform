@@ -127,7 +127,7 @@ Q_SECTIONS = [
     ("beton", "Бетонные работы", "Опалубка, арматура и защитный слой, классы поверхностей, допуски готовых монолитных конструкций.", ["bt-opalubka", "bt-armatura", "bt-klassy", "bt-konstrukcii"]),
     ("sbornye", "Сборные конструкции", "Фундаментные блоки, колонны, ригели и плиты перекрытий.", ["sb-fundament", "sb-karkas"]),
     ("kamen", "Каменные работы", "Швы и армирование, допуски кладки, высота стен и опирание плит, кладка в мороз и жару.", ["kl-shvy", "kl-dopuski", "kl-vysota", "kl-pogoda"]),
-    ("elektrika", "Электрика", "Внутренние проводки, светильники, щитки, автоматы и УЗО: сечения, прокладка, розетки, ванные, приёмка.", ["el-gruppovye", "el-prokladka", "el-rozetki", "el-svetilniki", "el-vannaya", "el-shchitki", "el-avtomaty", "el-uzo", "el-priyemka"]),
+    ("elektrika", "Электрика", "Проводки, светильники, щитки, автоматы и УЗО, вводные устройства, учёт электроэнергии, заземление: сечения, прокладка, розетки, ванные, приёмка.", ["el-gruppovye", "el-prokladka", "el-rozetki", "el-svetilniki", "el-vannaya", "el-shchitki", "el-avtomaty", "el-uzo", "el-priyemka", "el-vru", "el-uchet", "el-zazemlenie", "el-zaz-proverka"]),
 ]
 Q_SOON = []
 
@@ -405,11 +405,11 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + elec())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=7">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=8">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=8">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=8">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=8">' + elec())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=8">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
