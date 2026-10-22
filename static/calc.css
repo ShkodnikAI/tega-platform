@@ -104,3 +104,4 @@
 #tc-root[data-tc="light"] .win,#tc-root[data-tc="light"] .pill{outline:1px solid var(--cl);box-shadow:0 30px 70px -14px var(--shadow),0 8px 22px -8px var(--shadow)}
 #tc-root[data-tc="light"] .k.op.act,#tc-root[data-tc="light"] .k.eq{color:#fff}
 #tc-root[data-tc="light"] .tb.on{color:var(--accent)}
+#tc-root .col{display:flex;flex-direction:column;gap:12px}

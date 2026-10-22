@@ -8,6 +8,8 @@
 //  - Page templates are Strings; the shell (head, header, footer) wraps the page body into ONE template_render call.
 //  - Texts live in the Dict* patterns, one per language; adding a text means adding the key to all three.
 
+import ./site/estimates as est
+
 pattern DictRu(_x: String) -> Map {
   return {
   brand: "ТЭГА ПЛЮС",
@@ -29,6 +31,13 @@ pattern DictRu(_x: String) -> Map {
   nav_objects: "Объекты",
   nav_about: "О компании",
   nav_calc: "Расчёт смет",
+  est_nav_aria: "Разделы расчёта смет",
+  est_tab_hub: "Расчёты",
+  est_tab_calc: "Калькулятор",
+  est_tab_vol: "Объёмы работ",
+  est_tab_qual: "Качество работ",
+  est_tab_elec: "Электрика",
+  est_ru_only: "Материалы раздела пока только на русском языке.",
   calc_h1: "Расчёт смет",
   calc_lead: "Калькулятор в плавающем окне и справочные материалы для тех, кто считает объёмы и смету.",
   calc_open: "Открыть калькулятор",
@@ -101,6 +110,13 @@ pattern DictBe(_x: String) -> Map {
   nav_objects: "Аб’екты",
   nav_about: "Пра кампанію",
   nav_calc: "Расчёт кошту",
+  est_nav_aria: "Раздзелы разліку кошту",
+  est_tab_hub: "Разлікі",
+  est_tab_calc: "Калькулятар",
+  est_tab_vol: "Аб’ёмы работ",
+  est_tab_qual: "Якасць работ",
+  est_tab_elec: "Электрыка",
+  est_ru_only: "Матэрыялы раздзела пакуль толькі на рускай мове.",
   calc_h1: "Расчёт кошту",
   calc_lead: "Калькулятар у рухомым акне і даведачныя матэрыялы для тых, хто лічыць аб’ёмы і кошт.",
   calc_open: "Адкрыць калькулятар",
@@ -173,6 +189,13 @@ pattern DictEn(_x: String) -> Map {
   nav_objects: "Projects",
   nav_about: "About us",
   nav_calc: "Estimates",
+  est_nav_aria: "Estimate sections",
+  est_tab_hub: "Estimates",
+  est_tab_calc: "Calculator",
+  est_tab_vol: "Work volumes",
+  est_tab_qual: "Work quality",
+  est_tab_elec: "Electrical",
+  est_ru_only: "The pages of this section are in Russian only for now.",
   calc_h1: "Estimate calculations",
   calc_lead: "A floating calculator window and reference material for anyone working out volumes and estimates.",
   calc_open: "Open calculator",
@@ -269,7 +292,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=11\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=12\">
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
@@ -349,7 +372,7 @@ pattern HomeTpl(_x: String) -> String {
 <p class=\"lead\">{{ t.sp_lead }}</p>
 <div class=\"help-grid\">
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp1_t }}</h3><p>{{ t.sp1_d }}</p></div>
-<a class=\"help-card\" href=\"{{ p }}/raschet-smet\"><span class=\"help-tag\">{{ t.sp_open }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></a>
+<a class=\"help-card\" href=\"{{ p }}/raschet-smet/kalkulyator\"><span class=\"help-tag\">{{ t.sp_open }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></a>
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp3_t }}</h3><p>{{ t.sp3_d }}</p></div>
 </div>
 </div></section>
@@ -399,11 +422,11 @@ pattern PortfolioTpl(_x: String) -> String {
 
 pattern CalcTpl(_x: String) -> String {
   return "<h1>{{ t.calc_h1 }}</h1>
-<p class=\"lead\">{{ t.calc_lead }}</p>
+<p class=\"lead\">{{ t.calc_lead }}</p>" + est.EstCalcTabs("") + "
 <p><button class=\"btn\" id=\"openBtn\" type=\"button\">{{ t.calc_open }}</button></p>
 <p>{{ t.calc_hint }}</p>
 <p class=\"muted\">{{ t.calc_note }}</p>
-<link rel=\"stylesheet\" href=\"/static/calc.css?v=4\">
+<link rel=\"stylesheet\" href=\"/static/calc.css?v=5\">
 <div id=\"tc-root\">
 <section class=\"win pinned\" id=\"win\" aria-label=\"Калькулятор\" hidden>
   <div class=\"bar\" id=\"bar\">
@@ -434,7 +457,7 @@ pattern CalcTpl(_x: String) -> String {
   <div id=\"paneBuild\" hidden>
     <div class=\"tools\">
       <div class=\"chips\" id=\"chips\"></div>
-      <div id=\"fields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <div id=\"fields\" class=\"col\"></div>
       <div class=\"res\" id=\"res\"></div>
     </div>
     <button class=\"ins\" id=\"insBtn\" type=\"button\">Вставить в калькулятор &nbsp;→</button>
@@ -443,7 +466,7 @@ pattern CalcTpl(_x: String) -> String {
   <div id=\"paneMetal\" hidden>
     <div class=\"tools\">
       <div class=\"fld\"><label for=\"mType\">Профиль</label><select id=\"mType\"></select></div>
-      <div id=\"mFields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <div id=\"mFields\" class=\"col\"></div>
       <div class=\"res\" id=\"mRes\"></div>
       <p class=\"note\" id=\"mNote\"></p>
     </div>
@@ -451,7 +474,7 @@ pattern CalcTpl(_x: String) -> String {
 
   <div id=\"paneConc\" hidden>
     <div class=\"tools\">
-      <div id=\"cFields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <div id=\"cFields\" class=\"col\"></div>
       <p class=\"formula\" id=\"cInfo\"></p>
       <div class=\"res\" id=\"cRes\"></div>
       <p class=\"note\">Расчётный начальный состав на 1 м³: цемент ПЦ 400, щебень гранитный 20–40 мм, осадка конуса 2–4 см, заполнители сухие. Проверяется пробным замесом. Насыпная плотность: песок 1600 кг/м³, щебень 1400 кг/м³. Нажмите на значение, чтобы перенести его в калькулятор.</p>
@@ -461,7 +484,7 @@ pattern CalcTpl(_x: String) -> String {
   <div id=\"paneForm\" hidden>
     <div class=\"tools\">
       <div class=\"fld\"><label for=\"fType\">Фигура</label><select id=\"fType\"></select></div>
-      <div id=\"fFields\" style=\"display:flex;flex-direction:column;gap:12px\"></div>
+      <div id=\"fFields\" class=\"col\"></div>
       <p class=\"formula\" id=\"fFormula\"></p>
       <div class=\"res\" id=\"fRes\"></div>
       <p class=\"note\">Все величины вводятся в одних единицах: результат получится в тех же единицах (в квадрате или в кубе). Нажмите на значение, чтобы перенести его в калькулятор.</p>
@@ -526,7 +549,7 @@ pattern Shell(lang: String, slug: String, page: String, title: String, inner: Bo
     t: Dict(lang), lang: lang, title: title, page: page, inner: inner, p: Prefix(lang), logo: LogoFor(lang),
     home: Href(lang, "/"), self: Href(lang, slug),
     h_ru: Href("ru", slug), h_be: Href("be", slug), h_en: Href("en", slug),
-    is_ru: lang == "ru", is_be: lang == "be", is_en: lang == "en"
+    is_ru: lang == "ru", is_be: lang == "be", is_en: lang == "en", not_ru: lang != "ru"
   })
 }
 
@@ -545,9 +568,29 @@ pattern PortfolioPage(lang: String) -> Html {
   return Shell(lang, "/portfolio", "portfolio", d.nav_objects, true, PortfolioTpl(""))
 }
 
-pattern CalcPage(lang: String) -> Html {
+pattern EstHubPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/raschet-smet", "calc", d.nav_calc, true, CalcTpl(""))
+  return Shell(lang, "/raschet-smet", "est", d.nav_calc, true, est.EstHubTpl(""))
+}
+
+pattern EstCalcPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet/kalkulyator", "est", d.est_tab_calc, true, CalcTpl(""))
+}
+
+pattern EstVolPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet/obyemy", "est", d.est_tab_vol, true, est.EstVolTpl(""))
+}
+
+pattern EstQualPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet/kachestvo", "est", d.est_tab_qual, true, est.EstQualTpl(""))
+}
+
+pattern EstElecPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet/elektrika", "est", d.est_tab_elec, true, est.EstElecTpl(""))
 }
 
 pattern AboutPage(lang: String) -> Html {
@@ -567,9 +610,21 @@ server {
   route "/" method=GET { return HomePage("ru") }
   route "/uslugi" method=GET { return ServicesPage("ru") }
   route "/portfolio" method=GET { return PortfolioPage("ru") }
-  route "/raschet-smet" method=GET { return CalcPage("ru") }
-  route "/be/raschet-smet" method=GET { return CalcPage("be") }
-  route "/en/raschet-smet" method=GET { return CalcPage("en") }
+  route "/raschet-smet" method=GET { return EstHubPage("ru") }
+  route "/raschet-smet/kalkulyator" method=GET { return EstCalcPage("ru") }
+  route "/raschet-smet/obyemy" method=GET { return EstVolPage("ru") }
+  route "/raschet-smet/kachestvo" method=GET { return EstQualPage("ru") }
+  route "/raschet-smet/elektrika" method=GET { return EstElecPage("ru") }
+  route "/be/raschet-smet" method=GET { return EstHubPage("be") }
+  route "/be/raschet-smet/kalkulyator" method=GET { return EstCalcPage("be") }
+  route "/be/raschet-smet/obyemy" method=GET { return EstVolPage("be") }
+  route "/be/raschet-smet/kachestvo" method=GET { return EstQualPage("be") }
+  route "/be/raschet-smet/elektrika" method=GET { return EstElecPage("be") }
+  route "/en/raschet-smet" method=GET { return EstHubPage("en") }
+  route "/en/raschet-smet/kalkulyator" method=GET { return EstCalcPage("en") }
+  route "/en/raschet-smet/obyemy" method=GET { return EstVolPage("en") }
+  route "/en/raschet-smet/kachestvo" method=GET { return EstQualPage("en") }
+  route "/en/raschet-smet/elektrika" method=GET { return EstElecPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
   route "/kontakty" method=GET { return ContactsPage("ru") }
   route "/be/" method=GET { return HomePage("be") }
