@@ -318,6 +318,7 @@
 
   var TABS=[['calc','paneCalc','tabCalc'],['build','paneBuild','tabBuild'],['metal','paneMetal','tabMetal'],['conc','paneConc','tabConc'],['form','paneForm','tabForm'],['dens','paneDens','tabDens']];
   function showTab(w){
+    curTab=w;
     TABS.forEach(function(t){
       var on=(t[0]===w); $(t[1]).hidden=!on; $(t[2]).setAttribute('aria-selected',on?'true':'false');
       if(on){
@@ -327,14 +328,15 @@
     });
     $('wbody').scrollTop=0;
     if(!win.hidden) clamp(), apply();
+    if(opened) save();
   }
   TABS.forEach(function(t){ $(t[2]).addEventListener('click',function(){showTab(t[0])}); });
 
   /* ---------- окно: положение, закрепление, перетаскивание ---------- */
-  var pinned=true, pos={x:24,y:110}, minimized=false, opened=false, light=false, size=null;
+  var pinned=true, pos={x:24,y:110}, minimized=false, opened=false, light=false, size=null, curTab='calc', wasOpen=false, saved=null;
   var MINW=300, MINH=340, MAXW=820;
-  try{ var sv=JSON.parse(localStorage.getItem('tega-calc')||'null'); if(sv){pinned=!!sv.pinned; pos={x:sv.x,y:sv.y}; light=!!sv.light; if(sv.w&&sv.h) size={w:sv.w,h:sv.h};} }catch(e){}
-  function save(){ try{localStorage.setItem('tega-calc',JSON.stringify({pinned:pinned,x:pos.x,y:pos.y,light:light,w:size?size.w:0,h:size?size.h:0}))}catch(e){} }
+  try{ var sv=JSON.parse(localStorage.getItem('tega-calc')||'null'); if(sv){saved=sv; pinned=!!sv.pinned; pos={x:sv.x,y:sv.y}; light=!!sv.light; if(sv.w&&sv.h) size={w:sv.w,h:sv.h}; wasOpen=!!sv.open; minimized=!!sv.min;} }catch(e){}
+  function save(){ try{localStorage.setItem('tega-calc',JSON.stringify({pinned:pinned,x:pos.x,y:pos.y,light:light,w:size?size.w:0,h:size?size.h:0,open:opened,min:minimized,tab:curTab,cur:cur,acc:acc,op:op,fresh:fresh,hist:hist,tape:tapeLines.slice(-6)}))}catch(e){} }
   function applySize(){
     var vw=document.documentElement.clientWidth;
     if(size){
@@ -370,7 +372,7 @@
     $('footTxt').textContent=pinned?'Закреплён поверх страницы':'Не закреплён, прокручивается со страницей';
   }
   function show(){
-    opened=true; win.hidden=minimized; pill.hidden=!minimized; clamp(); apply(); render();
+    opened=true; win.hidden=minimized; pill.hidden=!minimized; clamp(); apply(); render(); save();
   }
   function togglePin(){
     var el=minimized?pill:win, r=el.getBoundingClientRect();
@@ -379,9 +381,14 @@
     pos.x = r.left+(pinned?0:window.scrollX);
     clamp(); apply(); save();
   }
-  $('openBtn').addEventListener('click',function(e){ if(e.detail>0) this.blur(); minimized=false; show(); });
+  var openBtn=$('calcOpen');
+  function closeCalc(){ opened=false; win.hidden=true; pill.hidden=true; save(); }
+  if(openBtn) openBtn.addEventListener('click',function(e){
+    if(e.detail>0) this.blur();
+    if(opened&&!minimized){ closeCalc(); } else { minimized=false; show(); }
+  });
   [win,pill].forEach(function(el){ el.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('button'); if(b&&e.detail>0) b.blur(); },true); });
-  $('closeBtn').addEventListener('click',function(){ opened=false; win.hidden=true; pill.hidden=true; });
+  $('closeBtn').addEventListener('click',closeCalc);
   $('minBtn').addEventListener('click',function(){ minimized=true; show(); });
   $('expBtn').addEventListener('click',function(){ minimized=false; show(); });
   $('pinBtn').addEventListener('click',togglePin);
@@ -444,5 +451,11 @@
     else return;
   });
 
+  /* восстановление после перехода на другую страницу: закреплённый калькулятор остаётся поверх */
+  if(saved){
+    if(saved.cur!=null){ cur=String(saved.cur); acc=saved.acc==null?null:saved.acc; op=saved.op||null; fresh=!!saved.fresh; hist=saved.hist||''; tapeLines=saved.tape||[]; }
+    if(saved.tab&&$(({calc:'paneCalc',build:'paneBuild',metal:'paneMetal',conc:'paneConc',form:'paneForm',dens:'paneDens'})[saved.tab]||'x')) showTab(saved.tab);
+  }
   render();
+  if(saved&&wasOpen&&pinned){ show(); }
 })();
