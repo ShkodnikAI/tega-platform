@@ -109,7 +109,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
 @media (max-width:800px){.mapwrap{grid-template-columns:1fr}#map{height:380px}}
 
 /* разная сетка на разных страницах */
-body.pg-home{background-image:linear-gradient(180deg,rgba(255,255,255,.66) 0,rgba(255,255,255,.66) 52%,#fff 100%),url(/static/bg-home.jpg?v=1);background-repeat:no-repeat;background-position:top center,top center;background-size:100% 56.25vw,100% auto}
+body.pg-home{background-image:linear-gradient(180deg,rgba(255,255,255,.66) 0,rgba(255,255,255,.66) 52%,#fff 100%),url(/static/bg-home.jpg?v=2);background-repeat:no-repeat;background-position:top center,top center;background-size:100% 56.25vw,100% auto}
 @media(max-width:700px){body.pg-home{background-size:100% 120vw,auto 120vw;background-position:top center,left top}}
 body.pg-services{background-image:url(/static/bg-plan-2.svg?v=2),url(/static/bg-plan-1.svg?v=2);background-position:left -160px top 200px,right -160px top 1100px;background-size:960px auto,900px auto}
 body.pg-portfolio{background-image:url(/static/bg-plan-3.svg?v=2);background-position:right -120px top 120px;background-size:820px auto}
@@ -154,7 +154,7 @@ body.pg-calc main.page{gap:20px}
 body.pg-calc .lead{max-width:640px}
 
 /* вертикальные экраны (телефон, планшет): вертикальная композиция чертежей и города */
-@media(max-aspect-ratio:1/1){body.pg-home{background-image:linear-gradient(180deg,rgba(255,255,255,.72) 0,rgba(255,255,255,.72) 46%,rgba(255,255,255,.55) 100%),url(/static/bg-home-m.jpg?v=1);background-repeat:no-repeat;background-position:top center,top center;background-size:100% 178vw,100% auto}}
+@media(max-aspect-ratio:1/1){body.pg-home{background-image:linear-gradient(180deg,rgba(255,255,255,.72) 0,rgba(255,255,255,.72) 46%,rgba(255,255,255,.55) 100%),url(/static/bg-home-m.jpg?v=2);background-repeat:no-repeat;background-position:top center,top center;background-size:100% 178vw,100% auto}}
 
 /* водяной знак «сайт в разработке» на всех страницах */
 body:after{content:"";position:fixed;inset:0;z-index:40;pointer-events:none;background:url(/static/wip-ru.svg) 0 0/640px 420px repeat}

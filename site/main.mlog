@@ -292,7 +292,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=12\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=13\">
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
