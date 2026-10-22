@@ -406,6 +406,23 @@ def svg_ops():
     return svg_open(640, y + 4, "Число операций по классам") + "".join(out) + "</svg>"
 
 
+def svg_zones():
+    rows = [("Зона 0", "внутри ванны или поддона", "IPX7", "приборы до 12 В", INK),
+            ("Зона 1", "над ванной", "IPX5", "только водонагреватели", MID),
+            ("Зона 2", "рядом с ванной", "IPX4", "водонагреватели, светильники класса II", LIGHT),
+            ("Зона 3", "дальше от ванны", "IPX1", "розетки через трансформатор или УЗО 30 мА", SOFT)]
+    out, y = [], 8
+    for nm, where, ip, what, col in rows:
+        out.append(f'<rect x="0" y="{y}" width="200" height="44" fill="{col}" stroke="{INK}" stroke-width="1.5"/>')
+        tc = "#fff" if col in (INK, MID) else INK
+        out.append(txt(12, y + 20, nm, 15, tc, weight=600))
+        out.append(txt(12, y + 37, where, 11, tc))
+        out.append(txt(216, y + 29, ip, 18, RED, weight=500, mono=True))
+        out.append(txt(310, y + 28, what, 14, INK))
+        y += 54
+    return svg_open(640, y + 4, "Зоны ванной комнаты") + "".join(out) + "</svg>"
+
+
 def viz_svg(card):
     v = card.get("viz")
     if not v:
@@ -417,6 +434,8 @@ def viz_svg(card):
         return svg_classbars(v[1], v[2], v[3], "Допуски облицовки")
     if k == "bars":
         return svg_bars(v[1], v[2])
+    if k == "zones":
+        return svg_zones()
     if k == "layers":
         return svg_layers()
     if k == "ops":
@@ -447,7 +466,7 @@ def table_html(card):
         heads = cols or CLS
         th = "".join(f'<th class="n">{esc(h)}</th>' for h in heads)
     else:
-        th = f'<th class="n">Значение, {esc(unit)}</th>'
+        th = f'<th class="n">Значение, {esc(unit)}</th>' if unit else '<th class="n">Значение</th>'
     rows = ""
     for r in t:
         if three:
@@ -543,3 +562,7 @@ def standalone_html(card, fonts_dir, logo_path, wm_path):
         f'<div class="foot"><span>tega.plus · ООО «ТЭГА ПЛЮС», Минск</span><span>Справочные данные. Перед применением в договоре проверяются по официальному тексту нормы.</span></div>'
         f'</div></body></html>'
     )
+
+
+from cards_el import EL_CARDS  # noqa: E402
+CARDS += EL_CARDS
