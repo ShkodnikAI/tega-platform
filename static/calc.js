@@ -79,6 +79,7 @@
     var b=document.createElement('button'); b.type='button';
     b.className='k'+(k[1]?' '+k[1]:' num'); b.textContent=k[0]; b.dataset.k=k[0];
     b.setAttribute('aria-label',{'C':'Сбросить','⌫':'Стереть','%':'Процент','÷':'Разделить','×':'Умножить','−':'Вычесть','+':'Сложить','±':'Сменить знак','=':'Равно',',':'Запятая'}[k[0]]||k[0]);
+    b.addEventListener('mousedown',function(e){e.preventDefault();});
     b.addEventListener('click',function(){
       var c=k[0];
       if(c==='C') clearAll(); else if(c==='⌫') back(); else if(c==='%') percent();
@@ -314,20 +315,44 @@
   dSel.addEventListener('change',function(){pickDens(dSel.value)});
   dSel.value=0; pickDens(0);
 
+
   var TABS=[['calc','paneCalc','tabCalc'],['build','paneBuild','tabBuild'],['metal','paneMetal','tabMetal'],['conc','paneConc','tabConc'],['form','paneForm','tabForm'],['dens','paneDens','tabDens']];
   function showTab(w){
     TABS.forEach(function(t){
       var on=(t[0]===w); $(t[1]).hidden=!on; $(t[2]).setAttribute('aria-selected',on?'true':'false');
+      if(on){
+        var tb=$(t[2]), strip=tb.parentNode, br=tb.getBoundingClientRect(), sr=strip.getBoundingClientRect();
+        if(br.left<sr.left) strip.scrollLeft-=(sr.left-br.left)+16; else if(br.right>sr.right) strip.scrollLeft+=(br.right-sr.right)+16;
+      }
     });
+    $('wbody').scrollTop=0;
     if(!win.hidden) clamp(), apply();
   }
   TABS.forEach(function(t){ $(t[2]).addEventListener('click',function(){showTab(t[0])}); });
 
   /* ---------- окно: положение, закрепление, перетаскивание ---------- */
-  var pinned=true, pos={x:24,y:110}, minimized=false, opened=false;
-  try{ var sv=JSON.parse(localStorage.getItem('tega-calc')||'null'); if(sv){pinned=!!sv.pinned; pos={x:sv.x,y:sv.y};} }catch(e){}
-  function save(){ try{localStorage.setItem('tega-calc',JSON.stringify({pinned:pinned,x:pos.x,y:pos.y}))}catch(e){} }
+  var pinned=true, pos={x:24,y:110}, minimized=false, opened=false, light=false, size=null;
+  var MINW=300, MINH=340, MAXW=820;
+  try{ var sv=JSON.parse(localStorage.getItem('tega-calc')||'null'); if(sv){pinned=!!sv.pinned; pos={x:sv.x,y:sv.y}; light=!!sv.light; if(sv.w&&sv.h) size={w:sv.w,h:sv.h};} }catch(e){}
+  function save(){ try{localStorage.setItem('tega-calc',JSON.stringify({pinned:pinned,x:pos.x,y:pos.y,light:light,w:size?size.w:0,h:size?size.h:0}))}catch(e){} }
+  function applySize(){
+    var vw=document.documentElement.clientWidth;
+    if(size){
+      win.style.width=Math.min(Math.max(size.w,MINW),Math.max(MINW,Math.min(MAXW,vw-16)))+'px';
+      win.style.height=Math.min(Math.max(size.h,MINH),Math.max(MINH,window.innerHeight-16))+'px';
+    } else { win.style.width=''; win.style.height=''; }
+    var w=win.offsetWidth||380;
+    win.style.setProperty('--u',Math.min(1.5,Math.max(.85,w/380)).toFixed(3));
+  }
+  function applyTheme(){
+    var r=$('tc-root'); if(light) r.setAttribute('data-tc','light'); else r.removeAttribute('data-tc');
+    $('themeBtn').setAttribute('aria-pressed',light?'true':'false');
+    $('themeBtn').title=light?'Тёмный фон':'Белый фон'; $('themeBtn').setAttribute('aria-label',light?'Тёмный фон':'Белый фон');
+  }
+  $('themeBtn').addEventListener('click',function(){ light=!light; applyTheme(); save(); });
+  applyTheme();
   function clamp(){
+    if(!minimized) applySize();
     var w=(minimized?pill:win).offsetWidth||340, h=(minimized?pill:win).offsetHeight||500;
     var maxX=Math.max(0,document.documentElement.clientWidth-w);
     pos.x=Math.min(Math.max(0,pos.x),maxX);
@@ -354,7 +379,8 @@
     pos.x = r.left+(pinned?0:window.scrollX);
     clamp(); apply(); save();
   }
-  $('openBtn').addEventListener('click',function(){ minimized=false; show(); });
+  $('openBtn').addEventListener('click',function(e){ if(e.detail>0) this.blur(); minimized=false; show(); });
+  [win,pill].forEach(function(el){ el.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('button'); if(b&&e.detail>0) b.blur(); },true); });
   $('closeBtn').addEventListener('click',function(){ opened=false; win.hidden=true; pill.hidden=true; });
   $('minBtn').addEventListener('click',function(){ minimized=true; show(); });
   $('expBtn').addEventListener('click',function(){ minimized=false; show(); });
@@ -378,14 +404,35 @@
     handle.addEventListener('dblclick',function(e){ if(el===pill && !e.target.closest('button')){minimized=false; show();} });
   }
   dragOn(bar,win); dragOn(pill,pill);
+
+  /* ---------- растягивание за угол ---------- */
+  (function(){
+    var rz=$('rz'), on=false, sx, sy, w0, h0;
+    rz.addEventListener('pointerdown',function(e){
+      on=true; sx=e.clientX; sy=e.clientY; w0=win.offsetWidth; h0=win.offsetHeight;
+      win.classList.add('rzing'); rz.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation();
+    });
+    rz.addEventListener('pointermove',function(e){
+      if(!on) return;
+      var vw=document.documentElement.clientWidth;
+      var maxW=Math.max(MINW,Math.min(MAXW,vw-pos.x-4));
+      var maxH=pinned?Math.max(MINH,window.innerHeight-pos.y-4):1600;
+      size={w:Math.round(Math.min(maxW,Math.max(MINW,w0+e.clientX-sx))),h:Math.round(Math.min(maxH,Math.max(MINH,h0+e.clientY-sy)))};
+      applySize();
+    });
+    function end(){ if(!on) return; on=false; win.classList.remove('rzing'); clamp(); apply(); save(); }
+    rz.addEventListener('pointerup',end); rz.addEventListener('pointercancel',end);
+    rz.addEventListener('dblclick',function(){ size=null; clamp(); apply(); save(); });
+  })();
   window.addEventListener('resize',function(){ if(opened){clamp(); apply();} });
 
   /* ---------- клавиатура ---------- */
   document.addEventListener('keydown',function(e){
-    if(!opened||minimized||win.hidden||$('paneCalc').hidden) return;
-    var t=e.target; if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA')) return;
+    if(!opened||minimized||win.hidden) return;
+    var t=e.target; if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT')) return;
     if(t&&t.tagName==='BUTTON'&&(e.key==='Enter'||e.key===' ')) return;
     var k=e.key;
+    if($('paneCalc').hidden) return;
     if(/^[0-9]$/.test(k)) digit(k);
     else if(k===','||k==='.') digit(',');
     else if(k==='+') operate('+'); else if(k==='-') operate('−');

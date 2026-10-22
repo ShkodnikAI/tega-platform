@@ -152,3 +152,6 @@ a.help-card{color:inherit;text-decoration:none}
 a.help-card:hover h3{color:var(--red)}
 body.pg-calc main.page{gap:20px}
 body.pg-calc .lead{max-width:640px}
+
+/* вертикальные экраны (телефон, планшет): вертикальная композиция чертежей и города */
+@media(max-aspect-ratio:1/1){body.pg-home{background-image:linear-gradient(180deg,rgba(255,255,255,.72) 0,rgba(255,255,255,.72) 46%,rgba(255,255,255,.55) 100%),url(/static/bg-home-m.jpg?v=1);background-repeat:no-repeat;background-position:top center,top center;background-size:100% 178vw,100% auto}}
