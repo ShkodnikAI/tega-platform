@@ -292,7 +292,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=13\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=14\">
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
@@ -306,6 +306,7 @@ pattern HeadTpl(_x: String) -> String {
 <a href=\"{{ p }}/kontakty\">{{ t.nav_contacts }}</a>
 </nav>
 <div class=\"right\">
+<a class=\"calc-btn\" href=\"{{ p }}/kalkulyator\">{{ t.est_tab_calc }}</a>
 <div class=\"lang\" role=\"group\" aria-label=\"{{ t.lang_aria }}\">
 <a href=\"{{ h_ru }}\" lang=\"ru\" hreflang=\"ru\" {{#if is_ru}}aria-current=\"true\"{{/if}}>RU</a>
 <a href=\"{{ h_be }}\" lang=\"be\" hreflang=\"be\" {{#if is_be}}aria-current=\"true\"{{/if}}>BY</a>
@@ -336,7 +337,8 @@ pattern HomeTpl(_x: String) -> String {
 <h1>{{ t.h1 }}</h1>
 <p class=\"lead\">{{ t.lead }}</p>
 <div class=\"actions\">
-<a class=\"btn\" href=\"{{ p }}/kontakty\">{{ t.discuss }}</a>
+<a class=\"btn\" href=\"{{ p }}/kalkulyator\">{{ t.est_tab_calc }}</a>
+<a class=\"btn ghost\" href=\"{{ p }}/kontakty\">{{ t.discuss }}</a>
 <a class=\"btn ghost\" href=\"{{ p }}/portfolio\">{{ t.our_map }}</a>
 </div>
 </div>
@@ -372,7 +374,7 @@ pattern HomeTpl(_x: String) -> String {
 <p class=\"lead\">{{ t.sp_lead }}</p>
 <div class=\"help-grid\">
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp1_t }}</h3><p>{{ t.sp1_d }}</p></div>
-<a class=\"help-card\" href=\"{{ p }}/raschet-smet/kalkulyator\"><span class=\"help-tag\">{{ t.sp_open }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></a>
+<a class=\"help-card\" href=\"{{ p }}/kalkulyator\"><span class=\"help-tag\">{{ t.sp_open }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></a>
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp3_t }}</h3><p>{{ t.sp3_d }}</p></div>
 </div>
 </div></section>
@@ -422,7 +424,8 @@ pattern PortfolioTpl(_x: String) -> String {
 
 pattern CalcTpl(_x: String) -> String {
   return "<h1>{{ t.calc_h1 }}</h1>
-<p class=\"lead\">{{ t.calc_lead }}</p>" + est.EstCalcTabs("") + "
+<p class=\"lead\">{{ t.calc_lead }}</p>
+
 <p><button class=\"btn\" id=\"openBtn\" type=\"button\">{{ t.calc_open }}</button></p>
 <p>{{ t.calc_hint }}</p>
 <p class=\"muted\">{{ t.calc_note }}</p>
@@ -573,9 +576,9 @@ pattern EstHubPage(lang: String) -> Html {
   return Shell(lang, "/raschet-smet", "est", d.nav_calc, true, est.EstHubTpl(""))
 }
 
-pattern EstCalcPage(lang: String) -> Html {
+pattern CalcPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/raschet-smet/kalkulyator", "est", d.est_tab_calc, true, CalcTpl(""))
+  return Shell(lang, "/kalkulyator", "calc", d.est_tab_calc, true, CalcTpl(""))
 }
 
 pattern EstVolPage(lang: String) -> Html {
@@ -611,17 +614,17 @@ server {
   route "/uslugi" method=GET { return ServicesPage("ru") }
   route "/portfolio" method=GET { return PortfolioPage("ru") }
   route "/raschet-smet" method=GET { return EstHubPage("ru") }
-  route "/raschet-smet/kalkulyator" method=GET { return EstCalcPage("ru") }
+  route "/kalkulyator" method=GET { return CalcPage("ru") }
   route "/raschet-smet/obyemy" method=GET { return EstVolPage("ru") }
   route "/raschet-smet/kachestvo" method=GET { return EstQualPage("ru") }
   route "/raschet-smet/elektrika" method=GET { return EstElecPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
-  route "/be/raschet-smet/kalkulyator" method=GET { return EstCalcPage("be") }
+  route "/be/kalkulyator" method=GET { return CalcPage("be") }
   route "/be/raschet-smet/obyemy" method=GET { return EstVolPage("be") }
   route "/be/raschet-smet/kachestvo" method=GET { return EstQualPage("be") }
   route "/be/raschet-smet/elektrika" method=GET { return EstElecPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
-  route "/en/raschet-smet/kalkulyator" method=GET { return EstCalcPage("en") }
+  route "/en/kalkulyator" method=GET { return CalcPage("en") }
   route "/en/raschet-smet/obyemy" method=GET { return EstVolPage("en") }
   route "/en/raschet-smet/kachestvo" method=GET { return EstQualPage("en") }
   route "/en/raschet-smet/elektrika" method=GET { return EstElecPage("en") }

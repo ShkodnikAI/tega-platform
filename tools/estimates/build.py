@@ -13,7 +13,6 @@ sys.path.insert(0, str(HERE))
 
 TABS = [
     ("hub", "", "est_tab_hub"),
-    ("calc", "/kalkulyator", "est_tab_calc"),
     ("vol", "/obyemy", "est_tab_vol"),
     ("qual", "/kachestvo", "est_tab_qual"),
     ("elec", "/elektrika", "est_tab_elec"),
@@ -61,10 +60,9 @@ def hub():
         else:
             cards += f'<div class="e-card"><span class="e-tag">Скоро</span><h3>{name}</h3><p>{desc}</p></div>'
     more = [
-        ("01", "Калькулятор", "Плавающее окно поверх страницы: обычный, стройка, металл, бетон, формулы, плотность.", "/kalkulyator", "Открыть калькулятор →"),
-        ("02", "Объёмы работ", "По каким правилам считаются площади: что вычитается, что добавляется, какие коэффициенты.", "/obyemy", "Читать справочник →"),
-        ("03", "Качество работ", "Как определяется класс отделки: простая, улучшенная или высококачественная, и что в него входит.", "/kachestvo", "Читать →"),
-        ("04", "Электрика", "Подбор кабеля и автомата, потеря напряжения, ток короткого замыкания, заземление, освещение помещений.", "/elektrika", "Открыть калькуляторы →"),
+        ("01", "Объёмы работ", "По каким правилам считаются площади: что вычитается, что добавляется, какие коэффициенты.", "/obyemy", "Читать справочник →"),
+        ("02", "Качество работ", "Как определяется класс отделки: простая, улучшенная или высококачественная, и что в него входит.", "/kachestvo", "Читать →"),
+        ("03", "Электрика", "Подбор кабеля и автомата, потеря напряжения, ток короткого замыкания, заземление, освещение помещений.", "/elektrika", "Открыть калькуляторы →"),
     ]
     mo = ""
     for n, t, d, path, cta in more:
@@ -120,10 +118,37 @@ OPS = [  # (операция, простая, улучшенная, высоко
 ]
 
 
+Q_SECTIONS = [
+    ("obshchie", "Общие условия", "Температура, влажность и подготовка основания для любой отделки.", ["usloviya"]),
+    ("shtukaturka", "Штукатурные работы", "Геометрия, слои и декоративные покрытия.", ["shtukaturka-geometriya", "shtukaturka-sloi", "dekor-lepnina"]),
+    ("oblitsovka", "Облицовка и потолки", "Плитка, камень, листовые и панельные облицовки, подвесные потолки.", ["oblitsovka-plitkoi", "listovye-potolki"]),
+    ("okraska", "Окраска, обои и стекло", "Малярные работы, оклейка обоями, остекление.", ["okraska", "oboi", "steklo"]),
+    ("poly", "Полы", "Основание, стяжка и покрытия: наливные, паркет, ламинат, линолеум, плитка.", ["osnovanie-pola", "styazhka", "nalivnye-polimery", "parket-laminat", "linoleum", "plitka-pola"]),
+]
+Q_SOON = [("beton", "Бетонные работы", "Опалубка, арматура, бетонирование, допуски готовых конструкций."), ("kamen", "Каменные работы", "Кладка: швы, отклонения по вертикали и горизонтали.")]
+
+
+def q_sections(C):
+    by = {c["slug"]: c for c in C.CARDS}
+    used = [sl for _, _, _, sls in Q_SECTIONS for sl in sls]
+    assert sorted(used) == sorted(by), set(by) ^ set(used)
+    nav = '<div class="e-sub q-chips">' + "".join(f'<a href="#sec-{k}">{t}<span class="q-n">{len(sls)}</span></a>' for k, t, _, sls in Q_SECTIONS)
+    nav += "".join(f'<span class="q-soon">{t}<span class="q-n">скоро</span></span>' for _, t, _ in Q_SOON) + "</div>"
+    out = nav
+    for k, t, d, sls in Q_SECTIONS:
+        links = "".join(f'<a href="#{sl}">{by[sl]["title"]}</a>' for sl in sls)
+        out += (f'<details class="q-sec" id="sec-{k}"><summary><span class="q-sh"><b>{t}</b><small>{d}</small></span>'
+                f'<span class="q-n">{len(sls)}</span></summary>'
+                f'<div class="e-sub q-chips">{links}</div>'
+                f'<div class="q-list">{"".join(C.page_card(by[sl]) for sl in sls)}</div></details>')
+    out += '<div class="q-soons">' + "".join(f'<div class="e-card"><span class="e-tag">Скоро</span><h3>{t}</h3><p>{d}</p></div>' for _, t, d in Q_SOON) + "</div>"
+    out += '<script src="/static/q.js?v=1"></script>'
+    return out
+
+
 def quality():
     import cards as C
-    chips = '<div class="e-sub q-chips">' + ''.join(f'<a href="#{c["slug"]}">{c["title"]}</a>' for c in C.CARDS) + '</div>'
-    cards_html = '<div class="q-list">' + ''.join(C.page_card(c) for c in C.CARDS) + '</div>'
+    sections_html = q_sections(C)
     rows = ""
     for name, a, b, c in OPS:
         cell = lambda v: '<td class="m yes">да</td>' if v else '<td class="m no">нет</td>'
@@ -149,7 +174,7 @@ def quality():
         '<p class="e-note">Для масляных составов и других оснований (дерево, металл, сборные конструкции) набор операций отличается. Эти таблицы добавим после сверки.</p></section>'
         + '<section class="e-sec"><h2>Карточки по видам работ</h2>'
         '<p class="e-lead2">Для каждого вида работ: допустимые отклонения, условия приёмки и схема. Числа взяты из белорусского СП 1.03.01-2019 «Отделочные работы», пункты указаны рядом. Каждую карточку можно скачать картинкой или документом с водяным знаком.</p>'
-        + chips + "</section>" + cards_html
+        + "</section>" + sections_html
         + '<section class="e-sec"><h2>Как проверяют на объекте</h2>'
         '<div class="e-two"><div class="e-card"><h3>Входной контроль</h3><ul>'
         "<li>Проверяют документы на материалы: сертификат или декларация соответствия, документ о качестве изготовителя (п. 3.4).</li>"
@@ -375,11 +400,11 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=5">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=5">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=5">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=5">' + elec())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=5">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + elec())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=6">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
