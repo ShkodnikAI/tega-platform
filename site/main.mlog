@@ -44,6 +44,7 @@ pattern DictRu(_x: String) -> Map {
   calc_hint: "Окно можно перетаскивать за заголовок, закреплять поверх страницы булавкой и сворачивать. Режимы: обычный, стройка, металл, бетон, формулы, плотность.",
   calc_note: "Расчёты ориентировочные. Табличные данные взяты из открытых источников, для проектных решений и поставок сверяйте их с действующими стандартами и документацией производителя.",
   sp_open: "Открыть",
+  sp_top: "Кнопка в шапке сайта",
   nav_contacts: "Контакты",
   discuss: "Обсудить объект",
   h1: "Ремонтно-строительные работы в Минске и по Беларуси",
@@ -123,6 +124,7 @@ pattern DictBe(_x: String) -> Map {
   calc_hint: "Акно можна перацягваць за загаловак, замацоўваць паверх старонкі шпількай і згортваць. Рэжымы: звычайны, будоўля, метал, бетон, формулы, шчыльнасць. Інтэрфейс калькулятара пакуль толькі па-руску.",
   calc_note: "Разлікі арыентыровачныя. Табліцы ўзяты з адкрытых крыніц, для праектных рашэнняў і паставак звяраце іх з дзеючымі стандартамі і дакументацыяй вытворцы.",
   sp_open: "Адкрыць",
+  sp_top: "Кнопка ў шапцы сайта",
   nav_contacts: "Кантакты",
   discuss: "Абмеркаваць аб’ект",
   h1: "Рамонтна-будаўнічыя работы ў Мінску і па Беларусі",
@@ -202,6 +204,7 @@ pattern DictEn(_x: String) -> Map {
   calc_hint: "Drag the window by its title bar, pin it above the page with the pin, or minimise it. Modes: basic, construction, metal, concrete, formulas, density. The calculator interface is in Russian for now.",
   calc_note: "Figures are approximate. Tables come from open sources; check them against current standards and manufacturer documents before using them for design or supply.",
   sp_open: "Open",
+  sp_top: "Button in the site header",
   nav_contacts: "Contacts",
   discuss: "Discuss your project",
   h1: "Renovation and construction in Minsk and across Belarus",
@@ -292,7 +295,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=14\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=15\">
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
@@ -306,7 +309,7 @@ pattern HeadTpl(_x: String) -> String {
 <a href=\"{{ p }}/kontakty\">{{ t.nav_contacts }}</a>
 </nav>
 <div class=\"right\">
-<a class=\"calc-btn\" href=\"{{ p }}/kalkulyator\">{{ t.est_tab_calc }}</a>
+<button type=\"button\" class=\"calc-btn\" id=\"calcOpen\">{{ t.est_tab_calc }}</button>
 <div class=\"lang\" role=\"group\" aria-label=\"{{ t.lang_aria }}\">
 <a href=\"{{ h_ru }}\" lang=\"ru\" hreflang=\"ru\" {{#if is_ru}}aria-current=\"true\"{{/if}}>RU</a>
 <a href=\"{{ h_be }}\" lang=\"be\" hreflang=\"be\" {{#if is_be}}aria-current=\"true\"{{/if}}>BY</a>
@@ -325,7 +328,7 @@ pattern FootTpl(_x: String) -> String {
 <footer><div class=\"wrap\">
 <div>{{ t.legal }}</div>
 <div>{{ t.slogan }}</div>
-</div></footer>
+</div></footer>" + CalcWidget("") + "
 </body>
 </html>"
 }
@@ -337,8 +340,7 @@ pattern HomeTpl(_x: String) -> String {
 <h1>{{ t.h1 }}</h1>
 <p class=\"lead\">{{ t.lead }}</p>
 <div class=\"actions\">
-<a class=\"btn\" href=\"{{ p }}/kalkulyator\">{{ t.est_tab_calc }}</a>
-<a class=\"btn ghost\" href=\"{{ p }}/kontakty\">{{ t.discuss }}</a>
+<a class=\"btn\" href=\"{{ p }}/kontakty\">{{ t.discuss }}</a>
 <a class=\"btn ghost\" href=\"{{ p }}/portfolio\">{{ t.our_map }}</a>
 </div>
 </div>
@@ -374,7 +376,7 @@ pattern HomeTpl(_x: String) -> String {
 <p class=\"lead\">{{ t.sp_lead }}</p>
 <div class=\"help-grid\">
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp1_t }}</h3><p>{{ t.sp1_d }}</p></div>
-<a class=\"help-card\" href=\"{{ p }}/kalkulyator\"><span class=\"help-tag\">{{ t.sp_open }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></a>
+<div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_top }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></div>
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp3_t }}</h3><p>{{ t.sp3_d }}</p></div>
 </div>
 </div></section>
@@ -422,14 +424,8 @@ pattern PortfolioTpl(_x: String) -> String {
 <script src=\"/static/portfolio.js?v=4\"></script>"
 }
 
-pattern CalcTpl(_x: String) -> String {
-  return "<h1>{{ t.calc_h1 }}</h1>
-<p class=\"lead\">{{ t.calc_lead }}</p>
-
-<p><button class=\"btn\" id=\"openBtn\" type=\"button\">{{ t.calc_open }}</button></p>
-<p>{{ t.calc_hint }}</p>
-<p class=\"muted\">{{ t.calc_note }}</p>
-<link rel=\"stylesheet\" href=\"/static/calc.css?v=5\">
+pattern CalcWidget(_x: String) -> String {
+  return "<link rel=\"stylesheet\" href=\"/static/calc.css?v=6\">
 <div id=\"tc-root\">
 <section class=\"win pinned\" id=\"win\" aria-label=\"Калькулятор\" hidden>
   <div class=\"bar\" id=\"bar\">
@@ -519,7 +515,7 @@ pattern CalcTpl(_x: String) -> String {
   <button class=\"tb\" id=\"expBtn\" type=\"button\" aria-label=\"Развернуть\" title=\"Развернуть\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"10\" height=\"10\"/></svg></button>
 </div>
 </div>
-<script src=\"/static/calc.js?v=3\"></script>"
+<script src=\"/static/calc.js?v=4\"></script>"
 }
 
 pattern AboutTpl(_x: String) -> String {
@@ -576,11 +572,6 @@ pattern EstHubPage(lang: String) -> Html {
   return Shell(lang, "/raschet-smet", "est", d.nav_calc, true, est.EstHubTpl(""))
 }
 
-pattern CalcPage(lang: String) -> Html {
-  let d = Dict(lang)
-  return Shell(lang, "/kalkulyator", "calc", d.est_tab_calc, true, CalcTpl(""))
-}
-
 pattern EstVolPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/obyemy", "est", d.est_tab_vol, true, est.EstVolTpl(""))
@@ -614,17 +605,14 @@ server {
   route "/uslugi" method=GET { return ServicesPage("ru") }
   route "/portfolio" method=GET { return PortfolioPage("ru") }
   route "/raschet-smet" method=GET { return EstHubPage("ru") }
-  route "/kalkulyator" method=GET { return CalcPage("ru") }
   route "/raschet-smet/obyemy" method=GET { return EstVolPage("ru") }
   route "/raschet-smet/kachestvo" method=GET { return EstQualPage("ru") }
   route "/raschet-smet/elektrika" method=GET { return EstElecPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
-  route "/be/kalkulyator" method=GET { return CalcPage("be") }
   route "/be/raschet-smet/obyemy" method=GET { return EstVolPage("be") }
   route "/be/raschet-smet/kachestvo" method=GET { return EstQualPage("be") }
   route "/be/raschet-smet/elektrika" method=GET { return EstElecPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
-  route "/en/kalkulyator" method=GET { return CalcPage("en") }
   route "/en/raschet-smet/obyemy" method=GET { return EstVolPage("en") }
   route "/en/raschet-smet/kachestvo" method=GET { return EstQualPage("en") }
   route "/en/raschet-smet/elektrika" method=GET { return EstElecPage("en") }
