@@ -124,9 +124,12 @@ Q_SECTIONS = [
     ("oblitsovka", "Облицовка и потолки", "Плитка, камень, листовые и панельные облицовки, подвесные потолки.", ["oblitsovka-plitkoi", "listovye-potolki"]),
     ("okraska", "Окраска, обои и стекло", "Малярные работы, оклейка обоями, остекление.", ["okraska", "oboi", "steklo"]),
     ("poly", "Полы", "Основание, стяжка и покрытия: наливные, паркет, ламинат, линолеум, плитка.", ["osnovanie-pola", "styazhka", "nalivnye-polimery", "parket-laminat", "linoleum", "plitka-pola"]),
+    ("beton", "Бетонные работы", "Опалубка, арматура и защитный слой, классы поверхностей, допуски готовых монолитных конструкций.", ["bt-opalubka", "bt-armatura", "bt-klassy", "bt-konstrukcii"]),
+    ("sbornye", "Сборные конструкции", "Фундаментные блоки, колонны, ригели и плиты, панели, лестницы и шахты.", ["sb-fundament", "sb-karkas", "sb-paneli"]),
+    ("kamen", "Каменные работы", "Швы и армирование, допуски кладки, высота стен и опирание плит, кладка в мороз и жару.", ["kl-shvy", "kl-dopuski", "kl-vysota", "kl-pogoda"]),
     ("elektrika", "Электрика", "Внутренние проводки, светильники, щитки, автоматы и УЗО: сечения, прокладка, розетки, ванные, приёмка.", ["el-gruppovye", "el-prokladka", "el-rozetki", "el-svetilniki", "el-vannaya", "el-shchitki", "el-avtomaty", "el-uzo", "el-priyemka"]),
 ]
-Q_SOON = [("beton", "Бетонные работы", "Опалубка, арматура, бетонирование, допуски готовых конструкций."), ("kamen", "Каменные работы", "Кладка: швы, отклонения по вертикали и горизонтали.")]
+Q_SOON = []
 
 
 def q_sections(C):
@@ -142,7 +145,8 @@ def q_sections(C):
                 f'<span class="q-n">{len(sls)}</span></summary>'
                 f'<div class="e-sub q-chips">{links}</div>'
                 f'<div class="q-list">{"".join(C.page_card(by[sl]) for sl in sls)}</div></details>')
-    out += '<div class="q-soons">' + "".join(f'<div class="e-card"><span class="e-tag">Скоро</span><h3>{t}</h3><p>{d}</p></div>' for _, t, d in Q_SOON) + "</div>"
+    if Q_SOON:
+        out += '<div class="q-soons">' + "".join(f'<div class="e-card"><span class="e-tag">Скоро</span><h3>{t}</h3><p>{d}</p></div>' for _, t, d in Q_SOON) + "</div>"
     out += '<script src="/static/q.js?v=1"></script>'
     return out
 
@@ -401,11 +405,11 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=6">' + elec())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=6">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=7">' + elec())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=7">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 

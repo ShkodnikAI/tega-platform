@@ -455,27 +455,32 @@ def facts_html(card):
     return '<div class="q-facts">' + "".join(f'<div><b>{esc(b)}</b><span>{esc(l)}</span></div>' for b, l in card["facts"]) + "</div>"
 
 
-def table_html(card):
-    t = card.get("table")
+def _table(t, unit, cols):
     if not t:
         return ""
-    unit = card.get("unit", "")
-    cols = card.get("cols")
-    three = any(r[2] is not None for r in t)
-    if three:
+    multi = any(len(r) > 3 and r[2] is not None for r in t)
+    if multi:
         heads = cols or CLS
         th = "".join(f'<th class="n">{esc(h)}</th>' for h in heads)
     else:
         th = f'<th class="n">Значение, {esc(unit)}</th>' if unit else '<th class="n">Значение</th>'
     rows = ""
     for r in t:
-        if three:
-            cells = "".join(f'<td class="n m">{esc(fnum(c))}</td>' for c in r[1:4])
+        if multi:
+            cells = "".join(f'<td class="n m">{esc(fnum(c))}</td>' for c in r[1:] if c is not None)
         else:
             cells = f'<td class="n m">{esc(fnum(r[1]))}</td>'
         rows += f'<tr><td>{esc(r[0])}</td>{cells}</tr>'
-    cap = f' <span class="u">(мм)</span>' if three and unit else ""
+    cap = f' <span class="u">({esc(unit)})</span>' if multi and unit else ""
     return f'<div class="e-scroll"><table class="e-tbl q-tbl"><thead><tr><th>Параметр{cap}</th>{th}</tr></thead><tbody>{rows}</tbody></table></div>'
+
+
+def table_html(card):
+    out = _table(card.get("table"), card.get("unit", ""), card.get("cols"))
+    t2 = card.get("table2")
+    if t2:
+        out += f'<h4 class="q-h4">{esc(t2["title"])}</h4>' + _table(t2["rows"], t2.get("unit", ""), t2.get("cols"))
+    return out
 
 
 def tiles_html(card):
@@ -546,6 +551,7 @@ h1{margin:0 0 6px;font-size:38px;line-height:1.1;letter-spacing:-.02em}
 .q-viz{margin:8px 0 18px;max-width:640px}.q-viz svg{width:100%;height:auto;display:block}
 .q-acc{border-left:4px solid #e3000f;background:#f6f6f7;padding:14px 18px;margin:8px 0 14px}
 .q-acc h4{margin:0 0 8px;font-size:18px}.q-acc ul{margin:0;padding-left:20px}.q-acc li{margin:0 0 6px;font-size:16px}
+.q-h4{margin:18px 0 8px;font-size:18px}
 .e-note{font-size:14px;color:#4a4d55;margin:6px 0}
 .foot{margin-top:18px;padding-top:12px;border-top:1.5px solid #1d1f23;font-size:13px;color:#4a4d55;display:flex;justify-content:space-between;gap:20px}
 """
@@ -565,4 +571,5 @@ def standalone_html(card, fonts_dir, logo_path, wm_path):
 
 
 from cards_el import EL_CARDS  # noqa: E402
-CARDS += EL_CARDS
+from cards_bk import BK_CARDS  # noqa: E402
+CARDS += EL_CARDS + BK_CARDS
