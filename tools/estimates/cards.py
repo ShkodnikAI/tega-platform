@@ -573,4 +573,5 @@ def standalone_html(card, fonts_dir, logo_path, wm_path):
 from cards_el import EL_CARDS  # noqa: E402
 from cards_el2 import EL2_CARDS  # noqa: E402
 from cards_bk import BK_CARDS  # noqa: E402
-CARDS += EL_CARDS + EL2_CARDS + BK_CARDS
+from cards_wood import WOOD_CARDS  # noqa: E402
+CARDS += EL_CARDS + EL2_CARDS + BK_CARDS + WOOD_CARDS
