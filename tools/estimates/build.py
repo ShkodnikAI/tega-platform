@@ -125,7 +125,7 @@ Q_SECTIONS = [
     ("okraska", "Окраска, обои и стекло", "Малярные работы, оклейка обоями, остекление.", ["okraska", "oboi", "steklo"]),
     ("poly", "Полы", "Основание, стяжка и покрытия: наливные, паркет, ламинат, линолеум, плитка.", ["osnovanie-pola", "styazhka", "nalivnye-polimery", "parket-laminat", "linoleum", "plitka-pola"]),
     ("beton", "Бетонные работы", "Опалубка, арматура и защитный слой, классы поверхностей, допуски готовых монолитных конструкций.", ["bt-opalubka", "bt-armatura", "bt-klassy", "bt-konstrukcii"]),
-    ("sbornye", "Сборные конструкции", "Фундаментные блоки, колонны, ригели и плиты, панели, лестницы и шахты.", ["sb-fundament", "sb-karkas", "sb-paneli"]),
+    ("sbornye", "Сборные конструкции", "Фундаментные блоки, колонны, ригели и плиты перекрытий.", ["sb-fundament", "sb-karkas"]),
     ("kamen", "Каменные работы", "Швы и армирование, допуски кладки, высота стен и опирание плит, кладка в мороз и жару.", ["kl-shvy", "kl-dopuski", "kl-vysota", "kl-pogoda"]),
     ("elektrika", "Электрика", "Внутренние проводки, светильники, щитки, автоматы и УЗО: сечения, прокладка, розетки, ванные, приёмка.", ["el-gruppovye", "el-prokladka", "el-rozetki", "el-svetilniki", "el-vannaya", "el-shchitki", "el-avtomaty", "el-uzo", "el-priyemka"]),
 ]
