@@ -371,19 +371,26 @@ def svg_layers():
     return svg_open(640, 320, "Слои штукатурки") + "".join(out) + "</svg>"
 
 
-def svg_gap(caption="Просвет под рейкой"):
+def svg_gap(caption="Размер неровности: просвет между рейкой и поверхностью"):
     out = []
-    out.append(f'<line x1="20" y1="170" x2="600" y2="170" stroke="{INK}" stroke-width="4"/>')
-    out.append(f'<path d="M20 170 L250 170 Q300 146 350 170 L600 170" fill="none" stroke="{INK}" stroke-width="4"/>')
-    out.append(f'<rect x="40" y="96" width="540" height="10" fill="{LIGHT}" stroke="{INK}" stroke-width="1.5"/>')
-    out.append(f'<line x1="300" y1="106" x2="300" y2="154" stroke="{RED}" stroke-width="3"/>')
-    out.append(f'<line x1="290" y1="106" x2="310" y2="106" stroke="{RED}" stroke-width="2"/>')
-    out.append(f'<line x1="290" y1="154" x2="310" y2="154" stroke="{RED}" stroke-width="2"/>')
-    out.append(txt(320, 134, "просвет: глубина неровности", 14, RED, weight=600))
-    out.append(txt(40, 84, "рейка", 13, MID))
-    out.append(txt(40, 196, "стена или пол", 13, MID))
-    out.append(txt(20, 232, caption, 13, INK, weight=500))
-    return svg_open(620, 250, "Схема проверки ровности рейкой") + "".join(out) + "</svg>"
+    surf = "M20 170 L230 170 Q300 170 300 126 Q300 170 370 170 L600 170"
+    # плавная выпуклость посередине
+    surf = "M20 170 L220 170 C260 170 265 128 300 128 C335 128 340 170 380 170 L600 170"
+    out.append(f'<path d="{surf} L600 225 L20 225 Z" fill="{SOFT}" opacity="0.7"/>')
+    out.append(f'<path d="{surf}" fill="none" stroke="{INK}" stroke-width="4"/>')
+    # рейка касается вершины выпуклости
+    out.append(f'<rect x="50" y="118" width="520" height="10" fill="{LIGHT}" stroke="{INK}" stroke-width="1.5"/>')
+    # размер: между низом рейки и поверхностью рядом с выпуклостью
+    out.append(f'<line x1="470" y1="128" x2="470" y2="170" stroke="{RED}" stroke-width="3"/>')
+    out.append(f'<line x1="458" y1="128" x2="482" y2="128" stroke="{RED}" stroke-width="2"/>')
+    out.append(f'<line x1="458" y1="170" x2="482" y2="170" stroke="{RED}" stroke-width="2"/>')
+    out.append(txt(494, 145, "размер", 14, RED, weight=600))
+    out.append(txt(494, 163, "неровности", 14, RED, weight=600))
+    out.append(txt(50, 108, "рейка 2 м", 13, MID))
+    out.append(txt(300, 196, "выпуклость", 13, MID, anchor="middle"))
+    out.append(txt(24, 246, "поверхность", 13, MID))
+    out.append(txt(20, 272, caption, 13, INK, weight=500))
+    return svg_open(620, 214, "Схема проверки ровности рейкой") + '<g transform="translate(0,-68)">' + "".join(out) + "</g></svg>"
 
 
 def svg_ops():

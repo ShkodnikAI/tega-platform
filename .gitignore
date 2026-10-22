@@ -13,3 +13,4 @@ node_modules/
 dist/
 target/
 !.env.example
+__pycache__/
