@@ -326,7 +326,7 @@ def svg_classbars(rows, unit, names=CLS, label="Допуски по класса
             col = (LIGHT, MID, INK)[i]
             ww = max(3, bw * v / mx)
             out.append(f'<rect x="{left}" y="{y + i * 15}" width="{ww:.1f}" height="11" fill="{col}"/>')
-            out.append(txt(left + ww + 8, y + i * 15 + 10, f"{fnum(v)} {unit}", 11, INK, mono=True))
+            out.append(txt(left + ww + 8, y + i * 15 + 10, f"{fnum(v)} {unit}", 11, RED, weight=500, mono=True))
         y += 58
     return svg_open(w, y, label) + "".join(out) + "</svg>"
 
@@ -366,7 +366,7 @@ def svg_layers():
         x += t * 10
         ly += 62
     out.append(f'<line x1="{x0 + bw}" y1="{y0 + hh + 14}" x2="{x}" y2="{y0 + hh + 14}" stroke="{INK}" stroke-width="2"/>')
-    out.append(txt(lx, y0 + hh - 14, "Три слоя вместе: 14 мм", 13, INK, weight=600))
+    out.append(txt(lx, y0 + hh - 14, "Три слоя вместе: 14 мм", 13, RED, weight=600))
     out.append(txt(lx, y0 + hh + 6, "Однослойно: до 15 мм (гипс), до 20 мм (прочие)", 12, MID))
     return svg_open(640, 320, "Слои штукатурки") + "".join(out) + "</svg>"
 
@@ -518,12 +518,12 @@ h1{margin:0 0 6px;font-size:38px;line-height:1.1;letter-spacing:-.02em}
 .q-src{font:500 13px 'IBM Plex Mono',monospace;color:#e3000f;margin:6px 0 18px}
 .q-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:12px 0 18px}
 .q-facts div{border:1.5px solid #1d1f23;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
-.q-facts b{font-size:34px;letter-spacing:-.02em;color:#1d1f23}
+.q-facts b{font-size:34px;letter-spacing:-.02em;color:#e3000f}
 .q-facts span{font-size:15px;color:#4a4d55}
 .e-tbl{width:100%;border-collapse:collapse;font-size:15px;margin:6px 0 16px}
 .e-tbl th{padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#4a4d55;border-bottom:1.5px solid #1d1f23}
 .e-tbl td{padding:9px 10px;border-bottom:1px solid #e4e5e8;vertical-align:top}
-.e-tbl .n{text-align:right;white-space:nowrap}.e-tbl .m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.e-tbl .n{text-align:right;white-space:nowrap}.e-tbl .m{font-family:'IBM Plex Mono',monospace;font-weight:500;color:#e3000f}
 .q-viz{margin:8px 0 18px;max-width:640px}.q-viz svg{width:100%;height:auto;display:block}
 .q-acc{border-left:4px solid #e3000f;background:#f6f6f7;padding:14px 18px;margin:8px 0 14px}
 .q-acc h4{margin:0 0 8px;font-size:18px}.q-acc ul{margin:0;padding-left:20px}.q-acc li{margin:0 0 6px;font-size:16px}
