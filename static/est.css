@@ -170,3 +170,4 @@ a.e-card:hover h3{color:var(--red)}
 .q-sec>.q-chips{padding-bottom:18px;padding-top:18px}
 .q-soon{padding:8px 14px;font-size:14px;color:var(--muted);border:1.5px dashed #c6c8cd;display:inline-flex;align-items:center;min-height:40px}
 .q-soons{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:8px}
+.e-f[hidden]{display:none}

@@ -2,14 +2,41 @@
 (function () {
   'use strict';
   var SQ3 = 1.732;
-  var RHO = { cu: 0.0175, al: 0.028 };                 // Ом·мм²/м
-  // допустимые токи, А: IEC 60364-5-52, способ C (на стене), изоляция ПВХ; 2 и 3 нагруженные жилы. Ориентир.
-  var IZ = {
-    cu: { 2: { 1.5: 19.5, 2.5: 27, 4: 36, 6: 46, 10: 63, 16: 85, 25: 112 }, 3: { 1.5: 17.5, 2.5: 24, 4: 32, 6: 41, 10: 57, 16: 76, 25: 96 } },
-    al: { 2: { 2.5: 20.5, 4: 28, 6: 36, 10: 49, 16: 66, 25: 83 }, 3: { 2.5: 18.5, 4: 25, 6: 32, 10: 44, 16: 59, 25: 73 } }
+  // Допустимые длительные токи, А: МЭК 60364-5-52 (ГОСТ 30331.5), температура воздуха 30 °С.
+  // Способы прокладки: A1 — в трубе в теплоизолированной стене, B1 — в трубе или коробе на стене, C — открыто по стене, E — на лотке в воздухе.
+  // Для каждого сечения: [A1, B1, C, E] при 2 нагруженных жилах, затем при 3 нагруженных жилах.
+  var SZ = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120];
+  var TAB = {
+    cu_pvc: {
+      2: { 1.5: [14.5, 17.5, 19.5, 22], 2.5: [19.5, 24, 27, 30], 4: [26, 32, 36, 40], 6: [34, 41, 46, 51], 10: [46, 57, 63, 70], 16: [61, 76, 85, 94], 25: [80, 101, 112, 119], 35: [99, 125, 138, 148], 50: [119, 151, 168, 180], 70: [151, 192, 213, 232], 95: [182, 232, 258, 282], 120: [210, 269, 299, 328] },
+      3: { 1.5: [13.5, 15.5, 17.5, 18.5], 2.5: [18, 21, 24, 25], 4: [24, 28, 32, 34], 6: [31, 36, 41, 43], 10: [42, 50, 57, 60], 16: [56, 68, 76, 80], 25: [73, 89, 96, 101], 35: [89, 110, 119, 126], 50: [108, 134, 144, 153], 70: [136, 171, 184, 196], 95: [164, 207, 223, 238], 120: [188, 239, 259, 276] }
+    },
+    cu_xlpe: {
+      2: { 1.5: [19, 23, 24, 26], 2.5: [26, 31, 33, 36], 4: [35, 42, 45, 49], 6: [45, 54, 58, 63], 10: [61, 75, 80, 86], 16: [81, 100, 107, 115], 25: [106, 133, 138, 149], 35: [131, 164, 171, 185], 50: [158, 198, 209, 225], 70: [200, 253, 269, 289], 95: [241, 306, 328, 352], 120: [278, 354, 382, 410] },
+      3: { 1.5: [17, 20, 22, 23], 2.5: [23, 28, 30, 32], 4: [31, 37, 40, 42], 6: [40, 48, 52, 54], 10: [54, 66, 71, 75], 16: [73, 88, 96, 100], 25: [95, 117, 119, 127], 35: [117, 144, 147, 158], 50: [141, 175, 179, 192], 70: [179, 222, 229, 246], 95: [216, 269, 278, 298], 120: [249, 312, 322, 346] }
+    },
+    al_pvc: {
+      2: { 2.5: [null, 18.5, 20.5, null], 4: [null, 25, 28, null], 6: [null, 32, 36, null], 10: [null, 44, 49, null], 16: [null, 59, 66, null], 25: [null, 73, 83, null], 35: [null, 90, 103, null], 50: [null, 110, 125, null], 70: [null, 140, 160, null], 95: [null, 170, 195, null], 120: [null, 197, 226, null] },
+      3: { 2.5: [null, 16.5, 18.5, null], 4: [null, 22, 25, null], 6: [null, 28, 32, null], 10: [null, 39, 44, null], 16: [null, 53, 59, null], 25: [null, 67, 73, null], 35: [null, 79, 90, null], 50: [null, 99, 110, null], 70: [null, 126, 140, null], 95: [null, 153, 170, null], 120: [null, 178, 197, null] }
+    }
   };
-  var BR = [6, 10, 16, 20, 25, 32, 40, 50, 63];
-  var PIPE = 0.85;
+  var LAYI = { A1: 0, B1: 1, C: 2, E: 3 };
+  var LAYN = { A1: 'в трубе в теплоизолированной стене', B1: 'в трубе или коробе на стене', C: 'открыто по стене', E: 'на лотке в воздухе' };
+  // поправка на температуру воздуха (МЭК 60364-5-52, табл. B.52.14)
+  var KT = {
+    pvc: [[10, 1.22], [15, 1.17], [20, 1.12], [25, 1.06], [30, 1.0], [35, 0.94], [40, 0.87], [45, 0.79], [50, 0.71], [55, 0.61], [60, 0.5]],
+    xlpe: [[10, 1.15], [15, 1.12], [20, 1.08], [25, 1.04], [30, 1.0], [35, 0.96], [40, 0.91], [45, 0.87], [50, 0.82], [55, 0.76], [60, 0.71]]
+  };
+  // поправка на число цепей рядом (табл. B.52.17): в канале или пучком, на стене в один слой, на лотке в один слой
+  var KG = {
+    bunch: [1, 0.8, 0.7, 0.65, 0.6, 0.57, 0.54, 0.52, 0.5],
+    wall: [1, 0.85, 0.79, 0.75, 0.73, 0.72, 0.72, 0.71, 0.7],
+    tray: [1, 0.88, 0.82, 0.77, 0.75, 0.73, 0.73, 0.72, 0.72]
+  };
+  var RHO = { cu_pvc: 0.0214, cu_xlpe: 0.0228, al_pvc: 0.0345 };   // Ом·мм²/м при рабочей температуре жилы
+  var XL = 0.00008;                                                  // Ом/м, индуктивное сопротивление кабеля
+  var BR = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
+  var KINDS = { light: { min: 1.5, lim: 3 }, sock: { min: 2.5, lim: 5 }, power: { min: 1.5, lim: 5 } };
 
   function $(id) { return document.getElementById(id); }
   function num(id) {
@@ -41,89 +68,74 @@
     verdict(vid, msg || 'Введите числа больше нуля.', true);
   }
   function allPos(arr) { return arr.every(function (v) { return isFinite(v) && v > 0; }); }
-  function dropPct(ph, I, L, rho, S, cos, U) {
-    var dv = ph === 1 ? 2 * I * L * rho / S : SQ3 * I * L * rho * cos / S;
+  function interp(tab, x) {
+    if (x <= tab[0][0]) return tab[0][1];
+    for (var i = 0; i < tab.length - 1; i++) {
+      if (x <= tab[i + 1][0]) return tab[i][1] + (tab[i + 1][1] - tab[i][1]) * (x - tab[i][0]) / (tab[i + 1][0] - tab[i][0]);
+    }
+    return tab[tab.length - 1][1];
+  }
+  function sizeLbl(S) { return fmt(S, S % 1 ? 1 : 0); }
+  function dropPct(ph, I, L, key, S, cos, U) {
+    var sin = Math.sqrt(Math.max(0, 1 - cos * cos));
+    var dv = (ph === 1 ? 2 : SQ3) * I * L * (RHO[key] / S * cos + XL * sin);
     return dv / U * 100;
   }
-  function sizes(mat, ph) {
-    return Object.keys(IZ[mat][ph === 1 ? 2 : 3]).map(parseFloat).sort(function (a, b) { return a - b; });
-  }
-  function izOf(mat, ph, S, pipe) { return IZ[mat][ph === 1 ? 2 : 3][S] * (pipe ? PIPE : 1); }
-  function sizeLbl(S) { return fmt(S, S % 1 ? 1 : 0); }
 
-  /* 01 кабель и автомат */
+  /* 01 подбор сечения кабеля */
+  function toggleMode() {
+    var byI = radio('c-mode') === 'i';
+    $('c-wp').hidden = byI; $('c-wi').hidden = !byI;
+  }
   function calcCable() {
-    var ids = ['c-r-i', 'c-r-in', 'c-r-s', 'c-r-iz', 'c-r-du'];
-    var ph = parseInt(radio('c-ph'), 10), mat = radio('c-mat'), pipe = radio('c-lay') === 'pipe';
-    var P = num('c-p') * 1000, U = num('c-u'), cos = num('c-cos'), L = num('c-l'), k = num('c-k'), lim = num('c-lim');
-    if (!allPos([P, U, cos, L, k, lim]) || cos > 1) return clear(ids, 'c-verdict');
-    var I = (ph === 1 ? P / (U * cos) : P / (SQ3 * U * cos)) * k;
-    set('c-r-i', fmt(I, 1) + ' А');
+    var ids = ['c-r-i', 'c-r-mech', 'c-r-cur', 'c-r-drop', 'c-r-s', 'c-r-by', 'c-r-in', 'c-r-iz', 'c-r-du'];
+    var ph = parseInt(radio('c-ph'), 10), mat = radio('c-mat'), ins = radio('c-ins'), byI = radio('c-mode') === 'i';
+    var lay = $('c-lay').value, kind = KINDS[$('c-kind').value];
+    var U = num('c-u'), cos = num('c-cos'), L = num('c-l'), k = num('c-k'), lim = num('c-lim'), T = num('c-t'), n = Math.round(num('c-n'));
+    var raw = byI ? num('c-i') : num('c-p');
+    if (!allPos([raw, U, cos, L, k, lim, n]) || cos > 1 || !isFinite(T)) return clear(ids, 'c-verdict');
+    if (T < 10 || T > 60) return clear(ids, 'c-verdict', 'Температура воздуха: от 10 до 60 °С.');
+    var key = mat + '_' + ins;
+    if (!TAB[key]) return clear(ids, 'c-verdict', 'Для алюминия таблица есть только для изоляции из ПВХ. Выберите ПВХ или медь.');
+    var li = LAYI[lay];
+    if (TAB[key][2][sizesOf(key)[0]][li] === null) return clear(ids, 'c-verdict', 'Для алюминия доступны способы B1 и C. Выберите другой способ или медь.');
+    var I = byI ? raw * k : (ph === 1 ? raw * 1000 / (U * cos) : raw * 1000 / (SQ3 * U * cos)) * k;
+    var kt = interp(KT[ins], T);
+    var gl = lay === 'E' ? KG.tray : (lay === 'C' ? KG.wall : KG.bunch);
+    var kg = gl[Math.min(n, gl.length) - 1];
+    var cols = ph === 1 ? 2 : 3, list = sizesOf(key);
     var In = null;
-    for (var i = 0; i < BR.length; i++) { if (BR[i] >= I) { In = BR[i]; break; } }
-    if (!In) { ids.slice(1).forEach(function (x) { set(x, '—'); }); return verdict('c-verdict', 'Ток больше 63 А: такую линию рассчитывает проектировщик.', true); }
+    for (var i = 0; i < BR.length; i++) { if (BR[i] >= I - 1e-9) { In = BR[i]; break; } }
+    set('c-r-i', fmt(I, 1) + ' А');
+    if (!In) { ids.slice(1).forEach(function (x) { set(x, '—'); }); return verdict('c-verdict', 'Ток больше 125 А: такую линию рассчитывает проектировщик.', true); }
+    var minS = mat === 'al' ? Math.max(2.5, kind.min) : kind.min;
+    function izOf(S) { return TAB[key][cols][S][li] * kt * kg; }
+    function firstBy(fn) { for (var j = 0; j < list.length; j++) { if (fn(list[j])) return list[j]; } return null; }
+    var sMech = firstBy(function (S) { return S >= minS; });
+    var sCur = firstBy(function (S) { return izOf(S) >= In - 1e-9; });
+    var sDrop = firstBy(function (S) { return dropPct(ph, I, L, key, S, cos, U) <= lim; });
+    set('c-r-mech', sizeLbl(minS) + ' мм²');
+    set('c-r-cur', sCur ? sizeLbl(sCur) + ' мм²' : 'больше 120 мм²');
+    set('c-r-drop', sDrop ? sizeLbl(sDrop) + ' мм²' : 'больше 120 мм²');
     set('c-r-in', In + ' А');
-    var minS = radio('c-mat') === 'al' ? 2.5 : (($('c-kind').value === 'sock') ? 2.5 : 1.5);
-    var rho = RHO[mat], list = sizes(mat, ph), pick = null, byDrop = null;
-    for (var j = 0; j < list.length; j++) {
-      var S = list[j];
-      if (S < minS) continue;
-      var dp = dropPct(ph, I, L, rho, S, cos, U);
-      if (izOf(mat, ph, S, pipe) >= In) {
-        if (dp <= lim) { pick = { S: S, dp: dp }; break; }
-        if (!byDrop) byDrop = { S: S, dp: dp };
-      }
+    if (!sCur || !sDrop) {
+      ['c-r-s', 'c-r-by', 'c-r-iz', 'c-r-du'].forEach(function (x) { set(x, '—'); });
+      return verdict('c-verdict', 'Сечение больше 120 мм² (или не проходит по условиям): линию рассчитывает проектировщик, возможно, несколькими кабелями.', true);
     }
-    if (!pick) {
-      set('c-r-s', '—'); set('c-r-iz', '—'); set('c-r-du', byDrop ? fmt(byDrop.dp, 1) + ' %' : '—');
-      return verdict('c-verdict', 'Даже сечение 25 мм² не проходит по току или по потере: линию должен считать проектировщик.', true);
-    }
-    var iz = izOf(mat, ph, pick.S, pipe);
-    set('c-r-s', (ph === 1 ? '3' : '5') + ' × ' + sizeLbl(pick.S) + ' мм²');
+    var S = Math.max(sMech, sCur, sDrop), by = [];
+    if (S === sMech) by.push('механическая прочность');
+    if (S === sCur) by.push('нагрев током');
+    if (S === sDrop) by.push('потеря напряжения');
+    var iz = izOf(S), dp = dropPct(ph, I, L, key, S, cos, U);
+    set('c-r-s', (ph === 1 ? '3' : '5') + ' × ' + sizeLbl(S) + ' мм²');
+    set('c-r-by', by.join(', '));
     set('c-r-iz', fmt(iz, 1) + ' А');
-    set('c-r-du', fmt(pick.dp, 1) + ' % (' + fmt(pick.dp * U / 100, 1) + ' В)');
+    set('c-r-du', fmt(dp, 2) + ' % (' + fmt(dp * U / 100, 1) + ' В)');
     var mark = (mat === 'al' ? 'АВВГнг(А)-LS' : 'ВВГнг(А)-LS');
-    verdict('c-verdict', 'Условие выполнено: ' + fmt(I, 1) + ' А ≤ ' + In + ' А ≤ ' + fmt(iz, 1) + ' А, потеря в пределах ' + fmt(lim, 0) + ' %. Марка: ' + mark + '.' +
+    verdict('c-verdict', 'Условие выполнено: ' + fmt(I, 1) + ' А ≤ ' + In + ' А ≤ ' + fmt(iz, 1) + ' А, потеря ' + fmt(dp, 2) + ' % при допуске ' + fmt(lim, 1) + ' %. Способ прокладки: ' + LAYN[lay] + '. Поправки: на температуру ' + fmt(kt, 2) + ', на число цепей ' + fmt(kg, 2) + '. ' + (ins === 'xlpe' ? 'Кабель с изоляцией из сшитого полиэтилена, марку уточняйте у поставщика.' : 'Марка: ' + mark + '.') +
       (mat === 'al' ? ' Проверьте, допускает ли ваш случай алюминий: в жилых зданиях его применение ограничено.' : ''), false);
   }
-
-  /* 02 потеря напряжения */
-  function calcDrop() {
-    var ids = ['d-r-i', 'd-r-min', 'd-r-rec', 'd-r-du'];
-    var tb = $('d-rows');
-    var ph = parseInt(radio('d-ph'), 10), mat = radio('d-mat');
-    var P = num('d-p') * 1000, U = num('d-u'), cos = num('d-cos'), L = num('d-l'), lim = num('d-lim');
-    tb.textContent = '';
-    if (!allPos([P, U, cos, L, lim]) || cos > 1) return clear(ids, 'd-verdict');
-    var I = ph === 1 ? P / (U * cos) : P / (SQ3 * U * cos);
-    var In = null;
-    for (var i = 0; i < BR.length; i++) { if (BR[i] >= I) { In = BR[i]; break; } }
-    var rho = RHO[mat], rec = null;
-    var factor = ph === 1 ? 2 * I * L * rho : SQ3 * I * L * rho * cos;
-    var minS = factor / (lim / 100 * U);
-    sizes(mat, ph).concat(mat === 'cu' ? [] : []).forEach(function (S) {
-      var iz = izOf(mat, ph, S, false), dp = dropPct(ph, I, L, rho, S, cos, U);
-      var curOk = In !== null && iz >= In, dropOk = dp <= lim, ok = curOk && dropOk;
-      var text = ok ? 'подходит' : (!curOk ? 'не проходит по току' : 'не проходит по потере');
-      if (ok && !rec) { rec = { S: S, dp: dp }; text = 'рекомендуем'; }
-      var tr = document.createElement('tr');
-      tr.className = ok ? 'ok' : 'bad';
-      [sizeLbl(S), fmt(iz, 1), fmt(dp, 2), text].forEach(function (c, n) {
-        var td = document.createElement('td');
-        if (n < 3) td.className = 'm';
-        td.textContent = c;
-        tr.appendChild(td);
-      });
-      tb.appendChild(tr);
-    });
-    set('d-r-i', fmt(I, 1) + ' А');
-    set('d-r-min', '≈ ' + fmt(minS, 1) + ' мм²');
-    if (!In) return verdict('d-verdict', 'Ток больше 63 А: линию рассчитывает проектировщик.', true);
-    if (!rec) { set('d-r-rec', '—'); set('d-r-du', '—'); return verdict('d-verdict', 'Ни одно сечение до 25 мм² не подходит: нужен проект.', true); }
-    set('d-r-rec', sizeLbl(rec.S) + ' мм²');
-    set('d-r-du', fmt(rec.dp, 2) + ' % (' + fmt(rec.dp * U / 100, 1) + ' В)');
-    verdict('d-verdict', 'Сечение выбрано по длительному току и проверено по потере напряжения.', false);
-  }
+  function sizesOf(key) { return Object.keys(TAB[key][2]).map(parseFloat).sort(function (a, b) { return a - b; }); }
 
   /* 03 ток КЗ */
   function calcKz() {
@@ -270,6 +282,13 @@
   }
   function fromHash() { show((location.hash || '').replace('#', '')); }
 
+  function setPower(kw, kind) {
+    var r = document.querySelector('input[name="c-mode"][value="p"]');
+    if (r) r.checked = true;
+    toggleMode();
+    $('c-p').value = fmt(kw, 2); $('c-cos').value = '1,0'; $('c-kind').value = kind; $('c-lim').value = String(KINDS[kind].lim);
+  }
+
   function init() {
     var root = $('e-elec');
     if (!root) return;
@@ -285,13 +304,14 @@
         if (el.tagName === 'INPUT' || el.tagName === 'SELECT') { el.addEventListener('input', fn); el.addEventListener('change', fn); }
       });
     }
-    bind('c', calcCable); bind('d', calcDrop); bind('k', calcKz); bind('g', calcGround); bind('l', calcLight);
+    bind('c', calcCable); bind('k', calcKz); bind('g', calcGround); bind('l', calcLight);
     Array.prototype.forEach.call(document.querySelectorAll('input[name="c-ph"]'), function (r) {
       r.addEventListener('change', function () { $('c-u').value = r.value === '1' ? '230' : '400'; calcCable(); });
     });
-    Array.prototype.forEach.call(document.querySelectorAll('input[name="d-ph"]'), function (r) {
-      r.addEventListener('change', function () { $('d-u').value = r.value === '1' ? '230' : '400'; calcDrop(); });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="c-mode"]'), function (r) {
+      r.addEventListener('change', function () { toggleMode(); calcCable(); });
     });
+    $('c-kind').addEventListener('change', function () { $('c-lim').value = String(KINDS[$('c-kind').value].lim); calcCable(); });
     $('l-room').addEventListener('change', function () { $('l-e').value = $('l-room').value; calcLight(); });
     $('l-add').addEventListener('click', function () { if (lastLight) { rooms.push(lastLight); renderRooms(); } });
     $('l-clear').addEventListener('click', function () { rooms = []; renderRooms(); });
@@ -302,19 +322,19 @@
     $('l-tocable').addEventListener('click', function () {
       var W = rooms.length ? rooms.reduce(function (s, r) { return s + r.W; }, 0) : (lastLight ? lastLight.W : 0);
       if (!W) return;
-      $('c-p').value = fmt(W / 1000, 2); $('c-cos').value = '1,0'; $('c-kind').value = 'light';
+      setPower(W / 1000, 'light');
       calcCable(); show('cable'); try { history.replaceState(null, '', '#cable'); } catch (e) { /* ничего */ }
     });
     Array.prototype.forEach.call(root.querySelectorAll('[data-kw]'), function (b) {
       b.addEventListener('click', function () {
-        $('c-p').value = fmt(parseFloat(b.getAttribute('data-kw')), 2); $('c-cos').value = '1,0'; $('c-kind').value = 'sock';
+        setPower(parseFloat(b.getAttribute('data-kw')), 'sock');
         calcCable(); show('cable'); try { history.replaceState(null, '', '#cable'); } catch (e) { /* ничего */ }
       });
     });
     try { rooms = JSON.parse(localStorage.getItem('tega-light-rooms') || '[]') || []; } catch (e) { rooms = []; }
     if (!Array.isArray(rooms)) rooms = [];
     renderRooms();
-    calcCable(); calcDrop(); calcKz(); calcGround(); calcLight();
+    toggleMode(); calcCable(); calcKz(); calcGround(); calcLight();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
