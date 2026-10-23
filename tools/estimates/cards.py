@@ -458,7 +458,7 @@ def facts_html(card):
 def _table(t, unit, cols):
     if not t:
         return ""
-    multi = any(len(r) > 3 and r[2] is not None for r in t)
+    multi = any(len(r) > 2 and r[2] is not None for r in t)
     if multi:
         heads = cols or CLS
         th = "".join(f'<th class="n">{esc(h)}</th>' for h in heads)
@@ -574,4 +574,5 @@ from cards_el import EL_CARDS  # noqa: E402
 from cards_el2 import EL2_CARDS  # noqa: E402
 from cards_bk import BK_CARDS  # noqa: E402
 from cards_wood import WOOD_CARDS  # noqa: E402
-CARDS += EL_CARDS + EL2_CARDS + BK_CARDS + WOOD_CARDS
+from cards_ovk import OVK_CARDS  # noqa: E402
+CARDS += EL_CARDS + EL2_CARDS + BK_CARDS + WOOD_CARDS + OVK_CARDS
