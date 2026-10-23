@@ -7,7 +7,7 @@
 import html
 
 INK, RED, MID, LIGHT, SOFT = "#1d1f23", "#e3000f", "#6a6d75", "#c6c8cd", "#f6f6f7"
-FONT = "Onest, Arial, sans-serif"
+FONT = "Nunito, Arial, sans-serif"
 MONO = "IBM Plex Mono, monospace"
 SP = "СП 1.03.01-2019"
 CLS = ("Простое", "Улучшенное", "Высококачественное")
@@ -520,18 +520,18 @@ def page_card(card):
 
 
 CARD_CSS = """
-@font-face{font-family:'Onest';font-weight:400;src:url(FONTS/onest-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
-@font-face{font-family:'Onest';font-weight:400;src:url(FONTS/onest-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
-@font-face{font-family:'Onest';font-weight:600;src:url(FONTS/onest-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
-@font-face{font-family:'Onest';font-weight:600;src:url(FONTS/onest-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
-@font-face{font-family:'Onest';font-weight:700;src:url(FONTS/onest-cyrillic-700-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
-@font-face{font-family:'Onest';font-weight:700;src:url(FONTS/onest-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+@font-face{font-family:'Nunito';font-weight:400;src:url(FONTS/nunito-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
+@font-face{font-family:'Nunito';font-weight:400;src:url(FONTS/nunito-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+@font-face{font-family:'Nunito';font-weight:600;src:url(FONTS/nunito-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
+@font-face{font-family:'Nunito';font-weight:600;src:url(FONTS/nunito-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
+@font-face{font-family:'Nunito';font-weight:700;src:url(FONTS/nunito-cyrillic-700-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
+@font-face{font-family:'Nunito';font-weight:700;src:url(FONTS/nunito-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
 @font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(FONTS/ibm-plex-mono-cyrillic-500-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
 @font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(FONTS/ibm-plex-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
 @font-face{font-family:'IBM Plex Mono';font-weight:400;src:url(FONTS/ibm-plex-mono-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+2116}
 @font-face{font-family:'IBM Plex Mono';font-weight:400;src:url(FONTS/ibm-plex-mono-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2212}
 *{box-sizing:border-box}
-body{margin:0;font:17px/1.55 'Onest',Arial,sans-serif;color:#1d1f23;background:#fff}
+body{margin:0;font:17px/1.55 'Nunito',Arial,sans-serif;color:#1d1f23;background:#fff}
 .sheet{position:relative;width:1080px;padding:44px 56px 40px;background:#fff;overflow:hidden}
 .wm{position:absolute;inset:0;background:url(WM) 0 0/600px 400px repeat;pointer-events:none;z-index:5}
 .top{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1d1f23;padding-bottom:16px;margin-bottom:22px}
