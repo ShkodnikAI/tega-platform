@@ -129,6 +129,10 @@ Q_SECTIONS = [
     ("kamen", "Каменные работы", "Швы и армирование, допуски кладки, высота стен и опирание плит, кладка в мороз и жару.", ["kl-shvy", "kl-dopuski", "kl-vysota", "kl-pogoda"]),
     ("derevo", "Деревянные конструкции", "Крепёж и сборка, допуски монтажа, опирание балок и ферм, перекрытия.", ["dr-sborka", "dr-dopuski", "dr-perekrytiya"]),
     ("elektrika", "Электрика", "Проводки, светильники, щитки, автоматы и УЗО, вводные устройства, учёт электроэнергии, заземление: сечения, прокладка, розетки, ванные, приёмка.", ["el-gruppovye", "el-prokladka", "el-rozetki", "el-svetilniki", "el-vannaya", "el-shchitki", "el-avtomaty", "el-uzo", "el-priyemka", "el-vru", "el-uchet", "el-zazemlenie", "el-zaz-proverka"]),
+    ("vodokanal", "Водоснабжение и канализация", "Монтаж ХВС и ГВС, внутренняя канализация, высоты приборов, водостоки.", ["ov-hvs", "ov-kanalizaciya", "ov-kanal-montazh", "ov-vysoty", "ov-vodostok"]),
+    ("otoplenie", "Отопление", "Системы и температуры, скорость воды, приборы и кронштейны, монтаж и тёплый пол.", ["ov-ot-sistemy", "ov-ot-truby", "ov-ot-pribory", "ov-ot-montazh"]),
+    ("ventilyaciya", "Вентиляция", "Воздухообмен, оборудование и венткамеры, воздуховоды, монтаж.", ["ov-vent-vozdukh", "ov-vent-sistemy", "ov-vent-vozdukhovody", "ov-vent-montazh"]),
+    ("inzh-obshchie", "Общее для инженерных систем", "Шаг креплений труб, отверстия и борозды, заготовка и испытания узлов.", ["ov-kreplenie-stal", "ov-kreplenie-polimer", "ov-otverstiya", "ov-zagotovka"]),
 ]
 Q_SOON = []
 
