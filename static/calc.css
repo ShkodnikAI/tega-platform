@@ -1,7 +1,7 @@
 /* Плавающий калькулятор ТЭГА ПЛЮС. Утверждённый образец docs/calculator/floating-calculator */
 #tc-root{--fg:#1d1f23;--accent:#e3000f;--shadow:rgba(29,31,35,.34);--field:#c6c8cd;--soft:#f6f6f7;
 --cs:#1a1c20;--cs2:#23262b;--cs3:#2d3036;--cl:#34373e;--cf:#f3f4f6;--cm:#8e929b;
---sans:'Onest',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;font-family:var(--sans)}
+--sans:'Nunito',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;font-family:var(--sans)}
 #tc-root *{box-sizing:border-box}
 #tc-root .win{position:fixed;left:24px;top:110px;width:min(380px,calc(100vw - 32px));background:var(--cs);color:var(--cf);box-shadow:0 1px 0 #ffffff14 inset,0 30px 70px -12px var(--shadow),0 8px 22px -8px var(--shadow);z-index:2147483000;touch-action:none;display:flex;flex-direction:column;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px)}
 #tc-root .win.floating{position:absolute;z-index:20}
