@@ -129,10 +129,11 @@ Q_SECTIONS = [
     ("kamen", "Каменные работы", "Швы и армирование, допуски кладки, высота стен и опирание плит, кладка в мороз и жару.", ["kl-shvy", "kl-dopuski", "kl-vysota", "kl-pogoda"]),
     ("derevo", "Деревянные конструкции", "Крепёж и сборка, допуски монтажа, опирание балок и ферм, перекрытия.", ["dr-sborka", "dr-dopuski", "dr-perekrytiya"]),
     ("elektrika", "Электрика", "Проводки, светильники, щитки, автоматы и УЗО, вводные устройства, учёт электроэнергии, заземление: сечения, прокладка, розетки, ванные, приёмка.", ["el-gruppovye", "el-prokladka", "el-rozetki", "el-svetilniki", "el-vannaya", "el-shchitki", "el-avtomaty", "el-uzo", "el-priyemka", "el-vru", "el-uchet", "el-zazemlenie", "el-zaz-proverka"]),
-    ("vodokanal", "Водоснабжение и канализация", "Монтаж ХВС и ГВС, внутренняя канализация, высоты приборов, водостоки.", ["ov-hvs", "ov-kanalizaciya", "ov-kanal-montazh", "ov-vysoty", "ov-vodostok"]),
-    ("otoplenie", "Отопление", "Системы и температуры, скорость воды, приборы и кронштейны, монтаж и тёплый пол.", ["ov-ot-sistemy", "ov-ot-truby", "ov-ot-pribory", "ov-ot-montazh"]),
+    ("vodokanal", "Водоснабжение и канализация", "Монтаж ХВС и ГВС, внутренняя канализация, высоты приборов, водостоки. Монтажные числа даны по ТКП 45-1.03-85, который заменён СП 1.03.02-2020: сверяйте.", ["ov-hvs", "ov-kanalizaciya", "ov-kanal-montazh", "ov-vysoty", "ov-vodostok"]),
+    ("otoplenie", "Отопление", "Системы и температуры, скорость воды, приборы и кронштейны, монтаж и тёплый пол. Монтажные числа даны по ТКП 45-1.03-85 (заменён СП 1.03.02-2020).", ["ov-ot-sistemy", "ov-ot-truby", "ov-ot-pribory", "ov-ot-montazh"]),
     ("ventilyaciya", "Вентиляция", "Воздухообмен, оборудование и венткамеры, воздуховоды, монтаж.", ["ov-vent-vozdukh", "ov-vent-sistemy", "ov-vent-vozdukhovody", "ov-vent-montazh"]),
-    ("inzh-obshchie", "Общее для инженерных систем", "Шаг креплений труб, отверстия и борозды, заготовка и испытания узлов.", ["ov-kreplenie-stal", "ov-kreplenie-polimer", "ov-otverstiya", "ov-zagotovka"]),
+    ("inzh-obshchie", "Общее для инженерных систем", "Шаг креплений труб, отверстия и борозды, заготовка труб. Числа по ТКП 45-1.03-85 (заменён СП 1.03.02-2020).", ["ov-kreplenie-stal", "ov-kreplenie-polimer", "ov-otverstiya", "ov-zagotovka"]),
+    ("ispytaniya", "Испытания трубопроводов", "Гидравлический и манометрический (пузырьковый) методы: давление, выдержка, критерии годности.", ["ov-isp-gidro", "ov-isp-manometr"]),
 ]
 Q_SOON = []
 
@@ -416,11 +417,11 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=10">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=10">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=10">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=10">' + elec())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=10">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + elec())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=11">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
