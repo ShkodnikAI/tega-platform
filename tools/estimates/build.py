@@ -413,7 +413,7 @@ def otdelka():
         + '<div id="otd" class="o-app"></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
         + '<div class="e-basis"><b>Важно знать</b><p>Расчёт предварительный и укрупнённый, он не учитывает детали объекта и проектные решения. Нормы трудозатрат и цены материалов в калькуляторе ориентировочные: окончательные значения берутся из нормативов и прайсов. Точная стоимость определяется после осмотра объекта.</p></div>'
-        + '<script src="/static/otdelka.js?v=1"></script><script src="/static/otdelka-ui.js?v=1"></script>'
+        + '<script src="/static/otdelka.js?v=1"></script><script src="/static/otdelka-ui.js?v=2"></script>'
     )
 
 
