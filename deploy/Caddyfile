@@ -3,6 +3,9 @@
 # from tega-platform/static and tega-content/brand.
 {$DOMAIN} {
 	encode zstd gzip
+	# Справочники переехали из /raschet-smet в /spravochniki (все языки)
+	@oldref path_regexp oldref ^(/(?:be|en))?/raschet-smet/(obyemy|kachestvo|elektrika|formy)/?$
+	redir @oldref {re.oldref.1}/spravochniki/{re.oldref.2} permanent
 	log {
 		output file /var/log/caddy/access.log
 	}
