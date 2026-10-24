@@ -268,21 +268,21 @@ FIXTURES = [
 ]
 
 
-AP_ROOMS = [("living", "Жилая комната, спальня"), ("kitchen", "Кухня"), ("bath", "Ванная, душевая, санузел"), ("hall", "Коридор, прихожая"), ("kids", "Детская (постоянное пребывание детей)"), ("tech", "Гараж, подсобное, кладовая")]
+AP_ROOMS = [("living", "Жилая комната, спальня"), ("kitchen", "Кухня"), ("bath", "Ванная, душевая, санузел"), ("hall", "Коридор, прихожая"), ("kids", "Детская (постоянное пребывание детей)"), ("tech", "Гараж, подсобное, кладовая"), ("office", "Офис, кабинет, open space"), ("shop", "Магазин, торговый зал, склад"), ("common", "Помещения общего пользования: лестницы, холлы, коридоры")]
 AP_LOADS = [
     ("sock", "Розеточная группа"), ("light", "Освещение"), ("wash", "Стиральная или посудомоечная машина"), ("cook", "Электроплита, духовой шкаф, варочная панель"),
     ("boiler", "Водонагреватель (бойлер)"), ("floor", "Тёплый пол, обогрев"), ("heater", "Конвектор, электрообогреватель"),
-    ("ac", "Кондиционер с инвертором"), ("pump", "Насос, электродвигатель"), ("ev", "Зарядка электромобиля"),
+    ("ac", "Кондиционер с инвертором"), ("pump", "Насос, электродвигатель"), ("ev", "Зарядка электромобиля"), ("fire", "Противопожарная защита: противодымная вентиляция, насосы"),
 ]
 
 
 def podbor():
     form = (
-        sel("Помещение", "ap-room", AP_ROOMS, True) + sel("Потребитель", "ap-load", AP_LOADS, True)
+        sel("Помещение", "ap-room", AP_ROOMS) + sel("Потребитель", "ap-load", AP_LOADS)
         + seg("ap-ph", [("1", "1 фаза, 230 В"), ("3", "3 фазы, 400 В")], "Сеть")
         + f("Мощность", "ap-p", "2,0", "кВт")
         + sel("Сечение медного кабеля", "ap-s", [("1.5", "1,5 мм²"), ("2.5", "2,5 мм²"), ("4", "4 мм²"), ("6", "6 мм²"), ("10", "10 мм²"), ("16", "16 мм²")])
-        + sel("Способ прокладки", "ap-m", [("1", "В трубе или коробе на стене (B1)"), ("0", "В трубе в теплоизолированной стене (A1)"), ("2", "Открыто по стене (C)"), ("3", "На лотке (E)")], True)
+        + sel("Способ прокладки", "ap-m", [("1", "В трубе или коробе на стене (B1)"), ("0", "В трубе в теплоизолированной стене (A1)"), ("2", "Открыто по стене (C)"), ("3", "На лотке (E)")])
         + '<p class="e-note">Кабель с изоляцией из ПВХ, температура воздуха 30 °С, одна цепь. Допустимые токи по МЭК 60364-5-52. Если на жиле другая изоляция или цепей несколько рядом, возьмите сечение больше и сверьтесь в разделе «Подбор кабеля».</p>'
     )
     res = out("Подбор защиты", kv("Расчётный ток линии", "ap-ib") + kv("Допустимый ток кабеля", "ap-iz") + kv("Автомат", "ap-brk") + kv("Полюса", "ap-pol")
@@ -425,7 +425,7 @@ def elec():
         + '<div class="e-elec" id="e-elec">' + p1 + p3 + p4 + p5 + p5a + p6 + p7 + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Калькуляторы дают ориентир для сметы и для разговора с электриком. Они не заменяют проект электроснабжения, который выполняет проектировщик по нормам ТКП 339 и серии IEC 60364. Допустимые токи, пороги срабатывания, нормы освещённости (гигиенический норматив, постановление Минздрава № 82 от 28.06.2012) и коэффициенты перед публикацией проверит технический специалист.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/elec.js?v=3"></script><script src="/static/apparaty.js?v=2"></script>'
+        + '<script src="/static/elec.js?v=3"></script><script src="/static/apparaty.js?v=3"></script>'
     )
 
 
@@ -480,13 +480,13 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=15">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=15">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=15">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=15">' + elec())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=15">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=15">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=15">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=16">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=16">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=16">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=16">' + elec())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=16">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=16">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=16">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
