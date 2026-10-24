@@ -318,17 +318,16 @@
     var tabs = h('div', { class: 'e-sub o-forms' }, FORMS.map(function (f) { return h('a', { href: '#f' + f[0], class: String(S.form || '1') === f[0] ? 'on' : '', onclick: function (ev) { ev.preventDefault(); S.form = f[0]; save(); render(); } }, ['Форма ' + f[0] + ' · ' + f[1]]); }));
     box.appendChild(tabs);
     var cur = String(S.form || '1'), f = FORMS.filter(function (x) { return x[0] === cur; })[0];
-    box.appendChild(h('div', { class: 'o-nav' }, [btn('Печать / сохранить в PDF', function () { printForm(f[2]); }, 'pri'), h('a', { class: 'o-link', href: '{{ p }}/raschet-smet/formy'.replace('{{ p }}', pathPrefix()), text: 'Образцы форм' })]));
+    box.appendChild(h('div', { class: 'o-nav' }, [btn('Печать / сохранить в PDF', function () { printForm(); }, 'pri'), h('a', { class: 'o-link', href: '{{ p }}/raschet-smet/formy'.replace('{{ p }}', pathPrefix()), text: 'Образцы форм' })]));
     var R = run(), sheet = h('div', { class: 'o-sheetwrap' }, [h('div', { class: 'rp-sheet on' + (f[2] ? ' land' : ''), html: formHtml(cur, R) })]);
     box.appendChild(sheet);
+    Array.prototype.forEach.call(sheet.querySelectorAll('col[data-w]'), function (c) { c.style.width = c.getAttribute('data-w'); });
     box.appendChild(h('p', { class: 'e-note', text: 'В окне печати выберите «Сохранить как PDF» и отключите колонтитулы браузера. Форма 2 печатается на альбомном листе.' }));
     box.appendChild(nav('price', null));
     return box;
   }
   function pathPrefix() { var m = location.pathname.match(/^\/(be|en)\//); return m ? '/' + m[1] : ''; }
-  function printForm(land) {
-    var st = document.getElementById('rpPage'); if (!st) { st = document.createElement('style'); st.id = 'rpPage'; document.head.appendChild(st); }
-    st.textContent = '@page{size:A4 ' + (land ? 'landscape' : 'portrait') + ';margin:0}';
+  function printForm() {
     document.body.classList.add('rp-print'); window.print();
     setTimeout(function () { document.body.classList.remove('rp-print'); }, 500);
   }
@@ -338,7 +337,7 @@
   function info(items) { return '<div class="rp-info">' + items.map(function (i) { return '<div><span>' + esc(i[0]) + '</span><b>' + esc(i[1] || '____________________') + '</b></div>'; }).join('') + '</div>'; }
   function stdInfo() { return info([['Объект', S.obj.name], ['№ расчёта', S.obj.no], ['Заказчик', S.obj.customer], ['Дата расчёта', S.obj.date]]); }
   function rtable(cols, rows, al, wd) {
-    var o = '<table class="rp-t"><colgroup>' + wd.map(function (w) { return '<col style="width:' + w + '">'; }).join('') + '</colgroup><thead><tr>' + cols.map(function (c, i) { return '<th class="' + (al[i] === 'r' ? 'r' : '') + '">' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
+    var o = '<table class="rp-t"><colgroup>' + wd.map(function (w) { return '<col data-w="' + w + '">'; }).join('') + '</colgroup><thead><tr>' + cols.map(function (c, i) { return '<th class="' + (al[i] === 'r' ? 'r' : '') + '">' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
     rows.forEach(function (r) {
       if (r.grp) { o += '<tr class="grp"><td colspan="' + cols.length + '">' + esc(r.grp) + '</td></tr>'; return; }
       o += '<tr class="' + (r.k || '') + '">' + r.c.map(function (c, i) { return '<td class="' + (al[i] === 'r' ? 'r n' : '') + '">' + c + '</td>'; }).join('') + '</tr>';

@@ -413,7 +413,7 @@ def otdelka():
         + '<div id="otd" class="o-app"></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
         + '<div class="e-basis"><b>Важно знать</b><p>Расчёт предварительный и укрупнённый, он не учитывает детали объекта и проектные решения. Нормы трудозатрат и цены материалов в калькуляторе ориентировочные: окончательные значения берутся из нормативов и прайсов. Точная стоимость определяется после осмотра объекта.</p></div>'
-        + '<script src="/static/otdelka.js?v=1"></script><script src="/static/otdelka-ui.js?v=2"></script>'
+        + '<script src="/static/otdelka.js?v=1"></script><script src="/static/otdelka-ui.js?v=4"></script>'
     )
 
 
@@ -455,13 +455,13 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + elec())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=13">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=14">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=14">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=14">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=14">' + elec())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=14">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=14">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=14">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
