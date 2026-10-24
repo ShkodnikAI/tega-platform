@@ -273,3 +273,10 @@ a.e-card:hover h3{color:var(--red)}
 .ap-refh{margin-top:12px}
 .ap-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;color:#c6c8cd}
 .ap-list .e-note{color:#c6c8cd}
+
+.ap-box .e-calc{align-items:flex-start}
+.ap-box .e-form{flex:1 1 420px;max-width:640px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-content:start}
+.ap-box .e-f{flex:none;min-width:0}
+.ap-box .e-form>.e-seg,.ap-box .e-form>.e-note{grid-column:1/-1}
+.ap-box .e-res{flex:1 1 340px;max-width:420px}
+@media(max-width:700px){.ap-box .e-form{grid-template-columns:1fr}}
