@@ -13,10 +13,10 @@ sys.path.insert(0, str(HERE))
 
 TABS = [
     ("hub", "", "est_tab_hub"),
+    ("fin", "/otdelka", "est_tab_fin"),
     ("vol", "/obyemy", "est_tab_vol"),
     ("qual", "/kachestvo", "est_tab_qual"),
     ("elec", "/elektrika", "est_tab_elec"),
-    ("forms", "/formy", "est_tab_forms"),
 ]
 
 
@@ -40,30 +40,29 @@ RU_ONLY = '{{#if not_ru}}<p class="e-ruonly">{{ t.est_ru_only }}</p>{{/if}}'
 
 # ───────────────────────── хаб ─────────────────────────
 def hub():
-    soon = [
-        ("Отделка помещений", "Стены, потолки, полы, откосы: площади, работы и материалы по каждому помещению."),
-        ("Электрика", "Проводка, щиты, освещение, розетки: точки, длины кабеля, автоматы.", "elec"),
-        ("Водоснабжение и канализация", "Трубы, фитинги, приборы, разводка по санузлам и стоякам."),
-        ("Отопление", "Радиаторы, трубы, тёплые полы, узлы подключения."),
-        ("Вентиляция и кондиционирование", "Воздуховоды, решётки, установки, трассы и подвесы."),
-        ("Слаботочные сети", "Кабельные сети, видеонаблюдение, охранная и пожарная сигнализация."),
-        ("Демонтаж и черновые работы", "Перегородки, стяжка, штукатурка, выравнивание."),
-        ("Общая смета по объекту", "Собирает выбранные расчёты в одну смету с итогами по помещениям и разделам."),
+    def card(name, desc, href=None, tag="Скоро"):
+        if href:
+            return (f'<a class="e-card hot" href="{{{{ p }}}}/raschet-smet{href}"><span class="e-tag ok">{tag}</span>'
+                    f"<h3>{name}</h3><p>{desc}</p></a>")
+        return f'<div class="e-card"><span class="e-tag">{tag}</span><h3>{name}</h3><p>{desc}</p></div>'
+    groups = [
+        ("Смета по объекту", "От размеров помещений до цены и печатных форм: ведомость отделки, спецификации, заявка на материалы.", [
+            card("Отделка помещений", "Помещения, ведомость отделки, смета, цена и шесть печатных форм. Стены, откосы, потолки и полы.", "/otdelka", "Готово к проверке"),
+            card("Демонтаж и черновые работы", "Перегородки, стяжка, штукатурка, выравнивание.")]),
+        ("Инженерные расчёты", "Расчёты для инженерных систем с проверкой по нормам.", [
+            card("Электрика", "Проводка, щиты, освещение, розетки: сечение кабеля, ток короткого замыкания, заземление, освещение.", "/elektrika", "Калькуляторы готовы"),
+            card("Водоснабжение и канализация", "Трубы, фитинги, приборы, разводка по санузлам и стоякам."),
+            card("Отопление", "Радиаторы, трубы, тёплые полы, узлы подключения."),
+            card("Вентиляция и кондиционирование", "Воздуховоды, решётки, установки, трассы и подвесы."),
+            card("Слаботочные сети", "Кабельные сети, видеонаблюдение, охранная и пожарная сигнализация.")]),
     ]
-    cards = ""
-    for item in soon:
-        name, desc = item[0], item[1]
-        if len(item) == 3:
-            cards += (
-                f'<a class="e-card hot" href="{{{{ p }}}}/raschet-smet/elektrika"><span class="e-tag ok">Калькуляторы готовы</span>'
-                f"<h3>{name}</h3><p>{desc}</p></a>"
-            )
-        else:
-            cards += f'<div class="e-card"><span class="e-tag">Скоро</span><h3>{name}</h3><p>{desc}</p></div>'
+    sec = ""
+    for t, d, cs in groups:
+        sec += f'<section class="e-sec"><h2>{t}</h2><p class="e-lead2">{d}</p><div class="e-cards">{"".join(cs)}</div></section>'
     more = [
         ("01", "Объёмы работ", "По каким правилам считаются площади: что вычитается, что добавляется, какие коэффициенты.", "/obyemy", "Читать справочник →"),
-        ("02", "Качество работ", "Как определяется класс отделки: простая, улучшенная или высококачественная, и что в него входит.", "/kachestvo", "Читать →"),
-        ("03", "Электрика", "Подбор сечения кабеля с учётом прочности, нагрева и потери напряжения, ток короткого замыкания, заземление, освещение помещений.", "/elektrika", "Открыть калькуляторы →"),
+        ("02", "Качество работ", "Нормы приёмки по видам работ: отделка, бетон, кладка, дерево, электрика, трубопроводы и испытания.", "/kachestvo", "Читать →"),
+        ("03", "Образцы форм", "Шесть печатных форм на условном примере: смета, спецификации, заявка и ведомость состава работ.", "/formy", "Смотреть →"),
     ]
     mo = ""
     for n, t, d, path, cta in more:
@@ -74,11 +73,8 @@ def hub():
     return (
         head("Расчёт смет", "Расчёты, калькулятор и справочники в одном месте",
              "Оцените стоимость работ, пересчитайте объёмы и подберите материалы: от отделки до инженерных сетей.")
-        + RU_ONLY + tabs("hub")
-        + '<section class="e-sec"><h2>Выберите вид расчёта</h2>'
-        '<p class="e-lead2">Каждый расчёт даёт работы, материалы и итог. Точную смету составим после осмотра объекта.</p>'
-        f'<div class="e-cards">{cards}</div></section>'
-        f'<section class="e-sec"><h2>Что ещё в разделе</h2><div class="e-mores">{mo}</div></section>'
+        + RU_ONLY + tabs("hub") + sec
+        + f'<section class="e-sec"><h2>Справочники и образцы</h2><div class="e-mores">{mo}</div></section>'
     )
 
 
@@ -408,6 +404,19 @@ def elec():
     )
 
 
+# ───────────────────────── смета отделки ─────────────────────────
+def otdelka():
+    return (
+        head("Расчёт смет · Отделка помещений", "Смета отделки помещений",
+             "Размеры помещений, ведомость отделки, смета, цена и печатные формы. Предварительный укрупнённый расчёт: данные хранятся только в вашем браузере.")
+        + RU_ONLY + tabs("fin")
+        + '<div id="otd" class="o-app"></div>'
+        + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
+        + '<div class="e-basis"><b>Важно знать</b><p>Расчёт предварительный и укрупнённый, он не учитывает детали объекта и проектные решения. Нормы трудозатрат и цены материалов в калькуляторе ориентировочные: окончательные значения берутся из нормативов и прайсов. Точная стоимость определяется после осмотра объекта.</p></div>'
+        + '<script src="/static/otdelka.js?v=1"></script><script src="/static/otdelka-ui.js?v=1"></script>'
+    )
+
+
 # ───────────────────────── формы отчётов ─────────────────────────
 FORMS = [
     ("1", "Общая смета", "Статьи затрат в двух вариантах цены: бригада заказчика и организация."),
@@ -446,12 +455,13 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + elec())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=12">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + elec())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=13">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=13">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 

@@ -34,6 +34,7 @@ pattern DictRu(_x: String) -> Map {
   est_nav_aria: "Разделы расчёта смет",
   est_tab_hub: "Расчёты",
   est_tab_calc: "Калькулятор",
+  est_tab_fin: "Смета отделки",
   est_tab_vol: "Объёмы работ",
   est_tab_qual: "Качество работ",
   est_tab_elec: "Электрика",
@@ -115,6 +116,7 @@ pattern DictBe(_x: String) -> Map {
   est_nav_aria: "Раздзелы разліку кошту",
   est_tab_hub: "Разлікі",
   est_tab_calc: "Калькулятар",
+  est_tab_fin: "Каштарыс аддзелкі",
   est_tab_vol: "Аб’ёмы работ",
   est_tab_qual: "Якасць работ",
   est_tab_elec: "Электрыка",
@@ -196,6 +198,7 @@ pattern DictEn(_x: String) -> Map {
   est_nav_aria: "Estimate sections",
   est_tab_hub: "Estimates",
   est_tab_calc: "Calculator",
+  est_tab_fin: "Finishing estimate",
   est_tab_vol: "Work volumes",
   est_tab_qual: "Work quality",
   est_tab_elec: "Electrical",
@@ -590,6 +593,11 @@ pattern EstElecPage(lang: String) -> Html {
   return Shell(lang, "/raschet-smet/elektrika", "est", d.est_tab_elec, true, est.EstElecTpl(""))
 }
 
+pattern EstFinPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet/otdelka", "est", d.est_tab_fin, true, est.EstFinTpl(""))
+}
+
 pattern EstFormsPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/formy", "est", d.est_tab_forms, true, est.EstFormsTpl(""))
@@ -617,16 +625,19 @@ server {
   route "/raschet-smet/kachestvo" method=GET { return EstQualPage("ru") }
   route "/raschet-smet/elektrika" method=GET { return EstElecPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
+  route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
   route "/be/raschet-smet/obyemy" method=GET { return EstVolPage("be") }
   route "/be/raschet-smet/kachestvo" method=GET { return EstQualPage("be") }
   route "/be/raschet-smet/elektrika" method=GET { return EstElecPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
+  route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
   route "/en/raschet-smet/obyemy" method=GET { return EstVolPage("en") }
   route "/en/raschet-smet/kachestvo" method=GET { return EstQualPage("en") }
   route "/en/raschet-smet/elektrika" method=GET { return EstElecPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
+  route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
   route "/kontakty" method=GET { return ContactsPage("ru") }
   route "/be/" method=GET { return HomePage("be") }
