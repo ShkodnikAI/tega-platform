@@ -16,6 +16,7 @@ TABS = [
     ("vol", "/obyemy", "est_tab_vol"),
     ("qual", "/kachestvo", "est_tab_qual"),
     ("elec", "/elektrika", "est_tab_elec"),
+    ("forms", "/formy", "est_tab_forms"),
 ]
 
 
@@ -407,6 +408,34 @@ def elec():
     )
 
 
+# ───────────────────────── формы отчётов ─────────────────────────
+FORMS = [
+    ("1", "Общая смета", "Статьи затрат в двух вариантах цены: бригада заказчика и организация."),
+    ("2", "Общая смета по помещениям", "Оплата труда, отчисления, ОХР, материалы и прибыль по каждому помещению."),
+    ("3", "Спецификация материалов (общая)", "Материалы по объекту: количество с запасом, фасовка, число упаковок, сумма."),
+    ("4", "Спецификация материалов по помещениям", "Потребность в материалах в каждом помещении до округления до упаковок."),
+    ("5", "Заявка на материалы", "Бланк для поставщика: список в упаковках, адрес доставки, подписи."),
+    ("6", "Ведомость состава работ", "Операции по каждому виду работ с объёмом, нормой и трудозатратами."),
+]
+
+
+def forms():
+    cards = "".join(
+        f'<div class="e-card f-card"><img class="f-img" src="/static/forms/forma-{n}.png" alt="Форма {n}: {t}" loading="lazy" width="397" height="562">'
+        f'<span class="e-tag">Форма {n}</span><h3>{t}</h3><p>{d}</p>'
+        f'<div class="f-links"><a href="/static/forms/forma-{n}.pdf" target="_blank" rel="noopener">PDF</a>'
+        f'<a href="/static/forms/forma-{n}.png" target="_blank" rel="noopener">PNG</a></div></div>'
+        for n, t, d in FORMS
+    )
+    return (
+        head("Расчёт смет · Формы отчётов", "Формы отчётов",
+             "Шесть печатных форм по примеру расчёта: общая смета, смета по помещениям, спецификации материалов, заявка поставщику и ведомость состава работ.")
+        + RU_ONLY + tabs("forms")
+        + f'<div class="f-grid">{cards}</div>'
+        + '<div class="e-basis"><b>Для проверки макета</b><p>Данные в формах условные. Это предварительный укрупнённый расчёт: он не учитывает детали объекта и проектные решения. Нормы трудозатрат в форме 6 взяты для примера, в расчёте применяются нормы НРР-2022.</p></div>'
+    )
+
+
 def esc(s):
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
@@ -417,11 +446,12 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=11">' + elec())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=11">' + tabs("calc"))
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + elec())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=12">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=12">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
