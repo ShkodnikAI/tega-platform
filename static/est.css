@@ -267,3 +267,9 @@ a.e-card:hover h3{color:var(--red)}
   body.rp-print .o-sheetwrap{overflow:visible;padding:0;background:none}
 }
 @media(max-width:760px){.o-f.w2{grid-column:span 1}}
+
+/* подбор автомата и УЗО */
+.ap-box{border:1.5px solid var(--ink);padding:24px;display:flex;flex-direction:column;gap:18px;background:rgba(255,255,255,.94);margin-bottom:12px}
+.ap-refh{margin-top:12px}
+.ap-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;color:#c6c8cd}
+.ap-list .e-note{color:#c6c8cd}
