@@ -29,7 +29,7 @@ pattern DictRu(_x: String) -> Map {
   lang_aria: "Язык сайта",
   nav_services: "Услуги",
   nav_objects: "Объекты",
-  nav_about: "О компании",
+  nav_about: "О нас",
   nav_calc: "Расчёт смет",
   est_nav_aria: "Разделы расчёта смет",
   est_tab_hub: "Расчёты",
@@ -48,6 +48,9 @@ pattern DictRu(_x: String) -> Map {
   sp_open: "Открыть",
   sp_top: "Кнопка в шапке сайта",
   nav_contacts: "Контакты",
+  nav_ref: "Справочники",
+  ref_nav_aria: "Разделы справочников",
+  ref_tab_hub: "Справочники",
   discuss: "Обсудить объект",
   h1: "Ремонтно-строительные работы в Минске и по Беларуси",
   lead: "Более 20 лет на рынке. Более 1000 выполненных объектов. Берём проект от замысла до сдачи.",
@@ -79,6 +82,17 @@ pattern DictRu(_x: String) -> Map {
   no_js: "Для просмотра карты включите JavaScript.",
   about_text: "ООО «ТЭГА ПЛЮС» занимается ремонтно-строительными работами в Минске и по Беларуси более 20 лет и выполнила более 1000 объектов.",
   about_dir: "Директор — Лоханский Сергей Александрович.",
+  about_h_who: "Кто мы",
+  about_h_how: "Как мы работаем",
+  about_s1: "Заявка", about_s1d: "Вы описываете объект, мы уточняем задачу.",
+  about_s2: "Осмотр объекта", about_s2d: "Выезжаем на объект и фиксируем объёмы.",
+  about_s3: "Смета", about_s3d: "Согласуем состав работ и стоимость.",
+  about_s4: "Выполнение работ", about_s4d: "Выполняем работы по согласованному графику.",
+  about_s5: "Сдача объекта", about_s5d: "Принимаем объект вместе с вами.",
+  about_soon_h: "Скоро",
+  about_c1: "Лицензии и допуски", about_c2: "Команда", about_c3: "Гарантии", about_c4: "Отзывы заказчиков", about_c5: "Партнёры и поставщики",
+  about_soon: "Скоро",
+  about_req: "Контакты и реквизиты",
   req_title: "Реквизиты",
   lbl_org: "Организация",
   lbl_unp: "УНП",
@@ -111,7 +125,7 @@ pattern DictBe(_x: String) -> Map {
   lang_aria: "Мова сайта",
   nav_services: "Паслугі",
   nav_objects: "Аб’екты",
-  nav_about: "Пра кампанію",
+  nav_about: "Пра нас",
   nav_calc: "Расчёт кошту",
   est_nav_aria: "Раздзелы разліку кошту",
   est_tab_hub: "Разлікі",
@@ -130,6 +144,9 @@ pattern DictBe(_x: String) -> Map {
   sp_open: "Адкрыць",
   sp_top: "Кнопка ў шапцы сайта",
   nav_contacts: "Кантакты",
+  nav_ref: "Даведнікі",
+  ref_nav_aria: "Раздзелы даведнікаў",
+  ref_tab_hub: "Даведнікі",
   discuss: "Абмеркаваць аб’ект",
   h1: "Рамонтна-будаўнічыя работы ў Мінску і па Беларусі",
   lead: "Больш за 20 гадоў на рынку. Больш за 1000 выкананых аб’ектаў. Вядзём праект ад задумы да здачы.",
@@ -161,6 +178,17 @@ pattern DictBe(_x: String) -> Map {
   no_js: "Каб убачыць карту, уключыце JavaScript.",
   about_text: "ТАА «ТЭГА ПЛЮС» займаецца рамонтна-будаўнічымі работамі ў Мінску і па Беларусі больш за 20 гадоў і выканала больш за 1000 аб’ектаў.",
   about_dir: "Дырэктар — Лаханскі Сяргей Аляксандравіч.",
+  about_h_who: "Хто мы",
+  about_h_how: "Як мы працуем",
+  about_s1: "Заяўка", about_s1d: "Вы апісваеце аб’ект, мы ўдакладняем задачу.",
+  about_s2: "Агляд аб’екта", about_s2d: "Выязджаем на аб’ект і фіксуем аб’ёмы.",
+  about_s3: "Кошторыс", about_s3d: "Узгадняем склад работ і кошт.",
+  about_s4: "Выкананне работ", about_s4d: "Выконваем работы па ўзгодненым графіку.",
+  about_s5: "Здача", about_s5d: "Прымаем аб’ект разам з вамі.",
+  about_soon_h: "Хутка",
+  about_c1: "Ліцэнзіі і допускі", about_c2: "Каманда", about_c3: "Гарантыі", about_c4: "Водгукі заказчыкаў", about_c5: "Партнёры і пастаўшчыкі",
+  about_soon: "Хутка",
+  about_req: "Кантакты і рэквізіты",
   req_title: "Рэквізіты",
   lbl_org: "Арганізацыя",
   lbl_unp: "УНП",
@@ -212,6 +240,9 @@ pattern DictEn(_x: String) -> Map {
   sp_open: "Open",
   sp_top: "Button in the site header",
   nav_contacts: "Contacts",
+  nav_ref: "Reference",
+  ref_nav_aria: "Reference sections",
+  ref_tab_hub: "Reference",
   discuss: "Discuss your project",
   h1: "Renovation and construction in Minsk and across Belarus",
   lead: "Over 20 years on the market. More than 1,000 completed projects. We take a project from concept to handover.",
@@ -243,6 +274,17 @@ pattern DictEn(_x: String) -> Map {
   no_js: "Please enable JavaScript to view the map.",
   about_text: "TEGA PLUS LLC has been carrying out renovation and construction work in Minsk and across Belarus for more than 20 years and has completed more than 1,000 projects.",
   about_dir: "Director: Siarhei Lakhanski.",
+  about_h_who: "Who we are",
+  about_h_how: "How we work",
+  about_s1: "Request", about_s1d: "You describe the site, we clarify the task.",
+  about_s2: "Site visit", about_s2d: "We visit the site and record the quantities.",
+  about_s3: "Estimate", about_s3d: "We agree the scope of work and the price.",
+  about_s4: "Works", about_s4d: "We carry out the work on the agreed schedule.",
+  about_s5: "Handover", about_s5d: "We accept the finished site together with you.",
+  about_soon_h: "Coming soon",
+  about_c1: "Licences and approvals", about_c2: "Team", about_c3: "Warranties", about_c4: "Client reviews", about_c5: "Partners and suppliers",
+  about_soon: "Soon",
+  about_req: "Contact details and company data",
   req_title: "Company details",
   lbl_org: "Company",
   lbl_unp: "UNP",
@@ -311,6 +353,7 @@ pattern HeadTpl(_x: String) -> String {
 <a href=\"{{ p }}/uslugi\">{{ t.nav_services }}</a>
 <a href=\"{{ p }}/portfolio\">{{ t.nav_objects }}</a>
 <a href=\"{{ p }}/raschet-smet\">{{ t.nav_calc }}</a>
+<a href=\"{{ p }}/spravochniki\">{{ t.nav_ref }}</a>
 <a href=\"{{ p }}/o-kompanii\">{{ t.nav_about }}</a>
 <a href=\"{{ p }}/kontakty\">{{ t.nav_contacts }}</a>
 </nav>
@@ -525,9 +568,28 @@ pattern CalcWidget(_x: String) -> String {
 }
 
 pattern AboutTpl(_x: String) -> String {
-  return "<h1>{{ t.nav_about }}</h1>
+  return "<link rel=\"stylesheet\" href=\"/static/est.css?v=17\">
+<h1>{{ t.nav_about }}</h1>
+<section class=\"ab-sec\"><h2>{{ t.about_h_who }}</h2>
 <p>{{ t.about_text }}</p>
-<p>{{ t.about_dir }}</p>"
+<p>{{ t.about_dir }}</p></section>
+<section class=\"ab-sec\"><h2>{{ t.about_h_how }}</h2>
+<ol class=\"ab-steps\">
+<li><b>{{ t.about_s1 }}</b><span>{{ t.about_s1d }}</span></li>
+<li><b>{{ t.about_s2 }}</b><span>{{ t.about_s2d }}</span></li>
+<li><b>{{ t.about_s3 }}</b><span>{{ t.about_s3d }}</span></li>
+<li><b>{{ t.about_s4 }}</b><span>{{ t.about_s4d }}</span></li>
+<li><b>{{ t.about_s5 }}</b><span>{{ t.about_s5d }}</span></li>
+</ol></section>
+<section class=\"ab-sec\"><h2>{{ t.about_soon_h }}</h2>
+<div class=\"ab-soon\">
+<div class=\"ab-c\"><span>{{ t.about_soon }}</span><b>{{ t.about_c1 }}</b></div>
+<div class=\"ab-c\"><span>{{ t.about_soon }}</span><b>{{ t.about_c2 }}</b></div>
+<div class=\"ab-c\"><span>{{ t.about_soon }}</span><b>{{ t.about_c3 }}</b></div>
+<div class=\"ab-c\"><span>{{ t.about_soon }}</span><b>{{ t.about_c4 }}</b></div>
+<div class=\"ab-c\"><span>{{ t.about_soon }}</span><b>{{ t.about_c5 }}</b></div>
+</div></section>
+<p><a class=\"ab-link\" href=\"{{ p }}/kontakty\">{{ t.about_req }} →</a></p>"
 }
 
 pattern ContactsTpl(_x: String) -> String {
@@ -578,19 +640,24 @@ pattern EstHubPage(lang: String) -> Html {
   return Shell(lang, "/raschet-smet", "est", d.nav_calc, true, est.EstHubTpl(""))
 }
 
+pattern EstRefPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki", "est", d.nav_ref, true, est.EstRefTpl(""))
+}
+
 pattern EstVolPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/raschet-smet/obyemy", "est", d.est_tab_vol, true, est.EstVolTpl(""))
+  return Shell(lang, "/spravochniki/obyemy", "est", d.est_tab_vol, true, est.EstVolTpl(""))
 }
 
 pattern EstQualPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/raschet-smet/kachestvo", "est", d.est_tab_qual, true, est.EstQualTpl(""))
+  return Shell(lang, "/spravochniki/kachestvo", "est", d.est_tab_qual, true, est.EstQualTpl(""))
 }
 
 pattern EstElecPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/raschet-smet/elektrika", "est", d.est_tab_elec, true, est.EstElecTpl(""))
+  return Shell(lang, "/spravochniki/elektrika", "est", d.est_tab_elec, true, est.EstElecTpl(""))
 }
 
 pattern EstFinPage(lang: String) -> Html {
@@ -600,7 +667,7 @@ pattern EstFinPage(lang: String) -> Html {
 
 pattern EstFormsPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/raschet-smet/formy", "est", d.est_tab_forms, true, est.EstFormsTpl(""))
+  return Shell(lang, "/spravochniki/formy", "est", d.est_tab_forms, true, est.EstFormsTpl(""))
 }
 
 pattern AboutPage(lang: String) -> Html {
@@ -621,22 +688,25 @@ server {
   route "/uslugi" method=GET { return ServicesPage("ru") }
   route "/portfolio" method=GET { return PortfolioPage("ru") }
   route "/raschet-smet" method=GET { return EstHubPage("ru") }
-  route "/raschet-smet/obyemy" method=GET { return EstVolPage("ru") }
-  route "/raschet-smet/kachestvo" method=GET { return EstQualPage("ru") }
-  route "/raschet-smet/elektrika" method=GET { return EstElecPage("ru") }
-  route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
+  route "/spravochniki" method=GET { return EstRefPage("ru") }
+  route "/spravochniki/obyemy" method=GET { return EstVolPage("ru") }
+  route "/spravochniki/kachestvo" method=GET { return EstQualPage("ru") }
+  route "/spravochniki/elektrika" method=GET { return EstElecPage("ru") }
+  route "/spravochniki/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
-  route "/be/raschet-smet/obyemy" method=GET { return EstVolPage("be") }
-  route "/be/raschet-smet/kachestvo" method=GET { return EstQualPage("be") }
-  route "/be/raschet-smet/elektrika" method=GET { return EstElecPage("be") }
-  route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
+  route "/be/spravochniki" method=GET { return EstRefPage("be") }
+  route "/be/spravochniki/obyemy" method=GET { return EstVolPage("be") }
+  route "/be/spravochniki/kachestvo" method=GET { return EstQualPage("be") }
+  route "/be/spravochniki/elektrika" method=GET { return EstElecPage("be") }
+  route "/be/spravochniki/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
-  route "/en/raschet-smet/obyemy" method=GET { return EstVolPage("en") }
-  route "/en/raschet-smet/kachestvo" method=GET { return EstQualPage("en") }
-  route "/en/raschet-smet/elektrika" method=GET { return EstElecPage("en") }
-  route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
+  route "/en/spravochniki" method=GET { return EstRefPage("en") }
+  route "/en/spravochniki/obyemy" method=GET { return EstVolPage("en") }
+  route "/en/spravochniki/kachestvo" method=GET { return EstQualPage("en") }
+  route "/en/spravochniki/elektrika" method=GET { return EstElecPage("en") }
+  route "/en/spravochniki/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
   route "/kontakty" method=GET { return ContactsPage("ru") }
