@@ -189,6 +189,32 @@
     verdict('ss-verdict', msg + 'Нормы: 0,03 для Ø до 50 мм, 0,02 для больших диаметров, не более 0,15.', bad);
   }
 
+
+  /* ───────── септик ───────── */
+  var SEPTS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  var SOILS = { sand: ['песок', 80], supes: ['супесь', 40], sugl: ['суглинок', 20], clay: ['глина', 0] };
+  function calcSe() {
+    var ids = ['se-q', 'se-v', 'se-ch', 'se-std', 'se-type', 'se-field', 'se-nak'];
+    var p = num('se-p'), lp = parseFloat($('se-use').value), ex = num('se-ex'), gw = num('se-gw'), sd = num('se-sd');
+    if (!allPos([p, lp, gw, sd]) || !isFinite(ex) || ex < 0) return clear(ids, 'se-verdict', 'Введите число жильцов, глубину грунтовых вод и глубину заложения.');
+    var soil = SOILS[$('se-soil').value], el = radio('se-el') === '1', car = radio('se-car') === '1';
+    var Q = (p * lp + ex) / 1000, days = Q <= 5 ? 3 : 2.5, V = Q * days;
+    var std = null; for (var i = 0; i < SEPTS.length; i++) if (SEPTS[i] >= V) { std = SEPTS[i]; break; }
+    var ch = Q <= 1 ? '2 камеры: ' + fmt(V * 0.75, 2) + ' и ' + fmt(V * 0.25, 2) + ' м³' : '3 камеры: ' + fmt(V * 0.5, 2) + ', ' + fmt(V * 0.25, 2) + ' и ' + fmt(V * 0.25, 2) + ' м³';
+    var clear1 = gw - sd, infil = soil[1] > 0 && clear1 >= 1, field = soil[1] > 0 ? Q * 1000 / soil[1] : NaN;
+    var nak = Q * 14;
+    set('se-q', fmt(Q, 2) + ' м³/сут'); set('se-std', std ? fmt(std, 1) + ' м³' : '—'); set('se-v', fmt(V, 1) + ' м³ (запас на ' + fmt(days, 1) + ' суток)'); set('se-ch', ch); set('se-std', std ? fmt(std, 1) + ' м³' : '—');
+    set('se-field', infil ? fmt(field, 0) + ' м² фильтрации' : '—'); set('se-nak', fmt(nak, 1) + ' м³ на 14 суток');
+    var type, msg = 'Расход ' + fmt(Q * 1000, 0) + ' л в сутки. ';
+    if (Q <= 0.2 && car) { type = 'Накопительная ёмкость (выгребная)'; msg += 'При малом стоке дешевле герметичная ёмкость с откачкой, чем септик. '; }
+    else if (infil) { type = 'Септик + фильтрация в грунт'; msg += 'Грунт (' + soil[0] + ') принимает воду, до воды остаётся ' + fmt(clear1, 1) + ' м. '; if (Q > 1.5) msg += 'Для большого стока рассмотрите станцию биологической очистки: площадь поля фильтрации ' + fmt(field, 0) + ' м² велика. '; }
+    else if (el) { type = 'Станция биологической очистки (СБО) с отводом очищенной воды'; msg += (soil[1] === 0 ? 'Глина не принимает воду. ' : 'Грунтовые воды слишком близко, чтобы заглублять фильтрацию. ') + 'СБО работает на электричестве, очищенную воду отводят в канаву, на рельеф или в дренаж по согласованию. '; }
+    else if (car) { type = 'Накопительная ёмкость (выгребная)'; msg += (soil[1] === 0 ? 'Глина не принимает воду. ' : 'Грунтовые воды близко. ') + 'Электричества нет, поэтому выбор сводится к герметичной ёмкости с откачкой. Нужно ' + fmt(nak, 1) + ' м³ ёмкости на откачку раз в 14 суток. '; }
+    else { type = 'Нужен проект'; msg += 'Грунт не принимает воду, электричества и подъезда нет: решение подбирает проектировщик. '; }
+    set('se-type', type);
+    verdict('se-verdict', msg + 'Объём камер принят в 3 суток притока для стока до 5 м³ в сутки. Нагрузки на грунт и расстояния ориентировочные: сверьте их с проектом и местными требованиями.', type === 'Нужен проект');
+  }
+
   /* ───────── отопление ───────── */
   var lastHeat = null;
   function calcHl() {
@@ -347,7 +373,7 @@
         show(id);
       });
     });
-    var F = { pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
+    var F = { se: calcSe, pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
     Object.keys(F).forEach(function (pre) {
       Array.prototype.forEach.call(root.querySelectorAll('[id^="' + pre + '-"], input[name^="' + pre + '-"]'), function (el) {
         if (el.tagName === 'INPUT' || el.tagName === 'SELECT') { el.addEventListener('input', F[pre]); el.addEventListener('change', F[pre]); }
@@ -378,7 +404,7 @@
     });
     var cp = $('hr-type');
     if (cp) cp.addEventListener('change', function () { $('hr-sec').value = cp.value; calcHr(); });
-    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss'], heat: ['hl', 'hr', 'hp', 'hf', 'hx'], vent: ['va', 'vd', 'vg', 'vh'] };
+    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss', 'se'], heat: ['hl', 'hr', 'hp', 'hf', 'hx'], vent: ['va', 'vd', 'vg', 'vh'] };
     (PG[root.getAttribute('data-page')] || []).forEach(function (k) { F[k](); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
