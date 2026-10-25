@@ -92,6 +92,44 @@
     verdict('wh-verdict', 'Бойлер ' + fmt(V, 0) + ' л греется ' + (T >= 1 ? fmt(T, 1) + ' ч' : fmt(T * 60, 0) + ' мин') + ' без учёта потерь. Проточному нагревателю на ' + fmt(Qm, 1) + ' л/мин нужно ' + fmt(kw, 1) + ' кВт: ' + (kw > 7 ? 'для однофазной сети это много, обычно берут трёхфазную линию. ' : '') + 'Автомат и сечение кабеля подберите в разделе «Электрика».', kw > 14);
   }
 
+
+  /* ───────── скважинный насос и гидроаккумулятор ───────── */
+  var MOTORS = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5];
+  var ACC = [24, 50, 80, 100, 150, 200, 300, 500];
+  function calcPu() {
+    var ids = ['pu-h', 'pu-fr', 'pu-depth', 'pu-ph', 'pu-pm', 'pu-i', 'pu-flow'];
+    var Q = num('pu-q'), deb = num('pu-deb'), Hd = num('pu-hd'), L = num('pu-l'), d = num('pu-d'), dz = num('pu-dz'), loc = num('pu-loc'), Poff = num('pu-poff'), res = num('pu-res');
+    if (!allPos([Q, deb, Hd, d, Poff]) || !isFinite(L) || L < 0 || !isFinite(dz) || !isFinite(loc) || loc < 0 || !isFinite(res) || res < 0) return clear(ids, 'pu-verdict', 'Введите числа: расход, дебит, глубины, диаметр и давление.');
+    var depth = Hd + 2, q = Q / 60000, h = hyd(q, d, ROUGH.plastic, WATER.cold);
+    var fr = h.R * (depth + L) * (1 + loc / 100) / 9810, H = (Hd + dz + fr + Poff * 10.197) * (1 + res / 100);
+    var Ph = 9.81 * q * H, Pshaft = Ph / 0.45, mot = MOTORS[MOTORS.length - 1];
+    for (var i = 0; i < MOTORS.length; i++) if (MOTORS[i] >= Pshaft) { mot = MOTORS[i]; break; }
+    var I = mot / 0.75 * 1000 / (230 * 0.9);
+    set('pu-h', fmt(H, 0) + ' м (' + fmt(H / 10.197, 1) + ' бар)'); set('pu-fr', fmt(fr, 1) + ' м'); set('pu-depth', 'не менее ' + fmt(depth, 0) + ' м');
+    set('pu-ph', fmt(Ph, 2) + ' кВт'); set('pu-pm', fmt(mot, 2) + ' кВт'); set('pu-i', fmt(I, 0) + ' А (1 фаза)'); set('pu-flow', fmt(Q * 0.06, 1) + ' м³/ч');
+    var msg = 'Ищите насос, который даёт ' + fmt(Q * 0.06, 1) + ' м³/ч при напоре не менее ' + fmt(H, 0) + ' м, причём рабочая точка должна лежать в середине кривой, а не на краю. ', bad = false;
+    if (Q * 0.06 > 0.8 * deb) { bad = true; msg += 'Расход больше 80 % дебита скважины: насос будет осушать скважину, берите меньшую подачу или ставьте накопительную ёмкость. '; }
+    if (h.v > 2) { bad = true; msg += 'Скорость в трубе ' + fmt(h.v, 1) + ' м/с слишком велика, возьмите трубу больше. '; }
+    if (H > 150) { bad = true; msg += 'Напор очень большой, нужен многоступенчатый насос: проверьте с поставщиком. '; }
+    msg += 'Подвес на 2 м ниже динамического уровня и не ближе 1 м до дна. Нужны защита от сухого хода и обратный клапан.';
+    verdict('pu-verdict', msg, bad);
+  }
+  function calcHb() {
+    var ids = ['hb-use', 'hb-pre', 'hb-v', 'hb-tank', 'hb-z'];
+    var Q = num('hb-q'), Z = num('hb-z0'), on = num('hb-on'), off = num('hb-off'), rate = num('hb-rate');
+    if (!allPos([Q, Z, on, off, rate]) || off <= on) return clear(ids, 'hb-verdict', 'Давление отключения должно быть выше давления включения.');
+    var use = 15 * Q / Z, pre = Math.max(0.2, on - 0.2), P0 = pre + 1, k = P0 * (1 / (on + 1) - 1 / (off + 1)), V = use / k, tank = null;
+    for (var i = 0; i < ACC.length; i++) if (ACC[i] >= V) { tank = ACC[i]; break; }
+    set('hb-use', fmt(use, 0) + ' л'); set('hb-pre', fmt(pre, 1) + ' бар'); set('hb-v', fmt(V, 0) + ' л'); set('hb-tank', tank ? tank + ' л' : '—');
+    var z = tank ? 15 * Q / (tank * k) : NaN;
+    set('hb-z', tank ? fmt(z, 0) + ' в час' : '—');
+    var bad = !tank || off - on < 1 || off > rate, msg = tank ? 'Возьмите гидроаккумулятор ' + tank + ' л: насос будет включаться не чаще ' + fmt(z, 0) + ' раз в час при самой тяжёлой нагрузке. ' : 'Нужен бак больше 500 л или несколько баков. ';
+    if (off - on < 1) msg += 'Разница включения и отключения меньше 1 бар: бак получится огромным, а насос будет часто стартовать. ';
+    if (off > rate) msg += 'Давление отключения выше рабочего давления бака. ';
+    set('hb-ins', 'Ваши значения: давление в баке без воды ' + fmt(pre, 1) + ' бар, реле включает насос при ' + fmt(on, 1) + ' бар и отключает при ' + fmt(off, 1) + ' бар.');
+    verdict('hb-verdict', msg + 'Как настроить бак — во вкладке «Настройка бака».', bad);
+  }
+
   /* ───────── канализация ───────── */
   var DU = { umyv: 0.5, dush: 0.6, vanna: 0.8, mojka: 0.8, posud: 0.8, stir: 0.8, wc: 2.0, trap: 0.8 };
   var SEW = [[50, 46], [75, 69], [110, 104], [125, 118], [160, 152]];
@@ -309,7 +347,7 @@
         show(id);
       });
     });
-    var F = { wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
+    var F = { pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
     Object.keys(F).forEach(function (pre) {
       Array.prototype.forEach.call(root.querySelectorAll('[id^="' + pre + '-"], input[name^="' + pre + '-"]'), function (el) {
         if (el.tagName === 'INPUT' || el.tagName === 'SELECT') { el.addEventListener('input', F[pre]); el.addEventListener('change', F[pre]); }
@@ -322,6 +360,13 @@
       $('wp-q').value = fmt(lastWater.Q, 2); $('wp-mat').value = 'plastic'; $('wp-d').value = fmt(lastWater.d, 1);
       calcWp(); go('wpress');
     });
+    on('pu-to', function () {
+      var Q = num('pu-q'), off = num('pu-poff');
+      if (!(Q > 0) || !(off > 0)) return;
+      $('hb-q').value = fmt(Q, 0); $('hb-off').value = fmt(off, 1); $('hb-on').value = fmt(Math.max(0.5, off - 1.5), 1);
+      calcHb(); go('tank');
+    });
+    on('hb-go', function () { go('tanksetup'); });
     on('hl-to-r', function () { if (!lastHeat) return; $('hr-q').value = fmt(lastHeat.W, 0); calcHr(); go('radiators'); });
     on('hl-to-p', function () { if (!lastHeat) return; $('hp-q').value = fmt(lastHeat.W, 0); calcHp(); go('hpipes'); });
     on('hl-to-f', function () { if (!lastHeat) return; $('hf-s').value = fmt(lastHeat.S, 1); $('hf-need').value = fmt(lastHeat.W, 0); calcHf(); go('floor'); });
@@ -333,7 +378,7 @@
     });
     var cp = $('hr-type');
     if (cp) cp.addEventListener('change', function () { $('hr-sec').value = cp.value; calcHr(); });
-    var PG = { water: ['wd', 'wp', 'wh'], sewer: ['sd', 'ss'], heat: ['hl', 'hr', 'hp', 'hf', 'hx'], vent: ['va', 'vd', 'vg', 'vh'] };
+    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss'], heat: ['hl', 'hr', 'hp', 'hf', 'hx'], vent: ['va', 'vd', 'vg', 'vh'] };
     (PG[root.getAttribute('data-page')] || []).forEach(function (k) { F[k](); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
