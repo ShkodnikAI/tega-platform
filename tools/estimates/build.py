@@ -25,6 +25,7 @@ REF_TABS = [
     ("sewer", "/spravochniki/kanalizaciya", "est_tab_sewer"),
     ("heat", "/spravochniki/otoplenie", "est_tab_heat"),
     ("vent", "/spravochniki/ventilyaciya", "est_tab_vent"),
+    ("solar", "/spravochniki/solnechnaya-generaciya", "est_tab_solar"),
 ]
 
 
@@ -93,6 +94,7 @@ def ref_hub():
             _card("Канализация", "Диаметр отвода по приборам, уклон и перепад высот, справка по нормам.", "/spravochniki/kanalizaciya", "Калькуляторы готовы"),
             _card("Отопление", "Теплопотери помещения, секции радиаторов, трубы, тёплый пол, расширительный бак.", "/spravochniki/otoplenie", "Калькуляторы готовы"),
             _card("Вентиляция", "Воздухообмен, воздуховоды, решётки, мощность калорифера с рекуператором.", "/spravochniki/ventilyaciya", "Калькуляторы готовы"),
+            _card("Солнечные системы", "Выработка по часам для Беларуси, кровля и забор, инвертор и батарея, спецификация и окупаемость.", "/spravochniki/solnechnaya-generaciya", "Калькулятор готов"),
         ])
     )
     more = (
@@ -820,6 +822,83 @@ def pattern(name, body):
     return f'pattern {name}(_x: String) -> String {{\n  return "{esc(body)}"\n}}\n\n'
 
 
+def solar():
+    mods = [("m550", "TOPCon 550 Вт"), ("m450", "Моно 450 Вт"), ("b580", "Bifacial 580 Вт (двусторонний)")]
+    prof = [("evening", "Вечерний дом (работа вне дома)"), ("home", "Дом днём (удалёнка, семья дома)"), ("day", "Дневное хозяйство (СТО, ферма, мастерская)"), ("flat", "Ровная нагрузка (котельная, насосы)")]
+    seas = [("usual", "Обычный дом (зимой немного больше)"), ("heat", "Электроотопление или тепловой насос"), ("flat", "Ровно по году")]
+    presets = [("", "Свои данные"), ("p5", "Дом: 5 кВт, вечерний профиль, без батареи"), ("p10", "Дом: 10 кВт + батарея 10 кВт·ч, двухзонный тариф"),
+               ("pfence", "Дом: кровля 6,6 кВтп + забор 5,8 кВтп + батарея"), ("p30", "Хозяйство: 30 кВт днём (юрлицо)")]
+    arr = ""
+    defaults = [(10, "m550", "35", "0", "0"), (0, "m550", "35", "0", "0"), (0, "b580", "90", "90", "0")]
+    names = ["Массив 1 (кровля, юг)", "Массив 2 (другой скат)", "Массив 3 (забор или фасад)"]
+    for i, (n, ty, tilt, az, tight) in enumerate(defaults, 1):
+        arr += (f'<p class="e-note"><b>{names[i-1]}</b></p>'
+                + f("Модулей", f"sg-a{i}-n", str(n), "шт") + sel("Тип модуля", f"sg-a{i}-type", [(ty, dict(mods)[ty])] + [m for m in mods if m[0] != ty])
+                + f("Наклон", f"sg-a{i}-tilt", tilt, "°") + f("Азимут (0 юг, 90 запад, −90 восток)", f"sg-a{i}-az", az, "°")
+                + sel("Монтаж", f"sg-a{i}-tight", [("0", "С вентзазором"), ("1", "Плотно к покрытию")]))
+    p1 = panel(
+        "sgcalc", "01", "Расчёт системы",
+        "Задайте потребление, тариф и массивы модулей. Калькулятор посчитает выработку по часам для Минска, режим батареи, оборудование и окупаемость.",
+        sel("Готовый пример", "sg-preset", presets, wide=True)
+        + f("Потребление за год", "sg-load", "6000", "кВт·ч") + sel("Профиль нагрузки по часам", "sg-profile", prof, wide=True)
+        + sel("Сезонность потребления", "sg-season", seas, wide=True) + f("Сдвиг вечерней нагрузки на день", "sg-shift", "0", "%")
+        + seg("sg-ph", [("1", "Сеть 1 фаза"), ("3", "Сеть 3 фазы")], "Подключение")
+        + sel("Заказчик", "sg-who", [("phys", "Физлицо (микрогенерация до 15 кВт)"), ("jur", "Юрлицо или ИП")], wide=True)
+        + sel("Тариф для населения с 01.03.2026", "sg-tariff", [("a", "Электроплита, без газа (0,2581 BYN)"), ("b", "Остальные случаи (0,3037 BYN)")], wide=True)
+        + seg("sg-scheme", [("one", "Одноставочный"), ("two", "Двухзонный"), ("three", "Трёхзонный")], "Схема учёта")
+        + f("Поправка к тарифу (для юрлиц)", "sg-tk", "0", "%") + f("Цена выкупа излишков", "sg-buy", "0,10", "BYN/кВт·ч")
+        + f("Рост тарифа", "sg-growth", "6", "% в год") + f("Дисконт для NPV", "sg-disc", "8", "% в год")
+        + arr
+        + f("Накопитель (LFP), 0 если не нужен", "sg-bat", "0", "кВт·ч") + f("Резерв заряда на аварию", "sg-rsv", "20", "%") + f("Нагрузка резерва", "sg-crit", "1", "кВт")
+        + f("Затенение массивов", "sg-shade", "3", "%") + f("Мин. температура расчётная", "sg-tmin", "-25", "°С")
+        + f("Кабель DC до инвертора", "sg-dist", "15", "м") + f("Кабель AC до щита", "sg-distac", "10", "м"),
+        out("Результат", kv("Мощность", "sg-kwp") + kv("Инвертор", "sg-inv") + kv("Выработка за год", "sg-gen") + kv("Удельная", "sg-yield")
+            + kv("Идёт на своё потребление", "sg-self") + kv("Покрывает потребление", "sg-cover") + kv("Уходит в сеть", "sg-exp") + kv("Берётся из сети", "sg-imp")
+            + kv("Экономия за первый год", "sg-sav") + kv("Затраты на систему", "sg-capex") + kv("Окупаемость", "sg-pay") + kv("NPV за 25 лет", "sg-npv") + kv("Вклад батареи", "sg-bw"),
+            "sg-verdict"),
+        "E = Σ (P · G<sub>плоскости</sub> · КПД температуры и потерь), по часам типового дня каждого месяца<br>Экономия = Σ (нагрузка − закупка из сети) · тариф зоны + излишки · цена выкупа",
+    )
+    p2 = ('<section class="e-panel" id="sgyear" data-panel="sgyear"><div class="e-sech"><small>02</small><h2>Год по месяцам</h2></div>'
+          '<p class="e-lead2">Выработка, потребление и избыток по месяцам. Тёмная часть столбца идёт на своё потребление, красная уходит в сеть.</p>'
+          '<figure class="e-fig"><div id="sg-ch-year"></div><figcaption>Выработка по месяцам и потребление дома (серая черта). Зимний провал виден по любой конфигурации.</figcaption></figure>'
+          '<div class="e-scroll"><table class="e-tbl" id="sg-tb-year"></table></div></section>')
+    p3 = ('<section class="e-panel" id="sgday" data-panel="sgday"><div class="e-sech"><small>03</small><h2>Типовые сутки</h2></div>'
+          '<p class="e-lead2">Как за сутки выработка, нагрузка и заряд батареи совпадают по часам. Выберите месяц.</p>'
+          + sel("Месяц", "sg-day-m", [(str(i), n) for i, n in enumerate(["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"])]).replace('<option value="0" selected>', '<option value="0">').replace('<option value="6">', '<option value="6" selected>')
+          + '<figure class="e-fig"><div id="sg-ch-day"></div><figcaption id="sg-day-sum"></figcaption></figure></section>')
+    pricegrid = "".join(f("", "sg-pr-" + k, "", "") .replace('<label for="sg-pr-' + k + '"></label>', f'<label for="sg-pr-{k}">{lbl}</label>') for k, lbl in [
+        ("mod_w", "Модули, USD за Вт"), ("mount_roof_w", "Крепление на кровле, USD за Вт"), ("mount_fence_w", "Каркас забора, USD за Вт"), ("inv_hyb_kw", "Гибридный инвертор, USD за кВт"),
+        ("inv_grid_kw", "Сетевой инвертор, USD за кВт"), ("bat_kwh", "Накопитель, USD за кВт·ч"), ("cab_dc_m", "Кабель PV1-F, USD за м"), ("mc4", "Разъёмы MC4, USD за пару"),
+        ("spd_dc", "УЗИП DC, USD"), ("spd_ac", "УЗИП AC, USD"), ("dcsw", "DC-разъединитель, USD"), ("acbrk", "Автомат AC, USD"), ("rcd", "УЗО, USD"),
+        ("eps_box", "Щит резерва, USD"), ("meter", "Счётчик двунаправленный, USD"), ("logger", "Логгер, USD"), ("ground", "Заземление, USD"), ("ac_cab_m", "Кабель AC (база 6 мм²), USD за м"),
+        ("labor_w", "Монтаж и наладка, USD за Вт"), ("design", "Проект и аудит тени, USD"), ("rate", "Курс, BYN за 1 USD")])
+    p4 = ('<section class="e-panel" id="sgbom" data-panel="sgbom"><div class="e-sech"><small>04</small><h2>Оборудование</h2></div>'
+          '<p class="e-lead2">Подбор инвертора, схема строк с поправкой на мороз, спецификация и защиты. Цены розничные, их можно заменить на свои.</p>'
+          '<div id="sg-bom"></div>'
+          '<details class="e-note"><summary><b>Цены и курс</b></summary>' + _rows(pricegrid) + '<button class="e-btn sm" id="sg-pr-reset" type="button">Вернуть цены по умолчанию</button></details></section>')
+    p5 = ('<section class="e-panel" id="sgpay" data-panel="sgpay"><div class="e-sech"><small>05</small><h2>Окупаемость и подбор мощности</h2></div>'
+          '<p class="e-lead2">Накопленный поток денег за 25 лет, чувствительность к тарифу и затратам, перебор мощности и батареи.</p>'
+          '<figure class="e-fig"><div id="sg-ch-cash"></div><figcaption id="sg-cash-note"></figcaption></figure>'
+          '<h4 class="e-h4">Простая окупаемость при разном росте тарифа и затратах</h4><div class="e-scroll"><table class="e-tbl" id="sg-tb-sens"></table></div>'
+          '<h4 class="e-h4">Подобрать мощность и батарею</h4><button class="e-btn" id="sg-opt-btn" type="button">Перебрать варианты</button><div id="sg-opt"></div></section>')
+    from art_solar import article
+    p6 = ('<section class="e-panel" id="sgart" data-panel="sgart"><div class="e-sech"><small>06</small><h2>Солнечные системы: как выбрать и посчитать</h2></div>'
+          '<p class="e-lead2">Кровля, забор, инвертор, накопитель и деньги: что выбрать, где теряется выработка и как не ошибиться с мощностью.</p>' + article() + '</section>')
+    subs = [("sgcalc", "Расчёт"), ("sgyear", "Год"), ("sgday", "Сутки"), ("sgbom", "Оборудование"), ("sgpay", "Окупаемость"), ("sgart", "Статья")]
+    sub = '<div class="e-sub" role="tablist" aria-label="Солнечная генерация">' + "".join(f'<a href="#{k}" data-sub="{k}">{n}</a>' for k, n in subs) + "</div>"
+    return (
+        head("Справочники · Солнечная генерация", "Солнечные системы: расчёт под ключ",
+             "Выработка для Беларуси по часам, кровля и забор, инвертор и батарея, спецификация и окупаемость на 25 лет.")
+        + RU_ONLY + tabs("solar") + sub
+        + '<div class="e-elec" id="e-solar">' + "".join(_rows(x) if x is p1 else x for x in [p1, p2, p3, p4, p5, p6]) + "</div>"
+        + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с проектировщиком, а не проект и не коммерческое предложение. Климат взят для Минска (радиация по данным БГУ), типовой год; '
+          'тарифы для населения с 01.03.2026 по постановлению Совмина № 93. Цена выкупа излишков и лимит мощности микрогенерации зависят от энергоснабжающей организации: проверьте их перед решением. '
+          'Цены оборудования розничные ориентировочные. Окончательные значения подтверждает проект с аудитом тени, расчётом снеговой и ветровой нагрузки.</p></div>'
+        + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
+        + '<script src="/static/solar-model.js?v=1"></script><script src="/static/solar.js?v=1"></script>'
+    )
+
+
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + hub())
@@ -827,7 +906,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=22">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + forms())
