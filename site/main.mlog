@@ -38,6 +38,10 @@ pattern DictRu(_x: String) -> Map {
   est_tab_vol: "Объёмы работ",
   est_tab_qual: "Качество работ",
   est_tab_elec: "Электрика",
+  est_tab_water: "Водоснабжение",
+  est_tab_sewer: "Канализация",
+  est_tab_heat: "Отопление",
+  est_tab_vent: "Вентиляция",
   est_tab_forms: "Формы отчётов",
   est_ru_only: "Материалы раздела пока только на русском языке.",
   calc_h1: "Расчёт смет",
@@ -134,6 +138,10 @@ pattern DictBe(_x: String) -> Map {
   est_tab_vol: "Аб’ёмы работ",
   est_tab_qual: "Якасць работ",
   est_tab_elec: "Электрыка",
+  est_tab_water: "Водазабеспячэнне",
+  est_tab_sewer: "Каналізацыя",
+  est_tab_heat: "Ацяпленне",
+  est_tab_vent: "Вентыляцыя",
   est_tab_forms: "Формы справаздач",
   est_ru_only: "Матэрыялы раздзела пакуль толькі на рускай мове.",
   calc_h1: "Расчёт кошту",
@@ -230,6 +238,10 @@ pattern DictEn(_x: String) -> Map {
   est_tab_vol: "Work volumes",
   est_tab_qual: "Work quality",
   est_tab_elec: "Electrical",
+  est_tab_water: "Water supply",
+  est_tab_sewer: "Sewerage",
+  est_tab_heat: "Heating",
+  est_tab_vent: "Ventilation",
   est_tab_forms: "Report forms",
   est_ru_only: "The pages of this section are in Russian only for now.",
   calc_h1: "Estimate calculations",
@@ -660,6 +672,26 @@ pattern EstElecPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/elektrika", "est", d.est_tab_elec, true, est.EstElecTpl(""))
 }
 
+pattern EstWaterPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/vodosnabzhenie", "est", d.est_tab_water, true, est.EstWaterTpl(""))
+}
+
+pattern EstSewerPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/kanalizaciya", "est", d.est_tab_sewer, true, est.EstSewerTpl(""))
+}
+
+pattern EstHeatPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/otoplenie", "est", d.est_tab_heat, true, est.EstHeatTpl(""))
+}
+
+pattern EstVentPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/ventilyaciya", "est", d.est_tab_vent, true, est.EstVentTpl(""))
+}
+
 pattern EstFinPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/otdelka", "est", d.est_tab_fin, true, est.EstFinTpl(""))
@@ -692,6 +724,10 @@ server {
   route "/spravochniki/obyemy" method=GET { return EstVolPage("ru") }
   route "/spravochniki/kachestvo" method=GET { return EstQualPage("ru") }
   route "/spravochniki/elektrika" method=GET { return EstElecPage("ru") }
+  route "/spravochniki/vodosnabzhenie" method=GET { return EstWaterPage("ru") }
+  route "/spravochniki/kanalizaciya" method=GET { return EstSewerPage("ru") }
+  route "/spravochniki/otoplenie" method=GET { return EstHeatPage("ru") }
+  route "/spravochniki/ventilyaciya" method=GET { return EstVentPage("ru") }
   route "/spravochniki/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
@@ -699,6 +735,10 @@ server {
   route "/be/spravochniki/obyemy" method=GET { return EstVolPage("be") }
   route "/be/spravochniki/kachestvo" method=GET { return EstQualPage("be") }
   route "/be/spravochniki/elektrika" method=GET { return EstElecPage("be") }
+  route "/be/spravochniki/vodosnabzhenie" method=GET { return EstWaterPage("be") }
+  route "/be/spravochniki/kanalizaciya" method=GET { return EstSewerPage("be") }
+  route "/be/spravochniki/otoplenie" method=GET { return EstHeatPage("be") }
+  route "/be/spravochniki/ventilyaciya" method=GET { return EstVentPage("be") }
   route "/be/spravochniki/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
@@ -706,6 +746,10 @@ server {
   route "/en/spravochniki/obyemy" method=GET { return EstVolPage("en") }
   route "/en/spravochniki/kachestvo" method=GET { return EstQualPage("en") }
   route "/en/spravochniki/elektrika" method=GET { return EstElecPage("en") }
+  route "/en/spravochniki/vodosnabzhenie" method=GET { return EstWaterPage("en") }
+  route "/en/spravochniki/kanalizaciya" method=GET { return EstSewerPage("en") }
+  route "/en/spravochniki/otoplenie" method=GET { return EstHeatPage("en") }
+  route "/en/spravochniki/ventilyaciya" method=GET { return EstVentPage("en") }
   route "/en/spravochniki/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
