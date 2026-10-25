@@ -522,7 +522,7 @@ def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
         + f'<div class="e-basis"><b>Важно знать</b><p>{basis}</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/inzh.js?v=3"></script>'
+        + '<script src="/static/inzh.js?v=5"></script>'
     )
 
 
@@ -629,6 +629,36 @@ def sewer():
         out("Результат", kv("Наименьший уклон по норме", "ss-min") + kv("Перепад при принятом уклоне", "ss-drop") + kv("Уклон по имеющемуся перепаду", "ss-have") + kv("Перепад при уклоне 15 %", "ss-max"), "ss-verdict"),
         "Перепад = длина × уклон<br>Уклон не менее 0,03 для Ø до 50 мм и 0,02 для больших; не более 0,15",
     )
+    p2b = panel(
+        "septic", "03", "Септик для коттеджа или дачи",
+        "Укажите, сколько людей живёт и какой участок. Калькулятор посчитает суточный сток, объём камер, размер поля фильтрации и подскажет тип очистки: накопитель, септик с фильтрацией или станцию биологической очистки.",
+        sel("Как используется дом", "se-use", [("200", "Постоянно: ванна, стиральная и посудомоечная машины"), ("150", "Постоянно: душ, стиральная машина"), ("100", "Дача: душ, стиральная машина"), ("50", "Дача: только кухня и умывальник")], wide=True)
+        + f("Число жильцов", "se-p", "4") + f("Дополнительно (баня, гости, полив)", "se-ex", "0", "л/сут")
+        + sel("Грунт на участке", "se-soil", [("sand", "Песок"), ("supes", "Супесь"), ("sugl", "Суглинок"), ("clay", "Глина")])
+        + f("Грунтовые воды на глубине", "se-gw", "3", "м") + f("Глубина дна фильтрации", "se-sd", "1,2", "м")
+        + seg("se-el", [("1", "Есть электричество"), ("0", "Нет электричества")], "Питание на участке")
+        + seg("se-car", [("1", "Машина-ассенизатор подъедет"), ("0", "Подъезда нет")], "Откачка")
+        + '<p class="e-note">Расход воды на человека — ориентир практики (150–200 л в сутки при полном благоустройстве, 50–100 л на даче). Нагрузка на 1 м² фильтрации принята: песок 80, супесь 40, суглинок 20 л в сутки, глина воду не принимает.</p>',
+        out("Результат", kv("Суточный сток", "se-q") + kv("Объём септика", "se-v") + kv("Камеры", "se-ch") + kv("Ближайший объём", "se-std")
+            + kv("Что выбрать", "se-type") + kv("Поле фильтрации", "se-field") + kv("Накопитель на 14 суток", "se-nak"), "se-verdict"),
+        "Q = n · q + Qдоп, м³/сут<br>V = 3 · Q при Q до 5 м³/сут; камеры: до 1 м³/сут две (75 % и 25 %), больше три (50 %, 25 %, 25 %)<br>Fфильтр = Q ÷ нагрузка грунта; до воды от дна фильтрации не менее 1 м",
+    )
+    tbl = (
+        '<div class="e-scroll"><table class="e-tbl"><thead><tr><th>Тип</th><th>Когда подходит</th><th>Плюсы</th><th>Минусы</th></tr></thead><tbody>'
+        '<tr><td>Накопительная ёмкость</td><td>Малый сток, дача, глина или высокая вода</td><td>Дёшево, не зависит от грунта</td><td>Платная откачка каждые 1–4 недели, нужен подъезд</td></tr>'
+        '<tr><td>Септик с фильтрацией в грунт</td><td>Песок или супесь, вода глубже 2,5 м</td><td>Без электричества, редкая чистка ила</td><td>Нужен участок под поле, не для глины</td></tr>'
+        '<tr><td>Станция биологической очистки</td><td>Высокая вода, глина, малый участок, постоянное проживание</td><td>Чистая вода на выходе, компактная</td><td>Электричество, дороже, нужен сервис, не любит долгих простоев</td></tr>'
+        '</tbody></table></div>'
+        '<div class="e-scroll narrow"><table class="e-tbl"><thead><tr><th>Расстояние, как правило</th><th>м</th></tr></thead><tbody>'
+        '<tr><td>До жилого дома: септик / поля фильтрации</td><td class="m">5 / 8–12</td></tr>'
+        '<tr><td>До питьевого колодца или скважины (зависит от грунта)</td><td class="m">20–50</td></tr>'
+        '<tr><td>До границы участка</td><td class="m">1–4</td></tr>'
+        '<tr><td>До дороги</td><td class="m">5</td></tr>'
+        '<tr><td>До деревьев</td><td class="m">3–4</td></tr></tbody></table></div>'
+        '<p class="e-note">Это типовые значения из практики. В Беларуси размещение определяется санитарными нормами и ТКП, а также решением проектировщика и санитарной службы: проверьте перед закупкой. Для станции биологической очистки следуйте паспорту производителя.</p>'
+    )
+    p2c = ('<section class="e-panel" id="sguide" data-panel="sguide"><div class="e-sech"><small>04</small><h2>Сравнение вариантов и расстояния</h2></div>'
+           '<p class="e-lead2">Что выбрать, когда расчёт даёт несколько вариантов, и где ставить.</p>' + tbl + '</section>')
     ref = (
         '<div class="e-scroll narrow"><table class="e-tbl"><thead><tr><th>Что</th><th>Значение</th></tr></thead><tbody>'
         '<tr><td>Скорость стоков, не менее</td><td class="m">0,7 м/с</td></tr>'
@@ -639,12 +669,12 @@ def sewer():
         '<tr><td>Шаг креплений горизонтальной чугунной канализации, не более</td><td class="m">2 м</td></tr></tbody></table></div>'
         '<p class="e-note">Источник: СН 4.01.03-2019, ТКП 45-1.03-85-2007. Полные карточки с пунктами — в «Качество работ».</p>'
     )
-    p3 = ('<section class="e-panel" id="sref" data-panel="sref"><div class="e-sech"><small>03</small><h2>Справка по нормам</h2></div>'
+    p3 = ('<section class="e-panel" id="sref" data-panel="sref"><div class="e-sech"><small>05</small><h2>Справка по нормам</h2></div>'
           '<p class="e-lead2">Основные числа, на которые опираются калькуляторы этого раздела.</p>' + ref + '</section>')
-    subs = [("sdiam", "Диаметр"), ("sslope", "Уклон"), ("sref", "Справка")]
+    subs = [("sdiam", "Диаметр"), ("sslope", "Уклон"), ("septic", "Септик"), ("sguide", "Сравнение"), ("sref", "Справка")]
     return _page("sewer", "Справочники · Канализация", "Канализация: расчёты",
-                 "Диаметр отвода по приборам, уклон и перепад высот на горизонтальных участках.",
-                 "sewer", subs, [p1, p2, p3], BASIS_COMMON)
+                 "Диаметр отвода по приборам, уклон и перепад высот, выбор и подбор септика для коттеджа или дачи.",
+                 "sewer", subs, [p1, p2, p2b, p2c, p3], BASIS_COMMON)
 
 
 def heat():
@@ -764,16 +794,16 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + hub())
-    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + ref_hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + elec())
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + hub())
+    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + ref_hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + elec())
     for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent)):
-        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=19">' + fn())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=19">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=19">' + tabs("calc"))
+        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=20">' + fn())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=20">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
