@@ -520,7 +520,7 @@ def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
         + f'<div class="e-basis"><b>Важно знать</b><p>{basis}</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/inzh.js?v=6"></script>'
+        + '<script src="/static/inzh.js?v=7"></script>'
     )
 
 
@@ -753,6 +753,7 @@ def heat():
         '<p class="e-lead2">Сколько стоит киловатт-час тепла от разных источников и сколько выйдет за отопительный сезон. Подставьте свои цены и КПД. Для теплового насоса вводится сезонный COP в процентах, например 300 % означает 3 кВт·ч тепла на 1 кВт·ч электричества.</p>'
         + f("Потребность в тепле за сезон", "hc-q", "20000", "кВт·ч")
         + '<div class="e-scroll"><table class="e-tbl"><thead><tr><th>Источник</th><th>КПД или COP</th><th>Цена</th><th>1 кВт·ч тепла, BYN</th><th>За сезон, BYN</th></tr></thead><tbody>' + crow + "</tbody></table></div>"
+        '<div class="e-bars" id="hc-bars" aria-label="Стоимость 1 кВт·ч тепла"></div>'
         '<div class="verdict" id="hc-verdict" role="status"></div>'
         '<p class="e-note">Цены на электричество подставлены по справочным данным с 1 июня 2026 года (обычный 25,81 коп., льготный для электроотопления 4,87 коп. за кВт·ч, по постановлению Совета Министров № 93 от 25.02.2026): сверьте их со своим счётом. Цены на газ, дрова, пеллеты и сжиженный газ вводите сами, они зависят от поставщика. Льготный тариф даётся домам без центрального отопления и газа и при отдельном счётчике: проверьте условия для своего дома. Тепловой насос при расчёте на сезон берут по сезонному COP из паспорта: в сильные морозы он ниже.</p></section>'
     )
@@ -828,16 +829,16 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + hub())
-    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + ref_hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + elec())
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + hub())
+    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + ref_hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + elec())
     for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent)):
-        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=21">' + fn())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=21">' + tabs("calc"))
+        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=22">' + fn())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=22">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 

@@ -296,6 +296,22 @@
       any = true;
       if (best === null || c < best) { best = c; bk = k; }
     });
+    var box = $('hc-bars');
+    if (box) {
+      while (box.firstChild) box.removeChild(box.firstChild);
+      var list = Object.keys(FUELS).map(function (k) {
+        var e = num('hc-e-' + k), p = num('hc-p-' + k);
+        return (e > 0 && p > 0) ? { k: k, c: p / (FUELS[k] * e / 100) } : null;
+      }).filter(Boolean).sort(function (a, b) { return a.c - b.c; });
+      var mx = list.length ? list[list.length - 1].c : 1;
+      list.forEach(function (it, n) {
+        var row = document.createElement('div'), nm = document.createElement('span'), tr = document.createElement('span'), fl = document.createElement('span'), v = document.createElement('b');
+        row.className = 'e-barrow' + (n === 0 ? ' min' : ''); tr.className = 'tr'; fl.className = 'fl';
+        nm.textContent = FNAMES[it.k]; v.textContent = fmt(it.c, 4);
+        fl.style.width = Math.max(2, it.c / mx * 100) + '%';
+        tr.appendChild(fl); row.appendChild(nm); row.appendChild(tr); row.appendChild(v); box.appendChild(row);
+      });
+    }
     if (!any || !(Q > 0)) return verdict('hc-verdict', 'Введите потребность в тепле и цены (хотя бы для одного источника).', true);
     verdict('hc-verdict', 'Дешевле всего по введённым данным: ' + FNAMES[bk].toLowerCase() + ', ' + fmt(best, 4) + ' BYN за кВт·ч тепла, около ' + fmt(best * Q, 0) + ' BYN за сезон. Это только топливо: оборудование, обслуживание и подключение сюда не входят.', false);
   }
