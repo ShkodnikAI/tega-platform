@@ -51,6 +51,17 @@
     Object.keys(PRICE_LABELS).forEach(function (k) { var v = num('sg-pr-' + k); if (isFinite(v) && v >= 0) P[k] = v; });
     return P;
   }
+  function readCustom() {
+    var p = num('sg-cm-p'), voc = num('sg-cm-voc'), vmp = num('sg-cm-vmp'), isc = num('sg-cm-isc'), imp = num('sg-cm-imp');
+    var tp = num('sg-cm-tp'), tv = num('sg-cm-tv'), bif = num('sg-cm-bif');
+    var ok = p > 0 && voc > 0 && vmp > 0 && isc > 0 && imp > 0 && vmp < voc && imp < isc;
+    if (!ok) return null;
+    var m = S.MODULES.custom;
+    m.name = 'Свой модуль ' + fmt(p, 0) + ' Вт'; m.p = p; m.voc = voc; m.vmp = vmp; m.isc = isc; m.imp = imp;
+    m.tp = -Math.abs(isFinite(tp) ? tp : 0.30) / 100; m.tv = -Math.abs(isFinite(tv) ? tv : 0.25) / 100;
+    m.bif = clamp(bif, 0, 0.95, 0);
+    return m;
+  }
   function readCfg() {
     var arrays = [];
     for (var i = 1; i <= 3; i++) {
@@ -78,6 +89,13 @@
       ['sg-ch-year', 'sg-ch-day', 'sg-ch-cash'].forEach(function (i) { var n = $(i); if (n) clearNode(n); });
       return;
     }
+    var customUsed = arrs.some(function (a) { return a.type === 'custom'; });
+    if (customUsed && !readCustom()) {
+      last = null; ids.forEach(function (i) { set(i, '—'); });
+      verdict('Свой модуль: заполните Pmax, Voc, Vmp, Isc, Imp (Vmp меньше Voc, Imp меньше Isc).', true);
+      return;
+    }
+    if (!customUsed) readCustom();
     var prices = readPrices();
     var r = S.configure(cfg, prices);
     last = { cfg: cfg, r: r, prices: prices };
@@ -103,6 +121,10 @@
     } else last.noBat = null;
     set('sg-bw', bw);
     var notes = [], bad = false;
+    if (customUsed) {
+      var cm = S.MODULES.custom, dev = Math.abs(cm.vmp * cm.imp / cm.p - 1);
+      if (dev > 0.06) { notes.push('у своего модуля Vmp·Imp = ' + fmt(cm.vmp * cm.imp, 0) + ' Вт при Pmax ' + fmt(cm.p, 0) + ' Вт: проверьте данные паспорта'); bad = true; }
+    }
     if (s.kwp > 15 && cfg.who === 'phys') { notes.push('мощность больше 15 кВт: для частного лица это уже не микрогенерация, условия подключения нужно уточнять в энергоснабжающей организации'); bad = true; }
     if (s.expY / s.genY > 0.3) { notes.push('в сеть уходит ' + fmt(s.expY / s.genY * 100, 0) + ' % выработки по низкому тарифу: сдвиньте нагрузку на день или уменьшите мощность'); bad = true; }
     pk.lays.forEach(function (l, i) { if (!l.ok) { notes.push('массив ' + (i + 1) + ': ' + (l.why || 'не получается собрать строки')); bad = true; } else if (l.extra > 0) notes.push('массив ' + (i + 1) + ': для целых строк добавлено ' + l.extra + ' мод.'); });
