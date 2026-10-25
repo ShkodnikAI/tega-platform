@@ -18,7 +18,8 @@
   var MODULES = {
     m450: { name: 'Моно 450 Вт (PERC, 108 п/я)', p: 450, voc: 37.4, vmp: 31.3, isc: 15.2, imp: 14.4, tp: -0.0035, tv: -0.0027, bif: 0, area: 2.0, w: 1.134, l: 1.762 },
     m550: { name: 'TOPCon 550 Вт (144 п/я)', p: 550, voc: 49.9, vmp: 41.9, isc: 13.9, imp: 13.1, tp: -0.0030, tv: -0.0025, bif: 0, area: 2.58, w: 1.134, l: 2.278 },
-    b580: { name: 'TOPCon bifacial 580 Вт (двусторонний)', p: 580, voc: 52.0, vmp: 43.4, isc: 14.0, imp: 13.4, tp: -0.0029, tv: -0.0025, bif: 0.7, area: 2.58, w: 1.134, l: 2.278 }
+    b580: { name: 'TOPCon bifacial 580 Вт (двусторонний)', p: 580, voc: 52.0, vmp: 43.4, isc: 14.0, imp: 13.4, tp: -0.0029, tv: -0.0025, bif: 0.7, area: 2.58, w: 1.134, l: 2.278 },
+    custom: { name: 'Свой модуль', p: 600, voc: 51.5, vmp: 43.2, isc: 14.9, imp: 13.9, tp: -0.0030, tv: -0.0025, bif: 0, area: 2.7, w: 1.134, l: 2.382 }
   };
 
   var PROFILES = {
