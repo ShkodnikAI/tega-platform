@@ -307,3 +307,18 @@ a.e-card:hover h3{color:var(--red)}
 .e-err .v{color:#1f7a4d}
 #cost .e-in{min-width:120px}
 #cost .e-in .u{white-space:nowrap}
+.e-fig{margin:6px 0;display:flex;flex-direction:column;gap:8px;max-width:860px}
+.e-fig svg{width:100%;height:auto;display:block;background:rgba(255,255,255,.94);border:1px solid var(--line)}
+.e-fig text{font-family:var(--sans)}
+.e-fig figcaption{font-size:13px;line-height:1.5;color:var(--muted)}
+.e-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;max-width:900px}
+.e-kpi{border:1.5px solid var(--ink);padding:14px 16px;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.94)}
+.e-kpi b{font-size:26px;color:var(--red);line-height:1.1}
+.e-kpi span{font-size:13px;line-height:1.4;color:var(--muted)}
+.e-bars{display:flex;flex-direction:column;gap:8px;max-width:760px}
+.e-barrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center;font-size:14px}
+.e-barrow .tr{background:var(--soft);height:22px}
+.e-barrow .fl{display:block;height:22px;background:var(--ink)}
+.e-barrow.min .fl{background:var(--red)}
+.e-barrow b{font:600 13px var(--mono)}
+@media(max-width:560px){.e-barrow{grid-template-columns:1fr auto}.e-barrow .tr{grid-column:1/-1}}
