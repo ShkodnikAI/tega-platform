@@ -282,6 +282,32 @@
     verdict('hx-verdict', tank ? 'Берите бак не меньше ' + tank + ' л. Предварительное давление в баке (воздух) равно давлению воды в холодной системе ' + fmt(p0, 1) + ' бар.' : 'Нужен бак больше 500 л или несколько баков: проект.', !tank);
   }
 
+
+  /* ───────── стоимость тепла и удлинение труб ───────── */
+  var FUELS = { hp: 1, ebp: 1, eb: 1, gas: 9.3, wood: 4000, pel: 4800, lpg: 6.9 };
+  var FNAMES = { hp: 'Тепловой насос', ebp: 'Электрокотёл по льготному тарифу', eb: 'Электрокотёл по обычному тарифу', gas: 'Газ', wood: 'Дрова', pel: 'Пеллеты', lpg: 'Сжиженный газ' };
+  function calcHc() {
+    var Q = num('hc-q'), best = null, bk = null, any = false;
+    Object.keys(FUELS).forEach(function (k) {
+      var e = num('hc-e-' + k), p = num('hc-p-' + k);
+      if (!(e > 0) || !(p > 0)) { set('hc-c-' + k, '—'); set('hc-s-' + k, '—'); return; }
+      var c = p / (FUELS[k] * e / 100);
+      set('hc-c-' + k, fmt(c, 4)); set('hc-s-' + k, Q > 0 ? fmt(c * Q, 0) : '—');
+      any = true;
+      if (best === null || c < best) { best = c; bk = k; }
+    });
+    if (!any || !(Q > 0)) return verdict('hc-verdict', 'Введите потребность в тепле и цены (хотя бы для одного источника).', true);
+    verdict('hc-verdict', 'Дешевле всего по введённым данным: ' + FNAMES[bk].toLowerCase() + ', ' + fmt(best, 4) + ' BYN за кВт·ч тепла, около ' + fmt(best * Q, 0) + ' BYN за сезон. Это только топливо: оборудование, обслуживание и подключение сюда не входят.', false);
+  }
+  function calcEx() {
+    var ids = ['ex-dt', 'ex-dl', 'ex-arm'];
+    var a = parseFloat($('ex-m').value), L = num('ex-l'), tw = num('ex-tw'), tm = num('ex-tm'), d = num('ex-d');
+    if (!allPos([a, L, d]) || !isFinite(tw) || !isFinite(tm)) return clear(ids, 'ex-verdict', 'Введите длину, диаметр и температуры.');
+    var dT = tw - tm, dl = a * L * dT, arm = 30 * Math.sqrt(d * Math.abs(dl));
+    set('ex-dt', fmt(dT, 0) + ' К'); set('ex-dl', fmt(dl, 1) + ' мм'); set('ex-arm', fmt(arm, 0) + ' мм');
+    verdict('ex-verdict', 'Участок ' + fmt(L, 1) + ' м удлинится на ' + fmt(dl, 1) + ' мм. ' + (Math.abs(dl) > 10 ? 'Это много: нужен компенсатор, Г- или П-образный участок (плечо не меньше ' + fmt(arm, 0) + ' мм) и подвижные опоры. Неподвижные опоры ставьте у фитингов.' : 'Удлинение небольшое, но трубу не закрепляют жёстко по всей длине: оставляйте зазор в креплениях.'), Math.abs(dl) > 30);
+  }
+
   /* ───────── вентиляция ───────── */
   var AIR = {
     room: { name: 'Жилая комната (приток)', area: 3, mult: 0.5 },
@@ -373,7 +399,7 @@
         show(id);
       });
     });
-    var F = { se: calcSe, pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
+    var F = { hc: calcHc, ex: calcEx, se: calcSe, pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
     Object.keys(F).forEach(function (pre) {
       Array.prototype.forEach.call(root.querySelectorAll('[id^="' + pre + '-"], input[name^="' + pre + '-"]'), function (el) {
         if (el.tagName === 'INPUT' || el.tagName === 'SELECT') { el.addEventListener('input', F[pre]); el.addEventListener('change', F[pre]); }
@@ -404,7 +430,7 @@
     });
     var cp = $('hr-type');
     if (cp) cp.addEventListener('change', function () { $('hr-sec').value = cp.value; calcHr(); });
-    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss', 'se'], heat: ['hl', 'hr', 'hp', 'hf', 'hx'], vent: ['va', 'vd', 'vg', 'vh'] };
+    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss', 'se'], heat: ['hl', 'hr', 'hp', 'hf', 'hx', 'hc', 'ex'], vent: ['va', 'vd', 'vg', 'vh'] };
     (PG[root.getAttribute('data-page')] || []).forEach(function (k) { F[k](); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
