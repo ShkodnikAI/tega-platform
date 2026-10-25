@@ -46,6 +46,9 @@ def head(eyebrow, h1, lead):
     )
 
 
+# вкладки со статьями обводятся красным контуром
+ART_IDS = {"overview", "pipesart", "guide", "sgart"}
+ART_CLS = ' class="art"'
 RU_ONLY = '{{#if not_ru}}<p class="e-ruonly">{{ t.est_ru_only }}</p>{{/if}}'
 
 
@@ -422,7 +425,7 @@ def elec():
           + cable_article() + '</section>')
     subs = [("guide", "Как подобрать кабель"), ("cable", "Подбор кабеля"), ("kz", "Ток КЗ"), ("ground", "Заземление"), ("light", "Освещение"), ("apparaty", "Автоматы и УЗО"), ("ref", "Справочник")]
     sub = '<div class="e-sub" role="tablist" aria-label="Электрика">' + "".join(
-        f'<a href="#{k}" data-sub="{k}">{n}</a>' for k, n in subs
+        f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs
     ) + "</div>"
     return (
         head("Справочники · Электрика", "Электрические калькуляторы",
@@ -490,7 +493,7 @@ def _rows(html):
 
 def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
     sub = '<div class="e-sub" role="tablist" aria-label="' + h1 + '">' + "".join(
-        f'<a href="#{k}" data-sub="{k}">{n}</a>' for k, n in subs) + "</div>"
+        f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head(eyebrow, h1, lead) + RU_ONLY + tabs(active) + sub
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
@@ -891,7 +894,7 @@ def solar():
     p6 = ('<section class="e-panel" id="sgart" data-panel="sgart"><div class="e-sech"><small>06</small><h2>Солнечные системы: как выбрать и посчитать</h2></div>'
           '<p class="e-lead2">Кровля, забор, инвертор, накопитель и деньги: что выбрать, где теряется выработка и как не ошибиться с мощностью.</p>' + article() + '</section>')
     subs = [("sgcalc", "Расчёт"), ("sgyear", "Год"), ("sgday", "Сутки"), ("sgbom", "Оборудование"), ("sgpay", "Окупаемость"), ("sgart", "Статья")]
-    sub = '<div class="e-sub" role="tablist" aria-label="Солнечная генерация">' + "".join(f'<a href="#{k}" data-sub="{k}">{n}</a>' for k, n in subs) + "</div>"
+    sub = '<div class="e-sub" role="tablist" aria-label="Солнечная генерация">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Солнечная генерация", "Солнечные системы: расчёт под ключ",
              "Выработка для Беларуси по часам, кровля и забор, инвертор и батарея, спецификация и окупаемость на 25 лет.")
@@ -907,16 +910,16 @@ def solar():
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + hub())
-    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + ref_hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + elec())
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + hub())
+    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + ref_hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + elec())
     for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar)):
-        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=22">' + fn())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=22">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=22">' + tabs("calc"))
+        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=23">' + fn())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=23">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=23">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
