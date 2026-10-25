@@ -371,6 +371,23 @@
     var bad = h.v > v * 1.15;
     verdict('vd-verdict', 'Круглый воздуховод Ø ' + d + ' мм, скорость ' + fmt(h.v, 2) + ' м/с, потери сети ' + fmt(dp, 0) + ' Па: вентилятор должен давать это давление плюс потери решёток, фильтра и клапанов. ' + (h.v > 5 && $('vd-net').value === 'home' ? 'В жилье выше 5 м/с воздуховод шумит. ' : '') + 'Скорости 3–5 м/с в жилье и 5–8 м/с в офисах — практический ориентир.', bad);
   }
+  function calcVt() {
+    var ids = ['vt-st', 'vt-dp', 'vt-net', 'vt-ch'];
+    var h = num('vt-h'), te = num('vt-te'), ti = num('vt-ti'), V = num('vt-v'), n50 = parseFloat($('vt-n').value), qo = num('vt-qo'), qi = num('vt-qi');
+    if (!allPos([h, V]) || !isFinite(te) || !isFinite(ti) || !isFinite(qo) || qo < 0 || !isFinite(qi) || qi < 0 || te < -60 || ti < 5 || ti > 35) return clear(ids, 'vt-verdict', 'Укажите высоту шахты, температуры и объём.');
+    var st = 3460 * h * (1 / (273.15 + te) - 1 / (273.15 + ti));
+    var imb = qo - qi, dp = (imb >= 0 ? 1 : -1) * 50 * Math.pow(Math.abs(imb) / (n50 * V), 1 / 0.65);
+    var net = st - dp;
+    set('vt-st', fmt(st, 1) + ' Па'); set('vt-dp', (dp >= 0 ? 'разрежение ' : 'подпор ') + fmt(Math.abs(dp), 1) + ' Па'); set('vt-net', fmt(net, 1) + ' Па');
+    set('vt-ch', dp <= 4 ? 'разрежение в пределах 4 Па' : 'разрежение больше 4 Па, опасно');
+    var bad = true, t;
+    if (st <= 0 && dp <= 0) { t = 'Перепада температур для тяги нет (на улице не холоднее, чем в помещении). Шахта не вытягивает воздух, поддерживать вытяжку можно только вентилятором.'; }
+    else if (net <= 0) { t = 'Опрокидывание: разрежение ' + fmt(dp, 1) + ' Па больше тяги ' + fmt(st, 1) + ' Па, воздух пойдёт по шахте в помещение. Нужен компенсирующий приток или другой режим вытяжки.'; }
+    else if (net < 2) { t = 'Тяга неустойчива: запас ' + fmt(net, 1) + ' Па меньше действия ветра и открытой двери. Шахта будет то работать, то опрокидываться.'; }
+    else { t = 'Запас тяги ' + fmt(net, 1) + ' Па: шахта работает, но следите за ветром, жарой и другими вентиляторами.'; bad = false; }
+    if (dp > 4) t += ' Для помещений с камином, печью, атмосферным котлом или колонкой разрежение выше 4 Па (зарубежный ориентир) недопустимо: дым и угарный газ могут идти в комнату.';
+    verdict('vt-verdict', t + ' Ветер на фасаде при скорости 5 м/с даёт ещё около 7 Па. Расчёт ориентировочный, замер на месте точнее.', bad || dp > 4);
+  }
   var GR = [[150, 150], [200, 200], [300, 150], [300, 300], [400, 200], [400, 400], [600, 300], [600, 600]];
   function calcVg() {
     var ids = ['vg-area', 'vg-n'];
@@ -415,7 +432,7 @@
         show(id);
       });
     });
-    var F = { hc: calcHc, ex: calcEx, se: calcSe, pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh };
+    var F = { hc: calcHc, ex: calcEx, se: calcSe, pu: calcPu, hb: calcHb, wd: calcWd, wp: calcWp, wh: calcWh, sd: calcSd, ss: calcSs, hl: calcHl, hr: calcHr, hp: calcHp, hf: calcHf, hx: calcHx, va: calcVa, vd: calcVd, vg: calcVg, vh: calcVh, vt: calcVt };
     Object.keys(F).forEach(function (pre) {
       Array.prototype.forEach.call(root.querySelectorAll('[id^="' + pre + '-"], input[name^="' + pre + '-"]'), function (el) {
         if (el.tagName === 'INPUT' || el.tagName === 'SELECT') { el.addEventListener('input', F[pre]); el.addEventListener('change', F[pre]); }
@@ -446,7 +463,7 @@
     });
     var cp = $('hr-type');
     if (cp) cp.addEventListener('change', function () { $('hr-sec').value = cp.value; calcHr(); });
-    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss', 'se'], heat: ['hl', 'hr', 'hp', 'hf', 'hx', 'hc', 'ex'], vent: ['va', 'vd', 'vg', 'vh'] };
+    var PG = { water: ['wd', 'wp', 'wh', 'pu', 'hb'], sewer: ['sd', 'ss', 'se'], heat: ['hl', 'hr', 'hp', 'hf', 'hx', 'hc', 'ex'], vent: ['va', 'vd', 'vg', 'vh', 'vt'] };
     (PG[root.getAttribute('data-page')] || []).forEach(function (k) { F[k](); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
