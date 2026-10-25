@@ -699,7 +699,7 @@ pattern EstFinPage(lang: String) -> Html {
 
 pattern EstFormsPage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/spravochniki/formy", "est", d.est_tab_forms, true, est.EstFormsTpl(""))
+  return Shell(lang, "/raschet-smet/formy", "est", d.est_tab_forms, true, est.EstFormsTpl(""))
 }
 
 pattern AboutPage(lang: String) -> Html {
@@ -728,7 +728,7 @@ server {
   route "/spravochniki/kanalizaciya" method=GET { return EstSewerPage("ru") }
   route "/spravochniki/otoplenie" method=GET { return EstHeatPage("ru") }
   route "/spravochniki/ventilyaciya" method=GET { return EstVentPage("ru") }
-  route "/spravochniki/formy" method=GET { return EstFormsPage("ru") }
+  route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
   route "/be/spravochniki" method=GET { return EstRefPage("be") }
@@ -739,7 +739,7 @@ server {
   route "/be/spravochniki/kanalizaciya" method=GET { return EstSewerPage("be") }
   route "/be/spravochniki/otoplenie" method=GET { return EstHeatPage("be") }
   route "/be/spravochniki/ventilyaciya" method=GET { return EstVentPage("be") }
-  route "/be/spravochniki/formy" method=GET { return EstFormsPage("be") }
+  route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
   route "/en/spravochniki" method=GET { return EstRefPage("en") }
@@ -750,7 +750,7 @@ server {
   route "/en/spravochniki/kanalizaciya" method=GET { return EstSewerPage("en") }
   route "/en/spravochniki/otoplenie" method=GET { return EstHeatPage("en") }
   route "/en/spravochniki/ventilyaciya" method=GET { return EstVentPage("en") }
-  route "/en/spravochniki/formy" method=GET { return EstFormsPage("en") }
+  route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
   route "/kontakty" method=GET { return ContactsPage("ru") }

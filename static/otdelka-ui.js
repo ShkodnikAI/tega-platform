@@ -318,7 +318,7 @@
     var tabs = h('div', { class: 'e-sub o-forms' }, FORMS.map(function (f) { return h('a', { href: '#f' + f[0], class: String(S.form || '1') === f[0] ? 'on' : '', onclick: function (ev) { ev.preventDefault(); S.form = f[0]; save(); render(); } }, ['Форма ' + f[0] + ' · ' + f[1]]); }));
     box.appendChild(tabs);
     var cur = String(S.form || '1'), f = FORMS.filter(function (x) { return x[0] === cur; })[0];
-    box.appendChild(h('div', { class: 'o-nav' }, [btn('Печать / сохранить в PDF', function () { printForm(); }, 'pri'), h('a', { class: 'o-link', href: pathPrefix() + '/spravochniki/formy', text: 'Образцы форм' })]));
+    box.appendChild(h('div', { class: 'o-nav' }, [btn('Печать / сохранить в PDF', function () { printForm(); }, 'pri'), h('a', { class: 'o-link', href: pathPrefix() + '/raschet-smet/formy', text: 'Образцы форм' })]));
     var R = run(), sheet = h('div', { class: 'o-sheetwrap' }, [h('div', { class: 'rp-sheet on' + (f[2] ? ' land' : ''), html: formHtml(cur, R) })]);
     box.appendChild(sheet);
     Array.prototype.forEach.call(sheet.querySelectorAll('col[data-w]'), function (c) { c.style.width = c.getAttribute('data-w'); });
