@@ -4,8 +4,11 @@
 {$DOMAIN} {
 	encode zstd gzip
 	# Справочники переехали из /raschet-smet в /spravochniki (все языки)
-	@oldref path_regexp oldref ^(/(?:be|en))?/raschet-smet/(obyemy|kachestvo|elektrika|formy)/?$
+	@oldref path_regexp oldref ^(/(?:be|en))?/raschet-smet/(obyemy|kachestvo|elektrika)/?$
 	redir @oldref {re.oldref.1}/spravochniki/{re.oldref.2} permanent
+	# Формы отчётов переехали из /spravochniki в /raschet-smet
+	@oldforms path_regexp oldforms ^(/(?:be|en))?/spravochniki/formy/?$
+	redir @oldforms {re.oldforms.1}/raschet-smet/formy permanent
 	log {
 		output file /var/log/caddy/access.log
 	}
