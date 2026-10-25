@@ -271,7 +271,7 @@
   /* вкладки */
   var panels = [];
   function show(id) {
-    if (panels.indexOf(id) < 0) id = 'cable';
+    if (panels.indexOf(id) < 0) id = 'guide';
     var root = $('e-elec');
     Array.prototype.forEach.call(root.querySelectorAll('.e-panel'), function (p) { p.classList.toggle('on', p.id === id); });
     Array.prototype.forEach.call(document.querySelectorAll('.e-sub a'), function (a) {
