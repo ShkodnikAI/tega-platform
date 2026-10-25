@@ -499,7 +499,7 @@ def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
         + f'<div class="e-basis"><b>Важно знать</b><p>{basis}</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/inzh.js?v=8"></script>'
+        + '<script src="/static/inzh.js?v=9"></script>'
     )
 
 
