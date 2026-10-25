@@ -309,6 +309,7 @@ a.e-card:hover h3{color:var(--red)}
 #cost .e-in{min-width:120px}
 #cost .e-in .u{white-space:nowrap}
 .e-fig{margin:6px 0;display:flex;flex-direction:column;gap:8px;max-width:860px}
+.e-fig img{width:100%;height:auto;display:block;border:1px solid var(--line)}
 .e-fig svg{width:100%;height:auto;display:block;background:rgba(255,255,255,.94);border:1px solid var(--line)}
 .e-fig text{font-family:var(--sans)}
 .e-fig figcaption{font-size:13px;line-height:1.5;color:var(--muted)}
