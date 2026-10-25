@@ -520,7 +520,7 @@ def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
         + f'<div class="e-basis"><b>Важно знать</b><p>{basis}</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/inzh.js?v=5"></script>'
+        + '<script src="/static/inzh.js?v=6"></script>'
     )
 
 
@@ -733,10 +733,46 @@ def heat():
         out("Результат", kv("Объём воды", "hx-vso") + kv("Расширение воды", "hx-e") + kv("Нужный объём бака", "hx-v") + kv("Ближайший бак", "hx-tank"), "hx-verdict"),
         "V = Vсист · e ÷ (1 − P₀ ÷ Pmax)<br>e — расширение воды от 10 °С до рабочей температуры; P₀, Pmax — абсолютные давления",
     )
-    subs = [("hloss", "Теплопотери"), ("radiators", "Радиаторы"), ("hpipes", "Трубы"), ("floor", "Тёплый пол"), ("expansion", "Расширительный бак")]
+    cost_rows = [
+        ("hp", "Тепловой насос «воздух–вода»", "300", "0,0487", "кВт·ч электричества"),
+        ("ebp", "Электрокотёл, льготный тариф", "99", "0,0487", "кВт·ч электричества"),
+        ("eb", "Электрокотёл, обычный тариф", "99", "0,2581", "кВт·ч электричества"),
+        ("gas", "Газ магистральный", "95", "", "м³ (9,3 кВт·ч/м³)"),
+        ("wood", "Дрова", "75", "", "тонна (4 000 кВт·ч/т)"),
+        ("pel", "Пеллеты", "85", "", "тонна (4 800 кВт·ч/т)"),
+        ("lpg", "Сжиженный газ", "92", "", "литр (6,9 кВт·ч/л)"),
+    ]
+    crow = "".join(
+        f'<tr><td>{n}</td><td><div class="e-in"><input id="hc-e-{k}" inputmode="decimal" autocomplete="off" value="{e}"><span class="u">%</span></div></td>'
+        f'<td><div class="e-in"><input id="hc-p-{k}" inputmode="decimal" autocomplete="off" value="{pr}"><span class="u">BYN за {u}</span></div></td>'
+        f'<td class="m" id="hc-c-{k}">—</td><td class="m" id="hc-s-{k}">—</td></tr>'
+        for k, n, e, pr, u in cost_rows
+    )
+    p6 = (
+        '<section class="e-panel" id="cost" data-panel="cost"><div class="e-sech"><small>06</small><h2>Стоимость тепла по видам топлива</h2></div>'
+        '<p class="e-lead2">Сколько стоит киловатт-час тепла от разных источников и сколько выйдет за отопительный сезон. Подставьте свои цены и КПД. Для теплового насоса вводится сезонный COP в процентах, например 300 % означает 3 кВт·ч тепла на 1 кВт·ч электричества.</p>'
+        + f("Потребность в тепле за сезон", "hc-q", "20000", "кВт·ч")
+        + '<div class="e-scroll"><table class="e-tbl"><thead><tr><th>Источник</th><th>КПД или COP</th><th>Цена</th><th>1 кВт·ч тепла, BYN</th><th>За сезон, BYN</th></tr></thead><tbody>' + crow + "</tbody></table></div>"
+        '<div class="verdict" id="hc-verdict" role="status"></div>'
+        '<p class="e-note">Цены на электричество подставлены по справочным данным с 1 июня 2026 года (обычный 25,81 коп., льготный для электроотопления 4,87 коп. за кВт·ч, по постановлению Совета Министров № 93 от 25.02.2026): сверьте их со своим счётом. Цены на газ, дрова, пеллеты и сжиженный газ вводите сами, они зависят от поставщика. Льготный тариф даётся домам без центрального отопления и газа и при отдельном счётчике: проверьте условия для своего дома. Тепловой насос при расчёте на сезон берут по сезонному COP из паспорта: в сильные морозы он ниже.</p></section>'
+    )
+    mats = [("ppr", "PP-R без армирования", "0.15"), ("pprg", "PP-R, армированный стекловолокном", "0.04"), ("pprf", "PP-R, армированный алюминием", "0.03"), ("pex", "PEX", "0.15"), ("pert", "PE-RT", "0.18"), ("mp", "Металлопластик", "0.026"), ("steel", "Сталь", "0.012"), ("cu", "Медь", "0.017")]
+    p7 = panel(
+        "expand", "07", "Тепловое удлинение труб",
+        "На сколько удлиняется труба при нагреве и какой запас нужен на компенсацию. Для полимерных труб это обязательная проверка: без неё трубы выгибаются, шумят и рвут крепления.",
+        sel("Материал трубы", "ex-m", [(a, n) for _, n, a in mats], wide=True) + f("Длина прямого участка", "ex-l", "10", "м")
+        + f("Температура теплоносителя", "ex-tw", "70", "°С") + f("Температура при монтаже", "ex-tm", "15", "°С") + f("Наружный диаметр трубы", "ex-d", "25", "мм"),
+        out("Результат", kv("Перепад температур", "ex-dt") + kv("Удлинение", "ex-dl") + kv("Плечо компенсации, ориентир", "ex-arm"), "ex-verdict"),
+        "ΔL = α · L · ΔT<br>α — коэффициент линейного расширения, мм/(м·К); плечо Г-образного участка L ≈ 30 · √(d · ΔL) (для полимерных труб, ориентир)",
+    )
+    from art_heat import article
+    p8 = ('<section class="e-panel" id="overview" data-panel="overview"><div class="e-sech"><small>08</small><h2>Современные системы отопления</h2></div>'
+          '<p class="e-lead2">Практикум для заказчика: тенденции, материалы, схемы, монтаж и типичные ошибки. Расчёты из других вкладок подставляйте в свой проект.</p>'
+          + article() + '</section>')
+    subs = [("hloss", "Теплопотери"), ("radiators", "Радиаторы"), ("hpipes", "Трубы"), ("floor", "Тёплый пол"), ("expansion", "Расширительный бак"), ("cost", "Стоимость тепла"), ("expand", "Удлинение труб"), ("overview", "Современные системы")]
     return _page("heat", "Справочники · Отопление", "Отопление: расчёты",
-                 "Теплопотери помещения, радиаторы, диаметр труб, тёплый пол и расширительный бак. Результат теплопотерь переносится в остальные расчёты.",
-                 "heat", subs, [p1, p2, p3, p4, p5],
+                 "Теплопотери помещения, радиаторы, диаметр труб, тёплый пол, расширительный бак, стоимость тепла и статья о современных системах отопления.",
+                 "heat", subs, [p1, p2, p3, p4, p5, p6, p7, p8],
                  BASIS_COMMON + " Температуры теплоносителя по помещениям, скорости воды по шуму, расстояния установки приборов и пуск тёплого пола — в «Качество работ».")
 
 
@@ -792,16 +828,16 @@ def pattern(name, body):
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + hub())
-    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + ref_hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + elec())
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + hub())
+    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + ref_hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + elec())
     for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent)):
-        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=20">' + fn())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=20">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=20">' + tabs("calc"))
+        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=21">' + fn())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=21">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=21">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
