@@ -16,6 +16,7 @@ body.pg-est main.page,body.pg-calc main.page{max-width:1200px;padding:48px 40px 
 .e-sub a{padding:11px 18px;font-size:15px;font-weight:600;color:var(--muted);text-decoration:none;border:1.5px solid #c6c8cd;background:#fff;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center}
 .e-sub a:hover{border-color:var(--ink);color:var(--ink)}
 .e-sub a.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.e-sub a.art,.e-sub a.art:hover,.e-sub a.art.on{border-color:var(--red)}
 /* хаб */
 .e-sec{display:flex;flex-direction:column;gap:16px}
 .e-sec h2{margin:0;font-size:28px;letter-spacing:-.01em}
