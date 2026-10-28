@@ -324,3 +324,25 @@ a.e-card:hover h3{color:var(--red)}
 .e-barrow.min .fl{background:var(--red)}
 .e-barrow b{font:600 13px var(--mono)}
 @media(max-width:560px){.e-barrow{grid-template-columns:1fr auto}.e-barrow .tr{grid-column:1/-1}}
+/* копирование и сохранение результата */
+.e-xp{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.e-xp .e-btn{flex:1 1 auto;min-width:0}
+.e-xp-s{flex:1 1 100%;font-size:13px;line-height:1.4;color:var(--muted);min-height:18px}
+.e-xp-s.bad{color:var(--red)}
+.e-xp-ta{position:fixed;left:-9999px;top:0;opacity:0}
+[data-xp] > .e-xp{max-width:420px}
+#e-print{display:none}
+@media print{
+  body.e-printing > *:not(#e-print){display:none!important}
+  body.e-printing #e-print{display:block;padding:0;color:#1d1f23;background:#fff;font:13px/1.45 var(--sans)}
+  #e-print .xp-brand{font:600 12px var(--mono);color:#e3000f;margin-bottom:6px}
+  #e-print h1{font-size:22px;margin:0 0 4px}
+  #e-print h2{font-size:15px;margin:18px 0 6px;border-bottom:2px solid #1d1f23;padding-bottom:3px}
+  #e-print .xp-meta{color:#4a4d55;margin:0 0 8px}
+  #e-print table{width:100%;border-collapse:collapse}
+  #e-print td,#e-print th{border-bottom:1px solid #c6c8cd;padding:5px 6px;text-align:left;vertical-align:top}
+  #e-print td.v{text-align:right;font-family:var(--mono);white-space:nowrap}
+  #e-print th{font-size:13px;background:#f6f6f7}
+  #e-print .xp-verdict{margin:12px 0;padding:8px 10px;border:1.5px solid #1d1f23}
+  #e-print .xp-note{margin-top:16px;color:#4a4d55;font-size:12px}
+}

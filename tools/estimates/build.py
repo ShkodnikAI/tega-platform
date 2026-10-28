@@ -434,7 +434,7 @@ def elec():
         + '<div class="e-elec" id="e-elec">' + p7 + p1 + p3 + p4 + p5 + p5a + p6 + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Калькуляторы дают ориентир для сметы и для разговора с электриком. Они не заменяют проект электроснабжения, который выполняет проектировщик по нормам ТКП 339 и серии IEC 60364. Допустимые токи, пороги срабатывания, нормы освещённости (гигиенический норматив, постановление Минздрава № 82 от 28.06.2012) и коэффициенты перед публикацией проверит технический специалист.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/elec.js?v=4"></script><script src="/static/apparaty.js?v=3"></script>'
+        + '<script src="/static/elec.js?v=4"></script><script src="/static/apparaty.js?v=3"></script><script src="/static/export.js?v=1"></script>'
     )
 
 
@@ -499,7 +499,7 @@ def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
         + f'<div class="e-basis"><b>Важно знать</b><p>{basis}</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/inzh.js?v=9"></script>'
+        + '<script src="/static/inzh.js?v=9"></script><script src="/static/export.js?v=1"></script>'
     )
 
 
@@ -871,11 +871,11 @@ def solar():
             "sg-verdict"),
         "E = Σ (P · G<sub>плоскости</sub> · КПД температуры и потерь), по часам типового дня каждого месяца<br>Экономия = Σ (нагрузка − закупка из сети) · тариф зоны + излишки · цена выкупа",
     )
-    p2 = ('<section class="e-panel" id="sgyear" data-panel="sgyear"><div class="e-sech"><small>02</small><h2>Год по месяцам</h2></div>'
+    p2 = ('<section class="e-panel" id="sgyear" data-panel="sgyear" data-xp="1"><div class="e-sech"><small>02</small><h2>Год по месяцам</h2></div>'
           '<p class="e-lead2">Выработка, потребление и избыток по месяцам. Тёмная часть столбца идёт на своё потребление, красная уходит в сеть.</p>'
           '<figure class="e-fig"><div id="sg-ch-year"></div><figcaption>Выработка по месяцам и потребление дома (серая черта). Зимний провал виден по любой конфигурации.</figcaption></figure>'
           '<div class="e-scroll"><table class="e-tbl" id="sg-tb-year"></table></div></section>')
-    p3 = ('<section class="e-panel" id="sgday" data-panel="sgday"><div class="e-sech"><small>03</small><h2>Типовые сутки</h2></div>'
+    p3 = ('<section class="e-panel" id="sgday" data-panel="sgday" data-xp="1"><div class="e-sech"><small>03</small><h2>Типовые сутки</h2></div>'
           '<p class="e-lead2">Как за сутки выработка, нагрузка и заряд батареи совпадают по часам. Выберите месяц.</p>'
           + sel("Месяц", "sg-day-m", [(str(i), n) for i, n in enumerate(["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"])]).replace('<option value="0" selected>', '<option value="0">').replace('<option value="6">', '<option value="6" selected>')
           + '<figure class="e-fig"><div id="sg-ch-day"></div><figcaption id="sg-day-sum"></figcaption></figure></section>')
@@ -885,11 +885,11 @@ def solar():
         ("spd_dc", "УЗИП DC, USD"), ("spd_ac", "УЗИП AC, USD"), ("dcsw", "DC-разъединитель, USD"), ("acbrk", "Автомат AC, USD"), ("rcd", "УЗО, USD"),
         ("eps_box", "Щит резерва, USD"), ("meter", "Счётчик двунаправленный, USD"), ("logger", "Логгер, USD"), ("ground", "Заземление, USD"), ("ac_cab_m", "Кабель AC (база 6 мм²), USD за м"),
         ("labor_w", "Монтаж и наладка, USD за Вт"), ("design", "Проект и аудит тени, USD"), ("rate", "Курс, BYN за 1 USD")])
-    p4 = ('<section class="e-panel" id="sgbom" data-panel="sgbom"><div class="e-sech"><small>04</small><h2>Оборудование</h2></div>'
+    p4 = ('<section class="e-panel" id="sgbom" data-panel="sgbom" data-xp="1"><div class="e-sech"><small>04</small><h2>Оборудование</h2></div>'
           '<p class="e-lead2">Подбор инвертора, схема строк с поправкой на мороз, спецификация и защиты. Цены розничные, их можно заменить на свои.</p>'
           '<div id="sg-bom"></div>'
           '<details class="e-note"><summary><b>Цены и курс</b></summary>' + _rows(pricegrid) + '<button class="e-btn sm" id="sg-pr-reset" type="button">Вернуть цены по умолчанию</button></details></section>')
-    p5 = ('<section class="e-panel" id="sgpay" data-panel="sgpay"><div class="e-sech"><small>05</small><h2>Окупаемость и подбор мощности</h2></div>'
+    p5 = ('<section class="e-panel" id="sgpay" data-panel="sgpay" data-xp="1"><div class="e-sech"><small>05</small><h2>Окупаемость и подбор мощности</h2></div>'
           '<p class="e-lead2">Накопленный поток денег за 25 лет, чувствительность к тарифу и затратам, перебор мощности и батареи.</p>'
           '<figure class="e-fig"><div id="sg-ch-cash"></div><figcaption id="sg-cash-note"></figcaption></figure>'
           '<h4 class="e-h4">Простая окупаемость при разном росте тарифа и затратах</h4><div class="e-scroll"><table class="e-tbl" id="sg-tb-sens"></table></div>'
@@ -908,22 +908,22 @@ def solar():
           'тарифы для населения с 01.03.2026 по постановлению Совмина № 93. Цена выкупа излишков и лимит мощности микрогенерации зависят от энергоснабжающей организации: проверьте их перед решением. '
           'Цены оборудования розничные ориентировочные. Окончательные значения подтверждает проект с аудитом тени, расчётом снеговой и ветровой нагрузки.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/solar-model.js?v=1"></script><script src="/static/solar.js?v=1"></script>'
+        + '<script src="/static/solar-model.js?v=1"></script><script src="/static/solar.js?v=1"></script><script src="/static/export.js?v=1"></script>'
     )
 
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + hub())
-    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + ref_hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + elec())
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + hub())
+    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + ref_hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + elec())
     for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar)):
-        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=24">' + fn())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=24">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=24">' + tabs("calc"))
+        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=25">' + fn())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=25">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
