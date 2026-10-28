@@ -27,6 +27,7 @@ REF_TABS = [
     ("vent", "/spravochniki/ventilyaciya", "est_tab_vent"),
     ("solar", "/spravochniki/solnechnaya-generaciya", "est_tab_solar"),
     ("cond", "/spravochniki/konditsionirovanie", "est_tab_cond"),
+    ("smart", "/spravochniki/umnyj-dom", "est_tab_smart"),
 ]
 
 
@@ -100,6 +101,7 @@ def ref_hub():
             _card("Вентиляция", "Воздухообмен, воздуховоды, решётки, мощность калорифера с рекуператором.", "/spravochniki/ventilyaciya", "Калькуляторы готовы"),
             _card("Солнечные системы", "Выработка по часам для Беларуси, кровля и забор, инвертор и батарея, спецификация и окупаемость.", "/spravochniki/solnechnaya-generaciya", "Калькулятор готов"),
             _card("Кондиционирование", "Мощность по часам жаркого дня, расход электричества, трасса и шум наружного блока, статья о выборе.", "/spravochniki/konditsionirovanie", "Калькулятор готов"),
+            _card("Умный дом", "Архитектуры и протоколы, управление, монтаж, чек-лист приёмки и типичные ошибки.", "/spravochniki/umnyj-dom", "Статья"),
         ])
     )
     more = (
@@ -991,6 +993,18 @@ def cond():
     )
 
 
+def smart():
+    from art_smart import article
+    return (
+        head("Справочники · Умный дом", "Умный дом без мифов",
+             "Архитектуры и протоколы, управление, монтаж и приёмка: что выбрать и как не получить дорогую игрушку.")
+        + RU_ONLY + tabs("smart")
+        + '<div class="e-ref"><div class="e-sech"><small>01</small><h2>Системы, протоколы, цифры</h2></div>' + article() + '</div>'
+        + '<div class="e-basis"><b>Важно знать</b><p>Это справочная статья, а не проект. Цифры отклика и автономности это практика и паспорта производителей, они зависят от оборудования. '
+          'Пожарная сигнализация, оповещение и электроустановка проектируются отдельно по действующим нормам.</p></div>'
+    )
+
+
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + hub())
@@ -998,7 +1012,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=25">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + forms())
