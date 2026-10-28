@@ -43,6 +43,7 @@ pattern DictRu(_x: String) -> Map {
   est_tab_heat: "Отопление",
   est_tab_vent: "Вентиляция",
   est_tab_solar: "Солнечные системы",
+  est_tab_cond: "Кондиционирование",
   est_tab_forms: "Формы отчётов",
   est_ru_only: "Материалы раздела пока только на русском языке.",
   calc_h1: "Расчёт смет",
@@ -144,6 +145,7 @@ pattern DictBe(_x: String) -> Map {
   est_tab_heat: "Ацяпленне",
   est_tab_vent: "Вентыляцыя",
   est_tab_solar: "Сонечныя сістэмы",
+  est_tab_cond: "Кандыцыянаванне",
   est_tab_forms: "Формы справаздач",
   est_ru_only: "Матэрыялы раздзела пакуль толькі на рускай мове.",
   calc_h1: "Расчёт кошту",
@@ -245,6 +247,7 @@ pattern DictEn(_x: String) -> Map {
   est_tab_heat: "Heating",
   est_tab_vent: "Ventilation",
   est_tab_solar: "Solar systems",
+  est_tab_cond: "Air conditioning",
   est_tab_forms: "Report forms",
   est_ru_only: "The pages of this section are in Russian only for now.",
   calc_h1: "Estimate calculations",
@@ -700,6 +703,11 @@ pattern EstSolarPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/solnechnaya-generaciya", "est", d.est_tab_solar, true, est.EstSolarTpl(""))
 }
 
+pattern EstCondPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/konditsionirovanie", "est", d.est_tab_cond, true, est.EstCondTpl(""))
+}
+
 pattern EstFinPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/otdelka", "est", d.est_tab_fin, true, est.EstFinTpl(""))
@@ -737,6 +745,7 @@ server {
   route "/spravochniki/otoplenie" method=GET { return EstHeatPage("ru") }
   route "/spravochniki/ventilyaciya" method=GET { return EstVentPage("ru") }
   route "/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("ru") }
+  route "/spravochniki/konditsionirovanie" method=GET { return EstCondPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
@@ -749,6 +758,7 @@ server {
   route "/be/spravochniki/otoplenie" method=GET { return EstHeatPage("be") }
   route "/be/spravochniki/ventilyaciya" method=GET { return EstVentPage("be") }
   route "/be/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("be") }
+  route "/be/spravochniki/konditsionirovanie" method=GET { return EstCondPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
@@ -761,6 +771,7 @@ server {
   route "/en/spravochniki/otoplenie" method=GET { return EstHeatPage("en") }
   route "/en/spravochniki/ventilyaciya" method=GET { return EstVentPage("en") }
   route "/en/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("en") }
+  route "/en/spravochniki/konditsionirovanie" method=GET { return EstCondPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
