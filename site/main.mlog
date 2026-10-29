@@ -47,6 +47,7 @@ pattern DictRu(_x: String) -> Map {
   est_tab_smart: "Умный дом",
   est_tab_price: "Цена работ",
   est_tab_pond: "Пруды",
+  est_tab_pool: "Бассейны",
   est_tab_forms: "Формы отчётов",
   est_ru_only: "Материалы раздела пока только на русском языке.",
   calc_h1: "Расчёт смет",
@@ -152,6 +153,7 @@ pattern DictBe(_x: String) -> Map {
   est_tab_smart: "Разумны дом",
   est_tab_price: "Кошт работ",
   est_tab_pond: "Сажалкі",
+  est_tab_pool: "Басейны",
   est_tab_forms: "Формы справаздач",
   est_ru_only: "Матэрыялы раздзела пакуль толькі на рускай мове.",
   calc_h1: "Расчёт кошту",
@@ -257,6 +259,7 @@ pattern DictEn(_x: String) -> Map {
   est_tab_smart: "Smart home",
   est_tab_price: "Work pricing",
   est_tab_pond: "Ponds",
+  est_tab_pool: "Pools",
   est_tab_forms: "Report forms",
   est_ru_only: "The pages of this section are in Russian only for now.",
   calc_h1: "Estimate calculations",
@@ -722,6 +725,11 @@ pattern EstSmartPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/umnyj-dom", "est", d.est_tab_smart, true, est.EstSmartTpl(""))
 }
 
+pattern EstPoolPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/basseyny", "est", d.est_tab_pool, true, est.EstPoolTpl(""))
+}
+
 pattern EstPondPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/spravochniki/prudy", "est", d.est_tab_pond, true, est.EstPondTpl(""))
@@ -773,6 +781,7 @@ server {
   route "/spravochniki/umnyj-dom" method=GET { return EstSmartPage("ru") }
   route "/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("ru") }
   route "/spravochniki/prudy" method=GET { return EstPondPage("ru") }
+  route "/spravochniki/basseyny" method=GET { return EstPoolPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
@@ -789,6 +798,7 @@ server {
   route "/be/spravochniki/umnyj-dom" method=GET { return EstSmartPage("be") }
   route "/be/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("be") }
   route "/be/spravochniki/prudy" method=GET { return EstPondPage("be") }
+  route "/be/spravochniki/basseyny" method=GET { return EstPoolPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
@@ -805,6 +815,7 @@ server {
   route "/en/spravochniki/umnyj-dom" method=GET { return EstSmartPage("en") }
   route "/en/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("en") }
   route "/en/spravochniki/prudy" method=GET { return EstPondPage("en") }
+  route "/en/spravochniki/basseyny" method=GET { return EstPoolPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
