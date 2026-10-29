@@ -50,5 +50,7 @@ jobs:
         run: node tests/unit/bath-model.test.js
       - name: wind model tests
         run: node tests/unit/wind-model.test.js
+      - name: roof model tests
+        run: node tests/unit/roof-model.test.js
       - name: ai request tests
         run: node tests/unit/aireq.test.js

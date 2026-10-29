@@ -50,6 +50,7 @@ pattern DictRu(_x: String) -> Map {
   est_tab_pool: "Бассейны",
   est_tab_bath: "Бани и сауны",
   est_tab_wind: "Ветрогенераторы",
+  est_tab_roof: "Кровли",
   est_tab_forms: "Формы отчётов",
   est_ru_only: "Материалы раздела пока только на русском языке.",
   calc_h1: "Расчёт смет",
@@ -158,6 +159,7 @@ pattern DictBe(_x: String) -> Map {
   est_tab_pool: "Басейны",
   est_tab_bath: "Лазні і сауны",
   est_tab_wind: "Ветрагенератары",
+  est_tab_roof: "Дахі",
   est_tab_forms: "Формы справаздач",
   est_ru_only: "Матэрыялы раздзела пакуль толькі на рускай мове.",
   calc_h1: "Расчёт кошту",
@@ -266,6 +268,7 @@ pattern DictEn(_x: String) -> Map {
   est_tab_pool: "Pools",
   est_tab_bath: "Baths and saunas",
   est_tab_wind: "Wind turbines",
+  est_tab_roof: "Roofs",
   est_tab_forms: "Report forms",
   est_ru_only: "The pages of this section are in Russian only for now.",
   calc_h1: "Estimate calculations",
@@ -747,6 +750,11 @@ pattern EstWindPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/vetrogeneratory", "est", d.est_tab_wind, true, est.EstWindTpl(""))
 }
 
+pattern EstRoofPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/krovli", "est", d.est_tab_roof, true, est.EstRoofTpl(""))
+}
+
 pattern EstPondPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/spravochniki/prudy", "est", d.est_tab_pond, true, est.EstPondTpl(""))
@@ -801,6 +809,7 @@ server {
   route "/spravochniki/basseyny" method=GET { return EstPoolPage("ru") }
   route "/spravochniki/bani" method=GET { return EstBathPage("ru") }
   route "/spravochniki/vetrogeneratory" method=GET { return EstWindPage("ru") }
+  route "/spravochniki/krovli" method=GET { return EstRoofPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
@@ -820,6 +829,7 @@ server {
   route "/be/spravochniki/basseyny" method=GET { return EstPoolPage("be") }
   route "/be/spravochniki/bani" method=GET { return EstBathPage("be") }
   route "/be/spravochniki/vetrogeneratory" method=GET { return EstWindPage("be") }
+  route "/be/spravochniki/krovli" method=GET { return EstRoofPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
@@ -839,6 +849,7 @@ server {
   route "/en/spravochniki/basseyny" method=GET { return EstPoolPage("en") }
   route "/en/spravochniki/bani" method=GET { return EstBathPage("en") }
   route "/en/spravochniki/vetrogeneratory" method=GET { return EstWindPage("en") }
+  route "/en/spravochniki/krovli" method=GET { return EstRoofPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }

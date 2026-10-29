@@ -6,6 +6,7 @@
 В HTML нет inline-стилей и скриптов: CSP сайта (default-src 'self') их не пропустит.
 """
 import json as _json
+import art_roof_data as D
 import pathlib, re, sys
 
 HERE = pathlib.Path(__file__).parent
@@ -34,6 +35,7 @@ REF_TABS = [
     ("pool", "/spravochniki/basseyny", "est_tab_pool"),
     ("bath", "/spravochniki/bani", "est_tab_bath"),
     ("wind", "/spravochniki/vetrogeneratory", "est_tab_wind"),
+    ("roof", "/spravochniki/krovli", "est_tab_roof"),
 ]
 
 
@@ -55,7 +57,7 @@ def head(eyebrow, h1, lead):
 
 
 # вкладки со статьями обводятся красным контуром
-ART_IDS = {"overview", "pipesart", "guide", "sgart", "sewart", "acart", "pdart", "pbart", "btart", "wnart"}
+ART_IDS = {"overview", "pipesart", "guide", "sgart", "sewart", "acart", "pdart", "pbart", "btart", "wnart", "rfart"}
 ART_CLS = ' class="art"'
 RU_ONLY = '{{#if not_ru}}<p class="e-ruonly">{{ t.est_ru_only }}</p>{{/if}}'
 
@@ -112,6 +114,7 @@ def ref_hub():
             _card("Бассейны и биопулы", "Калькулятор: оборот, насос, фильтр, нагрев и энергия сезона, обеззараживание, биопул. Статья о чашах, воде и зиме.", "/spravochniki/basseyny", "Калькулятор готов"),
             _card("Бани и сауны", "Калькулятор парной: печь или парогенератор, электрика, вентиляция, погонаж материалов, хамам, камни и энергия. Статья о режимах, пироге стен и безопасности.", "/spravochniki/bani", "Калькулятор готов"),
             _card("Ветрогенераторы", "Калькулятор: ветер на высоте ступицы, годовая выработка по кривой мощности, мачта и зоны, электрика, АКБ и экономика. Статья с поправками.", "/spravochniki/vetrogeneratory", "Калькулятор"),
+            _card("Кровли", "Калькулятор: площадь и уклон, пригодность 19 покрытий от плоских до керамики и солнечных, нагрузки и стропила, водоотвод, стоимость владения за 50 лет. Статья с инфографикой.", "/spravochniki/krovli", "Калькулятор"),
             _card("Пруды и биопруды", "Калькулятор: объём, оборот, насос, биофильтр, плёнка, растения и электричество. Статья об экосистеме и зимовке.", "/spravochniki/prudy", "Калькулятор готов"),
         ])
     )
@@ -1412,14 +1415,97 @@ def wind():
     )
 
 
+def roof():
+    def opt(items, sel_id=None):
+        return "".join(f'<option value="{v}"{" selected" if v == sel_id else ""}>{t}</option>' for v, t in items)
+    groups = {"flat": "Плоские и малоуклонные", "slope": "Скатные", "special": "Особые"}
+    mat_sel = "".join(
+        f'<optgroup label="{gname}">' + opt([(m["id"], m["short"]) for m in D.MATERIALS if m["grp"] == g], "metal_tile") + "</optgroup>" for g, gname in groups.items())
+    p1 = panel(
+        "rfgeo", "01", "Форма и уклон",
+        "Размеры дома, форма кровли и уклон: расчёт даст площадь покрытия, длины карниза, конька и ендов. Диаграмма покажет, какие покрытия подходят вашему уклону.",
+        sel("Готовый пример", "rf-preset", [("", "Свои данные"), ("house", "Дом 10×8 м, двускатная, металлочерепица"), ("soft", "Дом 11×9 м, вальма, мягкая черепица"), ("garage", "Гараж 6×4 м, односкатная, профнастил"), ("flat", "Плоская 8×6 м, мембрана")], wide=True)
+        + sel("Форма кровли", "rf-form", [("gable", "Двускатная"), ("hip", "Вальмовая (четырёхскатная)"), ("mono", "Односкатная"), ("flat", "Плоская")], wide=True)
+        + f("Длина дома (вдоль конька)", "rf-L", "10", "м") + f("Ширина дома", "rf-W", "8", "м") + f("Свес карниза", "rf-ov", "0,5", "м")
+        + f("Уклон кровли", "rf-a", "30", "°") + f("Длина ендов", "rf-vl", "0", "м") + f("Высота карниза над землёй", "rf-eh", "3", "м"),
+        out("Паспорт кровли", kv("Площадь", "rf-g1") + kv("Длины", "rf-g2") + kv("Уклон", "rf-g3") + kv("Скат и подъём", "rf-g4"), "rf-verdict"),
+        "S<sub>двускатная</sub> = 2 · (W/2 + свес) / cos α · (L + 2 · свес); S<sub>вальма, односкатная</sub> = (L + 2 · свес) · (W + 2 · свес) / cos α<br>Уклон % = tg α · 100",
+    )
+    p1 = p1[:-len("</section>")] + '<figure class="e-fig"><div id="rf-ch"></div><figcaption id="rf-chn"></figcaption></figure></section>'
+    p2 = panel(
+        "rfmat", "02", "Покрытие и количества",
+        "Выберите покрытие: калькулятор проверит уклон, покажет массу, срок службы и количества с запасом на раскрой.",
+        '<div class="e-f wide"><label for="rf-mat">Покрытие</label><div class="e-in"><select id="rf-mat">' + mat_sel + '</select></div></div>'
+        + f("Толщина утеплителя (0, если не утепляется)", "rf-ins", "200", "мм"),
+        out("Результат", kv("Покрытие", "rf-m1") + kv("Масса, срок, обслуживание", "rf-m2") + kv("Оценки практики", "rf-m3") + kv("Количества", "rf-m4"), "rf-v1"),
+        "Покрытие = S · запас (по материалу); обрешётка = S / шаг; контробрешётка = S / шаг стропил · 1,05; мембрана = S · 1,15",
+    )
+    p2 = p2[:-len("</section>")] + '<h4 class="e-h4">Ведомость материалов</h4><div id="rf-qt"></div></section>'
+    p3 = panel(
+        "rfload", "03", "Нагрузки и стропила",
+        "Снег по схеме Еврокода и формуле СН 2.01.04-2025, постоянная нагрузка и предварительная проверка сечения стропила по изгибу и прогибу. Окончательно считает проектировщик.",
+        f("Снеговая нагрузка на грунте sₖ", "rf-sk", "1,2", "кПа") + f("Коэффициент экспозиции Cₑ", "rf-ce", "1,0", "") + f("Термический коэффициент Cₜ", "rf-ct", "1,1", "")
+        + f("Прочая постоянная нагрузка (стропила, утеплитель, потолок)", "rf-go", "0,45", "кН/м²", wide=True)
+        + f("Пролёт стропила в плане", "rf-sp", "4", "м") + f("Шаг стропил", "rf-st", "0,6", "м") + f("Ширина доски", "rf-b", "50", "мм") + f("Высота доски", "rf-h", "200", "мм")
+        + sel("Класс прочности древесины", "rf-gr", [("C24", "C24"), ("C18", "C18"), ("C16", "C16"), ("C27", "C27"), ("C30", "C30")]),
+        out("Результат", kv("Снег", "rf-l1") + kv("Постоянная нагрузка", "rf-l2") + kv("Нагрузка на стропило", "rf-l3") + kv("Использование сечения", "rf-l4") + kv("Нужная высота", "rf-l5"), "rf-v2"),
+        "S = μ · Cₑ · Cₜ · sₖ; μ = 0,8 при α ≤ 30°, 0,8 · (60 − α) / 30 до 60°<br>q<sub>d</sub> = (1,35 · g / cos α + 1,5 · S) · шаг; M = q<sub>d</sub> · l² / 8; f<sub>m,d</sub> = 0,9 · f<sub>m,k</sub> / 1,3; прогиб ≤ l / 200",
+    )
+    p4 = panel(
+        "rfwater", "04", "Водоотвод и снег на кровле",
+        "Число водосточных труб, длина жёлоба, снегозадержатели и воронки плоской кровли.",
+        sel("Водосточная система", "rf-gut", [("s", "Жёлоб 125, труба 90 (около 70 м² на трубу)"), ("m", "Жёлоб 150, труба 110 (около 130 м² на трубу)")], wide=True),
+        out("Результат", kv("Трубы и воронки", "rf-w1") + kv("Жёлоб и трубы", "rf-w2") + kv("Снегозадержатели", "rf-w3") + kv("Правила", "rf-w4"), "rf-v3"),
+        "Труб = max(числа карнизов, S<sub>плана</sub> / площадь на трубу, длина карниза / 12 м); воронок = max(2, S<sub>плана</sub> / 150 м²)",
+    )
+    pk = ''.join(f(m["short"] + ", с монтажом, за м²", "rf-p-" + m["id"], "", "BYN") for m in D.MATERIALS)
+    p5 = panel(
+        "rfcost", "05", "Стоимость владения",
+        "Цен в калькуляторе нет: введите по вашим предложениям цену покрытия с монтажом за м². Подготовка и демонтаж общие. Расчёт покажет стоимость в год за выбранный горизонт по всем покрытиям.",
+        f("Горизонт сравнения", "rf-hor", "50", "лет") + sel("Срок службы по оценке", "rf-life", [("mid", "Средний"), ("lo", "Нижний (осторожно)"), ("hi", "Верхний")])
+        + f("Подготовка основания (общая), за м²", "rf-pb", "", "BYN") + f("Демонтаж старого покрытия при замене, за м²", "rf-pd", "", "BYN")
+        + '<p class="e-note"><b>Цена покрытия с монтажом, за м²</b></p>' + pk + '<button class="e-btn sm" id="rf-p-reset" type="button">Очистить цены</button>',
+        out("Выбранное покрытие", kv("Итого за горизонт", "rf-c1") + kv("В год", "rf-c2") + kv("Сроки и замены", "rf-c3") + kv("Из чего состоит", "rf-c4"), "rf-v4"),
+        "Итого = (покрытие + основание) · S + замены · (покрытие + демонтаж) · S + обслуживание % · покрытие · S · лет − остаток срока · покрытие · S",
+    )
+    p5 = p5.replace('data-panel="rfcost">', 'data-panel="rfcost" data-xtbl="1">', 1)
+    p5 = p5[:-len("</section>")] + '<h4 class="e-h4">Сравнение всех покрытий по вашим ценам</h4><div id="rf-ct"></div></section>'
+    p6 = panel(
+        "rfsol", "06", "Солнечные модули на кровле",
+        "Сколько панелей поместится на выбранный скат и сколько энергии они дадут. Станцию с батареей и окупаемостью считайте в калькуляторе солнечных систем.",
+        sel("Ориентация ската с панелями", "rf-az", [("s", "Юг"), ("d", "Юго-восток или юго-запад"), ("ew", "Восток или запад"), ("n", "Север")], wide=True) + f("Доля пригодной площади ската под панели", "rf-pv", "0", "%"),
+        out("Результат", kv("Площадь и мощность", "rf-s1") + kv("Выработка", "rf-s2") + kv("Нагрузка", "rf-s3") + kv("Срок кровли", "rf-s4"), "rf-v5"),
+        "P = S<sub>пригодная</sub> / 5,8 м² на кВт; E = P · 1030 · k<sub>уклона</sub> · k<sub>ориентации</sub>; пригодная = 70 % площади ската (плоская: 45 %)",
+    )
+    from art_roof import article
+    p8 = ('<section class="e-panel" id="rfart" data-panel="rfart"><div class="e-sech"><small>08</small><h2>Кровли: форма, покрытия, нагрузки, стоимость владения</h2></div>'
+          '<p class="e-lead2">Уклон и пирог, плоские и скатные покрытия от наплавляемых до керамики и солнечных, сравнение по семи признакам, сроки, снег, водоотвод, стоимость владения и типичные ошибки.</p>' + article() + '</section>')
+    p7 = ai_panel("rfai", "07")
+    subs = [("rfgeo", "Форма и уклон"), ("rfmat", "Покрытие"), ("rfload", "Нагрузки"), ("rfwater", "Водоотвод"), ("rfcost", "Стоимость"), ("rfsol", "Солнце"), ("rfai", "Запрос для ИИ"), ("rfart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6, p7, p8])
+    sub = '<div class="e-sub" role="tablist" aria-label="Кровли">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
+    return (
+        head("Справочники · Кровли", "Кровли: расчёт и статья",
+             "Площадь и уклон, пригодность покрытия, нагрузки и стропила, водоотвод, стоимость владения за весь срок и солнечные модули.")
+        + RU_ONLY + tabs("roof") + sub
+        + '<div class="e-elec" id="e-rf">' + "".join(_rows(x) if x in (p1, p2, p3, p4, p5, p6) else x for x in pl) + "</div>"
+        + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Уклоны, массы, сроки службы и ценовые классы покрытий это ориентиры практики, точные пределы даёт паспорт системы. '
+          'Снег для вашего района берите из СН 2.01.04-2025, стропила, узлы и крепёж окончательно считает проектировщик, порядок согласования работ уточняйте в местной администрации. Цены в калькулятор вы вводите сами.</p></div>'
+        + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
+        + '<script src="/static/roof-data.js?v=1"></script><script src="/static/roof-model.js?v=1"></script><script src="/static/aireq.js?v=3"></script><script src="/static/roof.js?v=2"></script><script src="/static/export.js?v=2"></script>'
+    )
+
+
 def main():
+    import art_roof_data
+    art_roof_data.write_js(ROOT / "static" / "roof-data.js")
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + hub())
     src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + ref_hub())
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind), ("EstRoofTpl", roof)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=26">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
