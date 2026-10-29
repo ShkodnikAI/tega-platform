@@ -346,3 +346,30 @@ a.e-card:hover h3{color:var(--red)}
   #e-print .xp-verdict{margin:12px 0;padding:8px 10px;border:1.5px solid #1d1f23}
   #e-print .xp-note{margin-top:16px;color:#4a4d55;font-size:12px}
 }
+
+/* Запрос для ИИ-агента */
+.ai{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;margin-top:20px}
+.ai>.ai-step,.ai>.ai-tiers,.ai>.ai-crit,.ai>.e-f.wide,.ai>.ai-card{grid-column:1/-1}
+.ai-step{display:flex;align-items:center;gap:12px;margin-top:12px;border-top:1.5px solid var(--ink);padding-top:16px}
+.ai-step span{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--ink);color:#fff;font:600 15px var(--mono)}
+.ai-step h3{margin:0;font-size:20px}
+.ai-tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ai-tier{position:relative;display:block;border:1.5px solid var(--ink);background:#fff;cursor:pointer}
+.ai-tier input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.ai-tier span{display:flex;flex-direction:column;gap:6px;padding:16px;min-height:96px}
+.ai-tier b{font-size:19px}
+.ai-tier small{font-size:14px;color:var(--muted);line-height:1.4}
+.ai-tier input:checked+span{background:var(--ink);color:#fff}
+.ai-tier input:checked+span small{color:#dcdde0}
+.ai-tier input:checked+span b:after{content:" ✓";color:var(--red)}
+.ai-tier input:focus-visible+span{outline:3px solid var(--red);outline-offset:2px}
+.ai-crit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}
+.ai textarea{width:100%;box-sizing:border-box;padding:12px;font:16px var(--sans);border:1.5px solid var(--ink);background:#fff;resize:vertical}
+.ai-card{border:1.5px solid var(--ink);background:#fff}
+.ai-bar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;background:var(--ink);color:#fff}
+.ai-bar span{font:14px var(--mono);color:#dcdde0}
+.ai-out{margin:0;padding:16px;max-height:480px;overflow:auto;white-space:pre-wrap;word-break:break-word;font:14px/1.55 var(--mono);background:var(--soft)}
+.ai-act{display:flex;flex-wrap:wrap;gap:12px;padding:16px}
+.ai-act .e-btn{margin-top:0}
+.ai-card .e-note{margin:0;padding:0 16px 16px}
+@media(max-width:700px){.ai,.ai-tiers,.ai-crit{grid-template-columns:1fr}.ai-act .e-btn{width:100%}}
