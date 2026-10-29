@@ -261,7 +261,7 @@
       var panel = out.closest('.e-panel, .ap-box');
       var calc = out.closest('.e-calc');
       if (!panel || !calc) return;
-      var ctx = { panel: panel, out: out, form: calc.querySelector('.e-form'), extra: false };
+      var ctx = { panel: panel, out: out, form: calc.querySelector('.e-form'), extra: panel.hasAttribute('data-xtbl') };
       out.parentNode.insertBefore(toolbar(ctx), out.nextSibling);
     });
     Array.prototype.forEach.call(document.querySelectorAll('[data-xp]'), function (panel) {
