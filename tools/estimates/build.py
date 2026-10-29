@@ -29,6 +29,7 @@ REF_TABS = [
     ("cond", "/spravochniki/konditsionirovanie", "est_tab_cond"),
     ("smart", "/spravochniki/umnyj-dom", "est_tab_smart"),
     ("price", "/spravochniki/cenoobrazovanie", "est_tab_price"),
+    ("pond", "/spravochniki/prudy", "est_tab_pond"),
 ]
 
 
@@ -104,6 +105,7 @@ def ref_hub():
             _card("Солнечные системы", "Выработка по часам для Беларуси, кровля и забор, инвертор и батарея, спецификация и окупаемость.", "/spravochniki/solnechnaya-generaciya", "Калькулятор готов"),
             _card("Кондиционирование", "Мощность по часам жаркого дня, расход электричества, трасса и шум наружного блока, статья о выборе.", "/spravochniki/konditsionirovanie", "Калькулятор готов"),
             _card("Умный дом", "Архитектуры и протоколы, управление, монтаж, чек-лист приёмки и типичные ошибки.", "/spravochniki/umnyj-dom", "Статья"),
+            _card("Пруды и биопруды", "Экосистема и азотный цикл, профиль чаши, насос и биофильтр по обороту, растения, зимовка и нормы для участка.", "/spravochniki/prudy", "Статья"),
         ])
     )
     more = (
@@ -1019,6 +1021,18 @@ def price():
     )
 
 
+def pond():
+    from art_pond import article
+    return (
+        head("Справочники · Пруды", "Пруды и биопруды",
+             "Экосистема и азотный цикл, профиль чаши, оборудование по обороту, растения, монтаж и зимовка, нормы для участка.")
+        + RU_ONLY + tabs("pond")
+        + '<div class="e-ref"><div class="e-sech"><small>01</small><h2>Экосистема, материалы, расчёт</h2></div>' + article() + '</div>'
+        + '<div class="e-basis"><b>Важно знать</b><p>Это справочная статья, а не проект. Размеры, оборот воды и плотность посадки это ориентиры практики. '
+          'Допустимые размеры пруда и требования к воде для купания проверяйте по тексту действующих актов и в местной администрации до начала работ.</p></div>'
+    )
+
+
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + hub())
@@ -1026,7 +1040,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=25">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + forms())
