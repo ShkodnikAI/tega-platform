@@ -5,7 +5,7 @@
 Текст страниц живёт здесь (и в volumes.html), стили в static/est.css, расчёты в static/elec.js.
 В HTML нет inline-стилей и скриптов: CSP сайта (default-src 'self') их не пропустит.
 """
-import pathlib, sys
+import pathlib, re, sys
 
 HERE = pathlib.Path(__file__).parent
 ROOT = HERE.parent.parent
@@ -501,7 +501,24 @@ def _rows(html):
     return pat.sub(lambda m: '<div class="e-row">' + m.group(0) + "</div>", html)
 
 
+def art_first(subs, panels):
+    """Статья идёт первой: сначала человек изучает вопрос, потом считает. Нумерация панелей пересчитывается."""
+    def pid(h):
+        m = re.search(r'data-panel="(\w+)"', h)
+        return m.group(1) if m else ""
+    order = sorted(range(len(panels)), key=lambda i: (pid(panels[i]) not in ART_IDS, i))
+    ps = [panels[i] for i in order]
+    n = [0]
+    def num(m):
+        n[0] += 1
+        return "<small>%02d</small>" % n[0]
+    ps = [re.sub(r"<small>\d+</small>", num, h, count=1) for h in ps]
+    ss = sorted(subs, key=lambda kv: (kv[0] not in ART_IDS, subs.index(kv)))
+    return ss, ps
+
+
 def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
+    subs, panels = art_first(list(subs), list(panels))
     sub = '<div class="e-sub" role="tablist" aria-label="' + h1 + '">' + "".join(
         f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
@@ -908,12 +925,13 @@ def solar():
     p6 = ('<section class="e-panel" id="sgart" data-panel="sgart"><div class="e-sech"><small>06</small><h2>Солнечные системы: как выбрать и посчитать</h2></div>'
           '<p class="e-lead2">Кровля, забор, инвертор, накопитель и деньги: что выбрать, где теряется выработка и как не ошибиться с мощностью.</p>' + article() + '</section>')
     subs = [("sgcalc", "Расчёт"), ("sgyear", "Год"), ("sgday", "Сутки"), ("sgbom", "Оборудование"), ("sgpay", "Окупаемость"), ("sgart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6])
     sub = '<div class="e-sub" role="tablist" aria-label="Солнечная генерация">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Солнечная генерация", "Солнечные системы: расчёт под ключ",
              "Выработка для Беларуси по часам, кровля и забор, инвертор и батарея, спецификация и окупаемость на 25 лет.")
         + RU_ONLY + tabs("solar") + sub
-        + '<div class="e-elec" id="e-solar">' + "".join(_rows(x) if x is p1 else x for x in [p1, p2, p3, p4, p5, p6]) + "</div>"
+        + '<div class="e-elec" id="e-solar">' + "".join(_rows(x) if x is p1 else x for x in pl) + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с проектировщиком, а не проект и не коммерческое предложение. Климат взят для Минска (радиация по данным БГУ), типовой год; '
           'тарифы для населения с 01.03.2026 по постановлению Совмина № 93. Цена выкупа излишков и лимит мощности микрогенерации зависят от энергоснабжающей организации: проверьте их перед решением. '
           'Цены оборудования розничные ориентировочные. Окончательные значения подтверждает проект с аудитом тени, расчётом снеговой и ветровой нагрузки.</p></div>'
@@ -985,12 +1003,13 @@ def cond():
     p5 = ('<section class="e-panel" id="acart" data-panel="acart"><div class="e-sech"><small>05</small><h2>Кондиционирование: как выбрать и посчитать</h2></div>'
           '<p class="e-lead2">Мощность, тип блока, трасса, шум и хладагент: что выбрать и где чаще всего ошибаются.</p>' + article() + '</section>')
     subs = [("accalc", "Мощность"), ("acen", "Электричество"), ("actr", "Трасса"), ("acnoise", "Шум"), ("acart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5])
     sub = '<div class="e-sub" role="tablist" aria-label="Кондиционирование">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Кондиционирование", "Кондиционирование: расчёт мощности и сезона",
              "Тепловая нагрузка по часам жаркого дня для Минска, расход электричества, трасса и шум.")
         + RU_ONLY + tabs("cond") + sub
-        + '<div class="e-elec" id="e-ac">' + "".join(_rows(x) if x in (p1, p2, p3, p4) else x for x in [p1, p2, p3, p4, p5]) + "</div>"
+        + '<div class="e-elec" id="e-ac">' + "".join(_rows(x) if x in (p1, p2, p3, p4) else x for x in pl) + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для выбора класса кондиционера и разговора с проектировщиком, а не проект. Модель считает ясный день по часам для Минска '
           '(широта 53,9°, 21 июля), солнечное тепло через окна, теплопередачу стен и кровли с запаздыванием, людей, технику и воздух. Эквивалентные часы, SEER и SCOP зависят от блока и привычек: это допущения. '
           'Окончательные значения подтверждает проект по СН 4.02.03-2019 и документация производителя.</p></div>'
@@ -1081,12 +1100,13 @@ def pond():
     p5 = ('<section class="e-panel" id="pdart" data-panel="pdart"><div class="e-sech"><small>05</small><h2>Пруды и биопруды: экосистема, материалы, расчёт</h2></div>'
           '<p class="e-lead2">Азотный цикл, типы прудов, профиль чаши, оборудование по обороту, растения, монтаж и зимовка.</p>' + article() + '</section>')
     subs = [("pdgeo", "Параметры"), ("pdeq", "Оборудование"), ("pdpl", "Растения"), ("pdbud", "Смета"), ("pdart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5])
     sub = '<div class="e-sub" role="tablist" aria-label="Пруды">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Пруды", "Пруды и биопруды: расчёт и статья",
              "Объём, оборот воды, насос, биофильтр, плёнка, растения и электричество для декоративного пруда, кой-пруда и пруда для купания.")
         + RU_ONLY + tabs("pond") + sub
-        + '<div class="e-elec" id="e-pd">' + "".join(_rows(x) if x in (p1, p2, p3, p4) else x for x in [p1, p2, p3, p4, p5]) + "</div>"
+        + '<div class="e-elec" id="e-pd">' + "".join(_rows(x) if x in (p1, p2, p3, p4) else x for x in pl) + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Размеры, оборот воды, объём фильтра, мощность УФ и плотность посадки это ориентиры практики. '
           'Классы насосов и компрессоров даны по расходу, модель подбирают по паспорту. Допустимые размеры пруда на участке даны по публикациям о Законе № 148-З: проверьте их по тексту закона и в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
@@ -1161,12 +1181,13 @@ def pool():
     p6 = ('<section class="e-panel" id="pbart" data-panel="pbart"><div class="e-sech"><small>06</small><h2>Бассейны: чаши, вода, энергия, зима</h2></div>'
           '<p class="e-lead2">Четыре контура, типы чаш, водоподготовка, тепло и энергия сезона, монтаж и зимовка, нормативный контур.</p>' + article() + '</section>')
     subs = [("pbgeo", "Параметры"), ("pbcirc", "Вода"), ("pbheat", "Нагрев"), ("pbbio", "Биопул"), ("pbbud", "Смета"), ("pbart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6])
     sub = '<div class="e-sub" role="tablist" aria-label="Бассейны">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Бассейны", "Бассейны и биопулы: расчёт и статья",
              "Оборот и насос, фильтр, трубы, нагрев и энергия сезона, обеззараживание, зона регенерации биопула и ведомость.")
         + RU_ONLY + tabs("pool") + sub
-        + '<div class="e-elec" id="e-pb">' + "".join(_rows(x) if x in (p1, p2, p3, p4, p5) else x for x in [p1, p2, p3, p4, p5, p6]) + "</div>"
+        + '<div class="e-elec" id="e-pb">' + "".join(_rows(x) if x in (p1, p2, p3, p4, p5) else x for x in pl) + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Оборот, нагрузка на фильтр, УФ, электролиз, потери тепла и COP это ориентиры практики, зимой потери больше, чем в летней модели. '
           'Модель оборудования подбирают по паспорту. Порядок оформления стационарного бассейна, отступы от границы и санитарные требования к воде проверяйте по действующим актам и в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
