@@ -33,6 +33,7 @@ REF_TABS = [
     ("pond", "/spravochniki/prudy", "est_tab_pond"),
     ("pool", "/spravochniki/basseyny", "est_tab_pool"),
     ("bath", "/spravochniki/bani", "est_tab_bath"),
+    ("wind", "/spravochniki/vetrogeneratory", "est_tab_wind"),
 ]
 
 
@@ -54,7 +55,7 @@ def head(eyebrow, h1, lead):
 
 
 # вкладки со статьями обводятся красным контуром
-ART_IDS = {"overview", "pipesart", "guide", "sgart", "sewart", "acart", "pdart", "pbart", "btart"}
+ART_IDS = {"overview", "pipesart", "guide", "sgart", "sewart", "acart", "pdart", "pbart", "btart", "wnart"}
 ART_CLS = ' class="art"'
 RU_ONLY = '{{#if not_ru}}<p class="e-ruonly">{{ t.est_ru_only }}</p>{{/if}}'
 
@@ -110,6 +111,7 @@ def ref_hub():
             _card("Умный дом", "Архитектуры и протоколы, управление, монтаж, чек-лист приёмки и типичные ошибки.", "/spravochniki/umnyj-dom", "Статья"),
             _card("Бассейны и биопулы", "Калькулятор: оборот, насос, фильтр, нагрев и энергия сезона, обеззараживание, биопул. Статья о чашах, воде и зиме.", "/spravochniki/basseyny", "Калькулятор готов"),
             _card("Бани и сауны", "Калькулятор парной: печь или парогенератор, электрика, вентиляция, погонаж материалов, хамам, камни и энергия. Статья о режимах, пироге стен и безопасности.", "/spravochniki/bani", "Калькулятор готов"),
+            _card("Ветрогенераторы", "Калькулятор: ветер на высоте ступицы, годовая выработка по кривой мощности, мачта и зоны, электрика, АКБ и экономика. Статья с поправками.", "/spravochniki/vetrogeneratory", "Калькулятор"),
             _card("Пруды и биопруды", "Калькулятор: объём, оборот, насос, биофильтр, плёнка, растения и электричество. Статья об экосистеме и зимовке.", "/spravochniki/prudy", "Калькулятор готов"),
         ])
     )
@@ -1347,6 +1349,69 @@ def bath():
     )
 
 
+def wind():
+    def chk(label, id_):
+        return f'<div class="e-f wide"><div class="e-in"><label class="o-chk"><input type="checkbox" id="{id_}"><span>{label}</span></label></div></div>'
+    p1 = panel(
+        "wngeo", "01", "Ветер и установка",
+        "Введите ветер на высоте 10 м (замер или карта), высоту ступицы и данные ВЭУ из паспорта: расчёт даст скорость на ступице, выработку за год и КИУМ по кривой мощности.",
+        sel("Готовый пример", "wn-preset", [("", "Свои данные"), ("flat", "Равнина 3,8 м/с, ВЭУ 3 кВт, сеть"), ("hill", "Холм 5 м/с, мачта 24 м, сеть"), ("off", "Автономный дом 4,5 м/с")], wide=True)
+        + sel("Тип ВЭУ", "wn-type", [("hawt", "Горизонтальная, 3 лопасти"), ("darrieus", "Вертикальная Дарье"), ("savonius", "Савониуса (роторная)")], wide=True)
+        + f("Средний ветер на высоте измерения", "wn-v10", "3,8", "м/с") + f("Высота измерения", "wn-h0", "10", "м")
+        + sel("Местность (показатель α)", "wn-alpha", [("0,2", "Поля с редкими деревьями, 0,20"), ("0,14", "Открытая равнина, 0,14"), ("0,3", "Пригород и лес, 0,30")], wide=True)
+        + f("Высота ступицы", "wn-hub", "18", "м") + f("Коэффициент формы ветра k", "wn-k", "2", "")
+        + f("Номинальная мощность", "wn-pr", "3", "кВт") + f("Номинальная скорость ветра", "wn-vr", "11", "м/с")
+        + f("Скорость старта", "wn-vci", "3", "м/с") + f("Скорость останова", "wn-vco", "25", "м/с")
+        + f("Потери системы (КПД)", "wn-eff", "85", "%"),
+        out("Паспорт выработки", kv("Ветер на ступице", "wn-k1") + kv("Выработка", "wn-k2") + kv("Ротор", "wn-k3") + kv("Сравнение с солнцем", "wn-k4"), "wn-verdict"),
+        "v = v₁₀ · (h / h₁₀)<sup>α</sup>; P = 0,5 · ρ · A · v³ · Cp; выработка = ∫ P(v) · f(v) dv · 8760 · КПД<br>f(v): распределение Вейбулла со средней v и формой k ≈ 2",
+    )
+    p1 = p1[:-len("</section>")] + '<figure class="e-fig"><div id="wn-ch"></div><figcaption id="wn-chn"></figcaption></figure></section>'
+    p2 = panel(
+        "wnsite", "02", "Площадка и мачта",
+        "Зона падения, сход льда, ветровая тень от препятствий, расстояние до окон и тип мачты.",
+        sel("Мачта", "wn-mount", [("guy", "Трубчатая на оттяжках"), ("free", "Свободностоящая башня"), ("tilt", "Фермовая откидная"), ("roof", "Крыша или фасад")], wide=True)
+        + f("Расстояние до ближайшей границы участка", "wn-bd", "40", "м") + f("Расстояние до ближайших окон", "wn-wd", "40", "м")
+        + f("Высота ближайшего препятствия (дом, лес)", "wn-oh", "8", "м") + f("Расстояние до препятствия", "wn-od", "60", "м"),
+        out("Результат", kv("Зона падения", "wn-s1") + kv("Сход льда", "wn-s2") + kv("Ветровая тень", "wn-s3") + kv("Шум у окон", "wn-s4") + kv("Мачта", "wn-s5"), "wn-v1"),
+        "Зона падения = H + R; лёд ≈ 1,5 · (H + D); нижняя точка ротора ≥ высота препятствия + 3 м в радиусе до 150 м<br>Шум: L = L₁₅ − 20 · lg(r / 15)",
+    )
+    p3 = panel(
+        "wnel", "03", "Электрика и АКБ",
+        "Контроллер, балластная нагрузка, DC-спуск, ёмкость батареи для автономного объекта и инвертор.",
+        sel("Режим", "wn-mode", [("grid", "Сетевая микрогенерация"), ("off", "Автономный объект")], wide=True)
+        + f("Напряжение системы", "wn-dcv", "48", "В") + f("Длина DC-кабеля от генератора", "wn-dcl", "30", "м")
+        + f("Потребление дома", "wn-cons", "4000", "кВт·ч/год") + f("Автономность (автономный режим)", "wn-aut", "2", "сут") + f("Пиковая нагрузка (автономный режим)", "wn-peak", "3", "кВт"),
+        out("Результат", kv("Контроллер", "wn-e1") + kv("Балласт", "wn-e2") + kv("DC-спуск", "wn-e3") + kv("Потребление", "wn-e4") + kv("Батарея", "wn-e5") + kv("Инвертор", "wn-e6"), "wn-v2"),
+        "I = P / U; S = 2 · L · I · 0,0175 / (0,03 · U); АКБ = E<sub>сут</sub> · сутки / (0,8 · 0,9)<br>Контроллер ≥ 1,2 · P<sub>ном</sub>; балласт ≥ P<sub>ном</sub>",
+    )
+    p4 = panel(
+        "wneco", "04", "Экономика",
+        "Цен в калькуляторе нет: стоимость комплекта (ВЭУ, мачта, фундамент, электрика, монтаж) вы вводите по предложениям поставщиков. Тариф и выкуп можно изменить.",
+        f("Стоимость комплекта", "wn-cost", "", "BYN") + f("Доля выработки на свои нужды", "wn-self", "60", "%")
+        + f("Тариф", "wn-tar", "0,3037", "BYN/кВт·ч") + f("Выкуп излишков", "wn-buy", "0,10", "BYN/кВт·ч"),
+        out("Результат", kv("Покрытие потребления", "wn-m1") + kv("Свои нужды и излишки", "wn-m2") + kv("Экономия в год", "wn-m3") + kv("Окупаемость", "wn-m4") + kv("Себестоимость энергии", "wn-m5"), "wn-v3"),
+        "Экономия = E<sub>свои</sub> · тариф + E<sub>излишки</sub> · выкуп; окупаемость = стоимость / экономия (без инфляции и обслуживания)",
+    )
+    from art_wind import article
+    p6 = ('<section class="e-panel" id="wnart" data-panel="wnart"><div class="e-sech"><small>06</small><h2>Ветрогенераторы на участке: ветер, ВЭУ, мачта, нормы</h2></div>'
+          '<p class="e-lead2">Куб скорости, кривая мощности, ветер Беларуси с пересчётом на высоту ступицы, выработка по скорости, мачта и зоны, электрика, нормативный контур и типичные ошибки.</p>' + article() + '</section>')
+    p5 = ai_panel("wnai", "05")
+    subs = [("wngeo", "Ветер и ВЭУ"), ("wnsite", "Площадка"), ("wnel", "Электрика и АКБ"), ("wneco", "Экономика"), ("wnai", "Запрос для ИИ"), ("wnart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6])
+    sub = '<div class="e-sub" role="tablist" aria-label="Ветрогенераторы">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
+    return (
+        head("Справочники · Ветрогенераторы", "Ветрогенераторы: расчёт и статья",
+             "Ветер на высоте ступицы, годовая выработка и КИУМ по кривой мощности, мачта и зона падения, контроллер, АКБ и экономика.")
+        + RU_ONLY + tabs("wind") + sub
+        + '<div class="e-elec" id="e-wn">' + "".join(_rows(x) if x in (p1, p2, p3, p4) else x for x in pl) + "</div>"
+        + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Ветер на вашей площадке подтверждает только замер на высоте ступицы, кривую мощности даёт независимый тест модели, '
+          'мачту и фундамент считает проектировщик по грунту и ветровой нагрузке. Подключение микрогенерации, размещение мачты и допустимый шум уточняйте в энергоснабжающей организации и местной администрации до покупки.</p></div>'
+        + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
+        + '<script src="/static/wind-model.js?v=1"></script><script src="/static/aireq.js?v=3"></script><script src="/static/wind.js?v=2"></script><script src="/static/export.js?v=2"></script>'
+    )
+
+
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + hub())
@@ -1354,7 +1419,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=26">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
