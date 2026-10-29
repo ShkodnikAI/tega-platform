@@ -729,7 +729,7 @@ pattern EstPondPage(lang: String) -> Html {
 
 pattern EstPricePage(lang: String) -> Html {
   let d = Dict(lang)
-  return Shell(lang, "/spravochniki/cenoobrazovanie", "est", d.est_tab_price, true, est.EstPriceTpl(""))
+  return Shell(lang, "/raschet-smet/cenoobrazovanie", "est", d.est_tab_price, true, est.EstPriceTpl(""))
 }
 
 pattern EstFinPage(lang: String) -> Html {
@@ -771,7 +771,7 @@ server {
   route "/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("ru") }
   route "/spravochniki/konditsionirovanie" method=GET { return EstCondPage("ru") }
   route "/spravochniki/umnyj-dom" method=GET { return EstSmartPage("ru") }
-  route "/spravochniki/cenoobrazovanie" method=GET { return EstPricePage("ru") }
+  route "/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("ru") }
   route "/spravochniki/prudy" method=GET { return EstPondPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
@@ -787,7 +787,7 @@ server {
   route "/be/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("be") }
   route "/be/spravochniki/konditsionirovanie" method=GET { return EstCondPage("be") }
   route "/be/spravochniki/umnyj-dom" method=GET { return EstSmartPage("be") }
-  route "/be/spravochniki/cenoobrazovanie" method=GET { return EstPricePage("be") }
+  route "/be/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("be") }
   route "/be/spravochniki/prudy" method=GET { return EstPondPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
@@ -803,7 +803,7 @@ server {
   route "/en/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("en") }
   route "/en/spravochniki/konditsionirovanie" method=GET { return EstCondPage("en") }
   route "/en/spravochniki/umnyj-dom" method=GET { return EstSmartPage("en") }
-  route "/en/spravochniki/cenoobrazovanie" method=GET { return EstPricePage("en") }
+  route "/en/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("en") }
   route "/en/spravochniki/prudy" method=GET { return EstPondPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }

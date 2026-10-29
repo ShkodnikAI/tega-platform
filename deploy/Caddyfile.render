@@ -18,6 +18,9 @@
 	# Формы отчётов переехали из /spravochniki в /raschet-smet
 	@oldforms path_regexp oldforms ^(/(?:be|en))?/spravochniki/formy/?$
 	redir @oldforms {re.oldforms.1}/raschet-smet/formy permanent
+	# Статья о цене работ переехала из /spravochniki в /raschet-smet
+	@oldprice path_regexp oldprice ^(/(?:be|en))?/spravochniki/cenoobrazovanie/?$
+	redir @oldprice {re.oldprice.1}/raschet-smet/cenoobrazovanie permanent
 	handle_path /static/* {
 		root * /srv/static
 		file_server
