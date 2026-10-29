@@ -5,6 +5,7 @@
 Текст страниц живёт здесь (и в volumes.html), стили в static/est.css, расчёты в static/elec.js.
 В HTML нет inline-стилей и скриптов: CSP сайта (default-src 'self') их не пропустит.
 """
+import json as _json
 import pathlib, re, sys
 
 HERE = pathlib.Path(__file__).parent
@@ -435,7 +436,8 @@ def elec():
     p7 = ('<section class="e-panel" id="guide" data-panel="guide"><div class="e-sech"><small>01</small><h2>Как подобрать кабель</h2></div>'
           '<p class="e-lead2">Физика нагрева, токи и способы прокладки, потеря напряжения, механическая защита и марки, типичные ошибки. Затем считайте свою линию на вкладке «Подбор кабеля».</p>'
           + cable_article() + '</section>')
-    subs = [("guide", "Как подобрать кабель"), ("cable", "Подбор кабеля"), ("kz", "Ток КЗ"), ("ground", "Заземление"), ("light", "Освещение"), ("apparaty", "Автоматы и УЗО"), ("ref", "Справочник")]
+    pai = ai_panel("elecai", "08", items=AI_CFG["elec"][1], obj=AI_CFG["elec"][0])
+    subs = [("guide", "Как подобрать кабель"), ("cable", "Подбор кабеля"), ("kz", "Ток КЗ"), ("ground", "Заземление"), ("light", "Освещение"), ("apparaty", "Автоматы и УЗО"), ("ref", "Справочник"), ("elecai", "Запрос для ИИ")]
     sub = '<div class="e-sub" role="tablist" aria-label="Электрика">' + "".join(
         f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs
     ) + "</div>"
@@ -443,10 +445,10 @@ def elec():
         head("Справочники · Электрика", "Электрические калькуляторы",
              "Подбор сечения кабеля с учётом прочности, нагрева и потери напряжения, ток короткого замыкания, заземление, освещение помещений. Результат можно перенести в смету.")
         + RU_ONLY + tabs("elec") + sub
-        + '<div class="e-elec" id="e-elec">' + p7 + p1 + p3 + p4 + p5 + p5a + p6 + "</div>"
+        + '<div class="e-elec" id="e-elec">' + p7 + p1 + p3 + p4 + p5 + p5a + p6 + pai + "</div>"
         + '<div class="e-basis"><b>Важно знать</b><p>Калькуляторы дают ориентир для сметы и для разговора с электриком. Они не заменяют проект электроснабжения, который выполняет проектировщик по нормам ТКП 339 и серии IEC 60364. Допустимые токи, пороги срабатывания, нормы освещённости (гигиенический норматив, постановление Минздрава № 82 от 28.06.2012) и коэффициенты перед публикацией проверит технический специалист.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/elec.js?v=4"></script><script src="/static/apparaty.js?v=3"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/aireq.js?v=3"></script><script src="/static/elec.js?v=4"></script><script src="/static/apparaty.js?v=3"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
@@ -499,6 +501,8 @@ def _num(label, id_, value, unit=""):
 def _rows(html):
     """Подряд идущие поля формы собираются в сетку e-row, как на странице «Электрика»."""
     import re
+    if 'id="ai-root"' in html:
+        return html
     pat = re.compile(r'(?:<div class="e-f[ "].*?</div></div>)+', re.S)
     return pat.sub(lambda m: '<div class="e-row">' + m.group(0) + "</div>", html)
 
@@ -519,8 +523,13 @@ def art_first(subs, panels):
     return ss, ps
 
 
-def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
-    subs, panels = art_first(list(subs), list(panels))
+def _page(active, eyebrow, h1, lead, page, subs, panels, basis, ai=None):
+    subs, panels = list(subs), list(panels)
+    if ai:
+        t, it = AI_CFG[ai]
+        panels.append(ai_panel(ai + "ai", "%02d" % (len(panels) + 1), items=it, obj=t))
+        subs.append((ai + "ai", "Запрос для ИИ"))
+    subs, panels = art_first(subs, panels)
     sub = '<div class="e-sub" role="tablist" aria-label="' + h1 + '">' + "".join(
         f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
@@ -528,6 +537,7 @@ def _page(active, eyebrow, h1, lead, page, subs, panels, basis):
         + f'<div class="e-elec" id="e-inzh" data-page="{page}">' + "".join(_rows(x) for x in panels) + "</div>"
         + f'<div class="e-basis"><b>Важно знать</b><p>{basis}</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
+        + ('<script src="/static/aireq.js?v=3"></script>' if ai else '')
         + '<script src="/static/inzh.js?v=9"></script><script src="/static/export.js?v=2"></script>'
     )
 
@@ -611,7 +621,7 @@ def water():
     return _page("water", "Справочники · Водоснабжение", "Водоснабжение: расчёты",
                  "Диаметр водопровода, потери давления, нагрев воды, скважинный насос и гидроаккумулятор с инструкцией по настройке бака.",
                  "water", subs, [p1, p2, p3, p4, p5, p6],
-                 BASIS_COMMON + " Нормы монтажа ХВС и ГВС (уклоны, гильзы, расстояния, испытания) смотрите в «Качество работ».")
+                 BASIS_COMMON + " Нормы монтажа ХВС и ГВС (уклоны, гильзы, расстояния, испытания) смотрите в «Качество работ».", ai="water")
 
 
 def sewer():
@@ -684,7 +694,7 @@ def sewer():
     subs = [("sdiam", "Диаметр"), ("sslope", "Уклон"), ("septic", "Септик"), ("sewart", "Септики и СБО"), ("sguide", "Сравнение"), ("sref", "Справка")]
     return _page("sewer", "Справочники · Канализация", "Канализация: расчёты",
                  "Диаметр отвода по приборам, уклон и перепад высот, подбор септика для коттеджа или дачи и статья о септиках, станциях биоочистки и полях фильтрации.",
-                 "sewer", subs, [p1, p2, p2b, p_sa, p2c, p3], BASIS_COMMON)
+                 "sewer", subs, [p1, p2, p2b, p_sa, p2c, p3], BASIS_COMMON, ai="sewer")
 
 
 def heat():
@@ -790,7 +800,7 @@ def heat():
     return _page("heat", "Справочники · Отопление", "Отопление: расчёты",
                  "Теплопотери помещения, радиаторы, диаметр труб, тёплый пол, расширительный бак, стоимость тепла и статья о современных системах отопления.",
                  "heat", subs, [p1, p2, p3, p_pa, p4, p5, p6, p7, p8],
-                 BASIS_COMMON + " Температуры теплоносителя по помещениям, скорости воды по шуму, расстояния установки приборов и пуск тёплого пола — в «Качество работ».")
+                 BASIS_COMMON + " Температуры теплоносителя по помещениям, скорости воды по шуму, расстояния установки приборов и пуск тёплого пола — в «Качество работ».", ai="heat")
 
 
 def vent():
@@ -847,7 +857,7 @@ def vent():
     return _page("vent", "Справочники · Вентиляция", "Вентиляция: расчёты",
                  "Расход воздуха для помещения, диаметр воздуховодов, число решёток, мощность калорифера, проверка тяги шахты и статья о современных системах вентиляции.",
                  "vent", subs, [p1, p2, p3, p4, p5, p6],
-                 BASIS_COMMON + " Нормы на 1 человека и 1 м² даны по СН 4.02.03, приложение П; расходы вытяжки кухонь и санузлов и скорости в воздуховодах — практические ориентиры, не нормы сайта.")
+                 BASIS_COMMON + " Нормы на 1 человека и 1 м² даны по СН 4.02.03, приложение П; расходы вытяжки кухонь и санузлов и скорости в воздуховодах — практические ориентиры, не нормы сайта.", ai="vent")
 
 
 def esc(s):
@@ -926,8 +936,9 @@ def solar():
     from art_solar import article
     p6 = ('<section class="e-panel" id="sgart" data-panel="sgart"><div class="e-sech"><small>06</small><h2>Солнечные системы: как выбрать и посчитать</h2></div>'
           '<p class="e-lead2">Кровля, забор, инвертор, накопитель и деньги: что выбрать, где теряется выработка и как не ошибиться с мощностью.</p>' + article() + '</section>')
-    subs = [("sgcalc", "Расчёт"), ("sgyear", "Год"), ("sgday", "Сутки"), ("sgbom", "Оборудование"), ("sgpay", "Окупаемость"), ("sgart", "Статья")]
-    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6])
+    p7 = ai_panel("sgai", "07", items=AI_CFG["solar"][1], obj=AI_CFG["solar"][0])
+    subs = [("sgcalc", "Расчёт"), ("sgyear", "Год"), ("sgday", "Сутки"), ("sgbom", "Оборудование"), ("sgpay", "Окупаемость"), ("sgai", "Запрос для ИИ"), ("sgart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p7, p6])
     sub = '<div class="e-sub" role="tablist" aria-label="Солнечная генерация">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Солнечная генерация", "Солнечные системы: расчёт под ключ",
@@ -938,7 +949,7 @@ def solar():
           'тарифы для населения с 01.03.2026 по постановлению Совмина № 93. Цена выкупа излишков и лимит мощности микрогенерации зависят от энергоснабжающей организации: проверьте их перед решением. '
           'Цены оборудования розничные ориентировочные. Окончательные значения подтверждает проект с аудитом тени, расчётом снеговой и ветровой нагрузки.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/solar-model.js?v=1"></script><script src="/static/solar.js?v=1"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/solar-model.js?v=1"></script><script src="/static/aireq.js?v=3"></script><script src="/static/solar.js?v=1"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
@@ -1004,8 +1015,9 @@ def cond():
     from art_cond import article
     p5 = ('<section class="e-panel" id="acart" data-panel="acart"><div class="e-sech"><small>05</small><h2>Кондиционирование: как выбрать и посчитать</h2></div>'
           '<p class="e-lead2">Мощность, тип блока, трасса, шум и хладагент: что выбрать и где чаще всего ошибаются.</p>' + article() + '</section>')
-    subs = [("accalc", "Мощность"), ("acen", "Электричество"), ("actr", "Трасса"), ("acnoise", "Шум"), ("acart", "Статья")]
-    subs, pl = art_first(subs, [p1, p2, p3, p4, p5])
+    p6 = ai_panel("acai", "06", items=AI_CFG["cond"][1], obj=AI_CFG["cond"][0])
+    subs = [("accalc", "Мощность"), ("acen", "Электричество"), ("actr", "Трасса"), ("acnoise", "Шум"), ("acai", "Запрос для ИИ"), ("acart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p6, p5])
     sub = '<div class="e-sub" role="tablist" aria-label="Кондиционирование">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Кондиционирование", "Кондиционирование: расчёт мощности и сезона",
@@ -1016,7 +1028,7 @@ def cond():
           '(широта 53,9°, 21 июля), солнечное тепло через окна, теплопередачу стен и кровли с запаздыванием, людей, технику и воздух. Эквивалентные часы, SEER и SCOP зависят от блока и привычек: это допущения. '
           'Окончательные значения подтверждает проект по СН 4.02.03-2019 и документация производителя.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/ac-model.js?v=2"></script><script src="/static/ac.js?v=2"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/ac-model.js?v=2"></script><script src="/static/aireq.js?v=3"></script><script src="/static/ac.js?v=2"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
@@ -1101,8 +1113,9 @@ def pond():
     from art_pond import article
     p5 = ('<section class="e-panel" id="pdart" data-panel="pdart"><div class="e-sech"><small>05</small><h2>Пруды и биопруды: экосистема, материалы, расчёт</h2></div>'
           '<p class="e-lead2">Азотный цикл, типы прудов, профиль чаши, оборудование по обороту, растения, монтаж и зимовка.</p>' + article() + '</section>')
-    subs = [("pdgeo", "Параметры"), ("pdeq", "Оборудование"), ("pdpl", "Растения"), ("pdbud", "Смета"), ("pdart", "Статья")]
-    subs, pl = art_first(subs, [p1, p2, p3, p4, p5])
+    p6 = ai_panel("pdai", "06", items=AI_CFG["pond"][1], obj=AI_CFG["pond"][0])
+    subs = [("pdgeo", "Параметры"), ("pdeq", "Оборудование"), ("pdpl", "Растения"), ("pdbud", "Смета"), ("pdai", "Запрос для ИИ"), ("pdart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p6, p5])
     sub = '<div class="e-sub" role="tablist" aria-label="Пруды">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Пруды", "Пруды и биопруды: расчёт и статья",
@@ -1112,7 +1125,7 @@ def pond():
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Размеры, оборот воды, объём фильтра, мощность УФ и плотность посадки это ориентиры практики. '
           'Классы насосов и компрессоров даны по расходу, модель подбирают по паспорту. Допустимые размеры пруда на участке даны по публикациям о Законе № 148-З: проверьте их по тексту закона и в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/pond-model.js?v=1"></script><script src="/static/pond.js?v=1"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/pond-model.js?v=1"></script><script src="/static/aireq.js?v=3"></script><script src="/static/pond.js?v=1"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
@@ -1182,8 +1195,9 @@ def pool():
     from art_pool import article
     p6 = ('<section class="e-panel" id="pbart" data-panel="pbart"><div class="e-sech"><small>06</small><h2>Бассейны: чаши, вода, энергия, зима</h2></div>'
           '<p class="e-lead2">Четыре контура, типы чаш, водоподготовка, тепло и энергия сезона, монтаж и зимовка, нормативный контур.</p>' + article() + '</section>')
-    subs = [("pbgeo", "Параметры"), ("pbcirc", "Вода"), ("pbheat", "Нагрев"), ("pbbio", "Биопул"), ("pbbud", "Смета"), ("pbart", "Статья")]
-    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6])
+    p7 = ai_panel("pbai", "07", items=AI_CFG["pool"][1], obj=AI_CFG["pool"][0])
+    subs = [("pbgeo", "Параметры"), ("pbcirc", "Вода"), ("pbheat", "Нагрев"), ("pbbio", "Биопул"), ("pbbud", "Смета"), ("pbai", "Запрос для ИИ"), ("pbart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p7, p6])
     sub = '<div class="e-sub" role="tablist" aria-label="Бассейны">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Бассейны", "Бассейны и биопулы: расчёт и статья",
@@ -1193,11 +1207,25 @@ def pool():
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Оборот, нагрузка на фильтр, УФ, электролиз, потери тепла и COP это ориентиры практики, зимой потери больше, чем в летней модели. '
           'Модель оборудования подбирают по паспорту. Порядок оформления стационарного бассейна, отступы от границы и санитарные требования к воде проверяйте по действующим актам и в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/pond-model.js?v=1"></script><script src="/static/pool-model.js?v=1"></script><script src="/static/pool.js?v=1"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/pond-model.js?v=1"></script><script src="/static/pool-model.js?v=1"></script><script src="/static/aireq.js?v=3"></script><script src="/static/pool.js?v=1"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
-def ai_panel(pid, num, title="Запрос для ИИ-агента"):
+
+AI_CFG = {
+    "water": ("Водоснабжение", [("Насос или насосная станция", "подбор по расходу и напору из расчёта, защита от сухого хода"), ("Гидроаккумулятор", "объём и давление по расчёту, мембрана для питьевой воды"), ("Трубы и фитинги водоснабжения", "диаметры и материал по расчёту, допуск для питьевой воды"), ("Водонагреватель (бойлер или проточный)", "мощность и объём по расчёту нагрева"), ("Фильтры очистки воды", "по составу воды, если он известен"), ("Запорная арматура и реле давления", "под давление системы")]),
+    "sewer": ("Канализация", [("Септик или станция биоочистки", "объём и производительность по расчёту, тип грунта и уровень грунтовых вод учесть"), ("Трубы канализации и фитинги", "диаметры и уклон по расчёту, наружные рыжие или внутренние серые по назначению"), ("Ревизии, колодцы, обратные клапаны", "по схеме"), ("Дренаж или поля фильтрации", "по грунту")]),
+    "heat": ("Отопление", [("Источник тепла (котёл или тепловой насос)", "мощность с запасом по теплопотерям из расчёта"), ("Радиаторы или конвекторы", "мощность по помещениям из расчёта"), ("Трубы и фитинги отопления", "диаметры по расчёту"), ("Тёплый пол (контуры, коллектор)", "по расчёту длины и шага"), ("Расширительный бак и предохранительная арматура", "объём по расчёту"), ("Циркуляционный насос и автоматика", "напор и расход по расчёту")]),
+    "vent": ("Вентиляция", [("Приточно-вытяжная установка (с рекуперацией)", "расход воздуха и напор по расчёту, шумовые характеристики"), ("Воздуховоды и фасонные части", "диаметры и скорости по расчёту"), ("Решётки и диффузоры", "по расчёту, акустика"), ("Калорифер или нагреватель воздуха", "мощность по расчёту"), ("Шумоглушители и клапаны", "по схеме")]),
+    "solar": ("Солнечная электростанция", [("Солнечные панели", "суммарная мощность и тип по расчёту, для кровли или забора"), ("Инвертор", "мощность и тип (сетевой или гибридный) по расчёту"), ("Аккумуляторы", "ёмкость и химия по расчёту, если выбраны"), ("Крепёж и конструкция", "под тип кровли или забора, снеговую и ветровую нагрузку"), ("Кабель, защита и учёт", "сечения, УЗО, УЗИП, счётчик по требованиям энергоснабжающей организации")]),
+    "cond": ("Кондиционирование", [("Кондиционер или мульти-сплит система", "холодопроизводительность и режимы по расчёту, уровень шума внутреннего и наружного блока"), ("Трасса: медные трубы, кабель, дренаж", "длина и диаметры по схеме"), ("Кронштейны и антивибрационные опоры", "по весу наружного блока")]),
+    "pond": ("Пруд", [("Насос", "расход и напор по расчёту, для пруда"), ("Биофильтр или bog-фильтр", "объём по расчёту"), ("Плёнка для пруда", "толщина и площадь по расчёту, рыбобезопасная и морозостойкая"), ("Аэратор или компрессор для зимовки", "по расчёту"), ("УФ-стерилизатор", "мощность по объёму"), ("Скиммер", "по расчёту"), ("Растения прудовые зимостойкие", "для Беларуси")]),
+    "pool": ("Бассейн", [("Насос циркуляционный (регулируемый)", "расход и напор по расчёту"), ("Фильтр (песочный или картриджный)", "диаметр по расчёту"), ("Скиммеры, форсунки, закладные", "по схеме чаши"), ("Обеззараживание (электролиз, УФ, дозаторы pH и ORP)", "по объёму"), ("Тепловой насос или нагрев", "мощность по расчёту"), ("Покрытие бассейна", "по площади зеркала"), ("Ограждение или датчик падения в воду", "защита детей")]),
+    "elec": ("Электрика", [("Кабель", "сечения и марка по расчёту, медь, негорючесть по назначению"), ("Автоматы и УЗО", "номиналы по расчёту"), ("Щит и DIN-рейка", "число модулей по расчёту"), ("Светильники", "по расчёту освещённости"), ("Розетки, выключатели, заземление", "по расчёту")]),
+}
+
+
+def ai_panel(pid, num, title="Запрос для ИИ-агента", items=None, obj=""):
     """Общая вкладка: по данным расчёта собирает запрос на подбор материалов и оборудования в трёх ценовых категориях."""
     def chk(id_, label, on=True):
         return f'<label class="o-chk"><input type="checkbox" id="{id_}"{" checked" if on else ""}><span>{label}</span></label>'
@@ -1212,9 +1240,10 @@ def ai_panel(pid, num, title="Запрос для ИИ-агента"):
         ("cert", "Сертификаты и паспорт", True), ("safety", "Безопасность в условиях применения", True), ("energy", "Стоимость владения", False)])
     return (
         f'<section class="e-panel" id="{pid}" data-panel="{pid}"><div class="e-sech"><small>{num}</small><h2>{title}</h2></div>'
-        '<p class="e-lead2">Технически грамотный запрос для ИИ-агента (Claude, Google, Qwen, Grok или другого): расчёт, количества и требования уже внутри. Выберите регион и категории, скопируйте запрос и отправьте агенту.</p>'
-        '<div id="ai-root" class="ai">'
-        '<div class="ai-step"><span>1</span><h3>Регион и покупка</h3></div>'
+        '<p class="e-lead2">Технически грамотный запрос для ИИ-агента (Claude, ChatGPT, Google, Qwen, Grok или другого): расчёт, количества и требования уже внутри. Выберите регион и категории, скопируйте запрос и отправьте агенту.</p>'
+        + ('<div id="ai-root" class="ai" data-title="' + obj + '" data-items="' + _json.dumps([{"name": a, "req": b} for a, b in items], ensure_ascii=False).replace('"', "&quot;") + '">' if items else '<div id="ai-root" class="ai">')
+        + ('<div class="ai-step"><span>0</span><h3>Что взять из расчётов</h3></div><div class="ai-crit" id="ai-pans"></div><div class="ai-step"><span>+</span><h3>Что подобрать</h3></div><div class="ai-crit" id="ai-items"></div>' if items else '')
+        + '<div class="ai-step"><span>1</span><h3>Регион и покупка</h3></div>'
         + f("Страна", "ai-country", "Беларусь", wide=False, mode="text") + f("Город или область", "ai-city", "Минск", wide=False, mode="text")
         + sel("Где покупать", "ai-shop", [("region", "Магазины региона"), ("online", "Интернет с доставкой"), ("any", "Любые источники")])
         + sel("Валюта цен", "ai-cur", [("BYN", "BYN"), ("RUB", "RUB"), ("EUR", "EUR"), ("USD", "USD")])
@@ -1225,7 +1254,7 @@ def ai_panel(pid, num, title="Запрос для ИИ-агента"):
         + '<div class="ai-step"><span>4</span><h3>Готовый запрос</h3></div>'
         '<div class="ai-card"><div class="ai-bar"><b>Запрос для агента</b><span id="ai-len"></span></div><pre id="ai-out" class="ai-out"></pre>'
         '<div class="ai-act"><button class="e-btn" id="ai-copy" type="button">Копировать</button><button class="e-btn ghost" id="ai-dl" type="button">Скачать .txt</button>'
-        '<button class="e-btn ghost" id="ai-claude" type="button">Claude</button><button class="e-btn ghost" id="ai-google" type="button">Google (режим ИИ)</button>'
+        '<button class="e-btn ghost" id="ai-claude" type="button">Claude</button><button class="e-btn ghost" id="ai-gpt" type="button">ChatGPT</button><button class="e-btn ghost" id="ai-google" type="button">Google (режим ИИ)</button>'
         '<button class="e-btn ghost" id="ai-gemini" type="button">Gemini</button><button class="e-btn ghost" id="ai-qwen" type="button">Qwen</button><button class="e-btn ghost" id="ai-grok" type="button">Grok</button></div>'
         '<p class="e-note">Кнопки сервисов копируют запрос в буфер и открывают сервис. Если он не подставил текст сам (Gemini не подставляет, остальным мешает длина), вставьте запрос вручную. Цены, рейтинги и ссылки агент найдёт сам, обязательно проверяйте их по источникам: они меняются.</p></div>'
         '</div></section>'
@@ -1314,7 +1343,7 @@ def bath():
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Мощность печи, вентиляция, масса камней, отступки и обогрев поверхностей это ориентиры практики, модель печи и условия установки задаёт паспорт. '
           'Линию питания окончательно выбирает электрик, дровяную печь, дымоход и отступки проверяют по паспорту и требованиям пожарной безопасности. Порядок оформления постройки и отступы от границы уточняйте в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/bath-model.js?v=1"></script><script src="/static/aireq.js?v=2"></script><script src="/static/bath.js?v=2"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/bath-model.js?v=1"></script><script src="/static/aireq.js?v=3"></script><script src="/static/bath.js?v=2"></script><script src="/static/export.js?v=2"></script>'
     )
 
 

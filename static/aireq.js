@@ -34,7 +34,7 @@
       + 'Количества и требования получены из инженерного расчёта, это ориентир для подбора, а не проект. Не меняй их без объяснения.');
     out.push('');
     out.push('# Объект');
-    (spec.object || []).forEach(function (p) { out.push('- ' + p[0] + ': ' + p[1]); });
+    (spec.object || []).forEach(function (p) { out.push(p[0] === '#' ? '## ' + p[1] : '- ' + p[0] + ': ' + p[1]); });
     out.push('');
     out.push('# Что подобрать');
     (spec.items || []).forEach(function (it, i) {
@@ -84,23 +84,85 @@
 
   /* ───────── интерфейс ───────── */
   if (typeof document === 'undefined') return;
-  var spec = null;
+  var spec = null, items = [], panelState = {}, panelKeys = '';
   function $(id) { return document.getElementById(id); }
+  function txt(n) { return (n.textContent || '').replace(/\s+/g, ' ').trim(); }
   function opts() {
     var tiers = [], crit = [];
     ['eco', 'std', 'prem'].forEach(function (k) { var e = $('ai-t-' + k); if (e && e.checked) tiers.push(k); });
     Object.keys(CRIT).forEach(function (k) { var e = $('ai-c-' + k); if (e && e.checked) crit.push(k); });
-    var city = $('ai-city') ? $('ai-city').value.trim() : '';
-    return { country: $('ai-country') ? $('ai-country').value : '', city: city, shop: $('ai-shop') ? $('ai-shop').value : 'region', tiers: tiers, crit: crit,
+    return { country: $('ai-country') ? $('ai-country').value.trim() : '', city: $('ai-city') ? $('ai-city').value.trim() : '', shop: $('ai-shop') ? $('ai-shop').value : 'region', tiers: tiers, crit: crit,
       budget: $('ai-budget') ? $('ai-budget').value.trim() : '', note: $('ai-note') ? $('ai-note').value.trim() : '', currency: $('ai-cur') ? $('ai-cur').value : 'BYN' };
+  }
+  /* Сбор данных со страницы: поля ввода и результаты расчётных вкладок (для страниц без собственного описания). */
+  function harvest() {
+    var host = document.querySelector('.e-elec'); if (!host) return [];
+    var groups = [];
+    Array.prototype.forEach.call(host.querySelectorAll('.e-panel'), function (pn) {
+      if (pn.querySelector('#ai-root') || /art$/.test(pn.id) || pn.classList.contains('e-art')) return;
+      var h = pn.querySelector('h2'), lines = [], notes = [];
+      Array.prototype.forEach.call(pn.querySelectorAll('.e-f'), function (f) {
+        var lb = f.querySelector('label'), inp = f.querySelector('input, select'); if (!lb || !inp) return;
+        var v = inp.tagName === 'SELECT' ? txt(inp.options[inp.selectedIndex] || inp) : inp.value.trim();
+        var u = f.querySelector('.u'); if (!v) return;
+        lines.push([txt(lb), v + (u ? ' ' + txt(u) : '')]);
+      });
+      Array.prototype.forEach.call(pn.querySelectorAll('.kv'), function (kv) {
+        var k = kv.querySelector('span'), b = kv.querySelector('b'); if (!k || !b) return;
+        var v = txt(b); if (v && v !== '—') lines.push([txt(k), v]);
+      });
+      Array.prototype.forEach.call(pn.querySelectorAll('.verdict'), function (v) { var t = txt(v); if (t) notes.push(t.length > 400 ? t.slice(0, 400) + '…' : t); });
+      if (lines.length > 0 && pn.querySelector('.kv')) groups.push({ key: pn.id, title: h ? txt(h).replace(/^\d+\s*/, '') : pn.id, lines: lines, notes: notes });
+    });
+    return groups;
+  }
+  function syncLists(groups) {
+    var keys = groups.map(function (g) { return g.key; }).join('|');
+    var host = $('ai-pans');
+    if (host && keys !== panelKeys) {
+      panelKeys = keys; host.textContent = '';
+      groups.forEach(function (g) {
+        if (!(g.key in panelState)) panelState[g.key] = true;
+        var l = document.createElement('label'); l.className = 'o-chk';
+        var c = document.createElement('input'); c.type = 'checkbox'; c.checked = panelState[g.key];
+        c.addEventListener('change', function () { panelState[g.key] = c.checked; render(); });
+        var sp = document.createElement('span'); sp.textContent = g.title;
+        l.appendChild(c); l.appendChild(sp); host.appendChild(l);
+      });
+    }
+  }
+  var harvestMode = false, itemState = {};
+  function renderItems() {
+    var host = $('ai-items'); if (!host) return;
+    items.forEach(function (it, i) {
+      itemState[i] = true;
+      var l = document.createElement('label'); l.className = 'o-chk';
+      var c = document.createElement('input'); c.type = 'checkbox'; c.checked = true;
+      c.addEventListener('change', function () { itemState[i] = c.checked; render(); });
+      var sp = document.createElement('span'); sp.textContent = it.name;
+      l.appendChild(c); l.appendChild(sp); host.appendChild(l);
+    });
   }
   function render() {
     var box = $('ai-out'); if (!box) return;
-    if (!spec) { box.textContent = 'Введите корректные данные расчёта на первой вкладке, запрос соберётся автоматически.'; return; }
+    var sp = spec;
+    if (harvestMode) {
+      var groups = harvest(); syncLists(groups);
+      var obj = [], notes = [];
+      groups.forEach(function (g) {
+        if (panelState[g.key] === false) return;
+        obj.push(['#', g.title]); g.lines.forEach(function (l) { obj.push(l); });
+        g.notes.forEach(function (n) { if (notes.indexOf(n) < 0 && /[а-я]/i.test(n)) notes.push(n); });
+      });
+      var chosen = items.filter(function (it, i) { return itemState[i] !== false; });
+      sp = obj.length ? { title: ($('ai-root').getAttribute('data-title') || 'Объект'), object: obj, items: chosen, notes: notes.slice(0, 8) } : null;
+      if (obj.length && !chosen.length) { box.textContent = 'Выберите, что подбирать.'; return; }
+    }
+    if (!sp) { box.textContent = 'Введите корректные данные расчёта на расчётных вкладках, запрос соберётся автоматически.'; return; }
     var o = opts();
     if (!o.tiers.length) { box.textContent = 'Выберите хотя бы одну категорию.'; return; }
-    box.textContent = build(spec, o);
-    var n = $('ai-len'); if (n) n.textContent = box.textContent.length + ' символов, ' + (spec.items || []).length + ' позиций';
+    box.textContent = build(sp, o);
+    var n = $('ai-len'); if (n) n.textContent = box.textContent.length + ' символов, ' + (sp.items || []).length + ' позиций';
   }
   function flash(btn, t) { var old = btn.getAttribute('data-t') || btn.textContent; btn.setAttribute('data-t', old); btn.textContent = t; setTimeout(function () { btn.textContent = old; }, 1600); }
   function copy(btn) {
@@ -118,16 +180,24 @@
     window.open(base.indexOf('?') < 0 ? base : base + encodeURIComponent(t.length > 6000 ? t.slice(0, 6000) : t), '_blank', 'noopener');
   }
   function init() {
-    var root_ = $('ai-root'); if (!root_) return;
-    Array.prototype.forEach.call(root_.querySelectorAll('input, select, textarea'), function (e) { e.addEventListener('input', render); e.addEventListener('change', render); });
+    var r = $('ai-root'); if (!r) return;
+    var raw = r.getAttribute('data-items');
+    if (raw) { try { items = JSON.parse(raw); harvestMode = items.length > 0; } catch (e) { items = []; } renderItems(); }
+    Array.prototype.forEach.call(r.querySelectorAll('input, select, textarea'), function (e) { if (e.closest('#ai-pans') || e.closest('#ai-items')) return; e.addEventListener('input', render); e.addEventListener('change', render); });
     var b;
     if ((b = $('ai-copy'))) b.addEventListener('click', function () { copy(b); });
     if ((b = $('ai-dl'))) b.addEventListener('click', download);
-    [['ai-claude', 'https://claude.ai/new?q='], ['ai-google', 'https://www.google.com/search?udm=50&q='], ['ai-gemini', 'https://gemini.google.com/app'], ['ai-qwen', 'https://chat.qwen.ai/?q='], ['ai-grok', 'https://grok.com/?q=']].forEach(function (x) {
+    [['ai-claude', 'https://claude.ai/new?q='], ['ai-gpt', 'https://chatgpt.com/?q='], ['ai-google', 'https://www.google.com/search?udm=50&q='], ['ai-gemini', 'https://gemini.google.com/app'], ['ai-qwen', 'https://chat.qwen.ai/?q='], ['ai-grok', 'https://grok.com/?q=']].forEach(function (x) {
       var el = $(x[0]); if (el) el.addEventListener('click', function () { openIn(el, x[1]); });
     });
+    if (harvestMode) {
+      var later = function (ev) { if (ev && ev.target && ev.target.closest && ev.target.closest('#ai-root')) return; setTimeout(render, 120); };
+      document.addEventListener('input', later); document.addEventListener('change', later); window.addEventListener('hashchange', later);
+      document.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('.e-sub a')) later(); });
+    }
     render();
   }
   api.update = function (s) { spec = s; render(); };
+  api.harvest = harvest;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })(typeof window !== 'undefined' ? window : globalThis);
