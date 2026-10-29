@@ -30,6 +30,7 @@ REF_TABS = [
     ("cond", "/spravochniki/konditsionirovanie", "est_tab_cond"),
     ("smart", "/spravochniki/umnyj-dom", "est_tab_smart"),
     ("pond", "/spravochniki/prudy", "est_tab_pond"),
+    ("pool", "/spravochniki/basseyny", "est_tab_pool"),
 ]
 
 
@@ -51,7 +52,7 @@ def head(eyebrow, h1, lead):
 
 
 # вкладки со статьями обводятся красным контуром
-ART_IDS = {"overview", "pipesart", "guide", "sgart", "sewart", "acart", "pdart"}
+ART_IDS = {"overview", "pipesart", "guide", "sgart", "sewart", "acart", "pdart", "pbart"}
 ART_CLS = ' class="art"'
 RU_ONLY = '{{#if not_ru}}<p class="e-ruonly">{{ t.est_ru_only }}</p>{{/if}}'
 
@@ -105,6 +106,7 @@ def ref_hub():
             _card("Солнечные системы", "Выработка по часам для Беларуси, кровля и забор, инвертор и батарея, спецификация и окупаемость.", "/spravochniki/solnechnaya-generaciya", "Калькулятор готов"),
             _card("Кондиционирование", "Мощность по часам жаркого дня, расход электричества, трасса и шум наружного блока, статья о выборе.", "/spravochniki/konditsionirovanie", "Калькулятор готов"),
             _card("Умный дом", "Архитектуры и протоколы, управление, монтаж, чек-лист приёмки и типичные ошибки.", "/spravochniki/umnyj-dom", "Статья"),
+            _card("Бассейны и биопулы", "Калькулятор: оборот, насос, фильтр, нагрев и энергия сезона, обеззараживание, биопул. Статья о чашах, воде и зиме.", "/spravochniki/basseyny", "Калькулятор готов"),
             _card("Пруды и биопруды", "Калькулятор: объём, оборот, насос, биофильтр, плёнка, растения и электричество. Статья об экосистеме и зимовке.", "/spravochniki/prudy", "Калькулятор готов"),
         ])
     )
@@ -1092,6 +1094,86 @@ def pond():
     )
 
 
+def pool():
+    OPT = lambda *a: list(a)
+    p1 = panel(
+        "pbgeo", "01", "Параметры и паспорт бассейна",
+        "Выберите тип и размеры: расчёт даст объём, режим оборота и предупреждения по обеззараживанию, покрытию, воде, зиме и отступам.",
+        sel("Готовый пример", "pb-preset", [("", "Свои данные"), ("skim", "Скиммерный 8×4 м, 48 м³"), ("bio", "Биопул 10×5 м, 70 м³"), ("poly", "Полипропилен 6×3 м, 25 м³"), ("frame", "Каркасный 5×3 м, 15 м³")], wide=True)
+        + sel("Тип", "pb-type", [("skim", "Скиммерный химический"), ("over", "Переливной"), ("bio", "Биопул"), ("frame", "Каркасный сезонный")], wide=True)
+        + f("Длина", "pb-L", "8", "м") + f("Ширина", "pb-W", "4", "м") + f("Средняя глубина", "pb-d", "1,5", "м")
+        + sel("Расположение", "pb-place", [("out", "На улице"), ("pav", "Под павильоном"), ("in", "В помещении")])
+        + f("Сезон", "pb-months", "4", "мес") + f("Температура воды", "pb-tt", "26", "°С")
+        + sel("Источник воды", "pb-src", [("tap", "Водопровод"), ("well", "Скважина")])
+        + sel("Покрытие", "pb-cover", [("slat", "Ламельное"), ("bubble", "Пузырьковая плёнка"), ("none", "Нет")])
+        + sel("Нагрев", "pb-heat", [("hp", "Тепловой насос"), ("el", "ТЭН"), ("boiler", "Котёл с теплообменником"), ("none", "Без нагрева")])
+        + sel("Обеззараживание", "pb-dis", [("elecuv", "Электролиз и УФ"), ("elec", "Электролиз с дозаторами"), ("dose", "Хлор с дозаторами pH/ORP"), ("chl", "Хлор вручную"), ("uv", "Только УФ (биопул)"), ("none", "Без обеззараживания (биопул)")], wide=True)
+        + f("Купающихся одновременно", "pb-bath", "4", "чел")
+        + sel("Класс оборудования", "pb-bud", [("std", "Стандарт"), ("eco", "Эконом (нерегулируемый насос)"), ("prem", "Премиум")])
+        + f("Расстояние до границы соседа", "pb-bd", "5", "м") + f("Зона регенерации (биопул)", "pb-reg", "30", "% площади")
+        + sel("Куда уходят промывочные воды", "pb-drain", [("own", "В свой дренаж или канализацию"), ("relief", "На рельеф своего участка"), ("neighbor", "На соседний участок или за границу")], wide=True)
+        + sel("Зима", "pb-win", [("cons", "Консервация с водой ниже скиммера"), ("drain", "Слив чаши"), ("dis", "Демонтаж (каркасный)"), ("none", "Не выбрано")], wide=True)
+        + sel("Защита детей", "pb-safe", [("cover", "Покрытие"), ("fence", "Ограждение 1,2 м"), ("alarm", "Датчик падения в воду"), ("none", "Нет")]),
+        out("Паспорт", kv("Зеркало", "pb-s") + kv("Объём воды", "pb-v") + kv("Тип и оборот", "pb-k"), "pb-verdict"),
+        "S = L · W, V = S · глубина<br>Предупреждения: обеззараживание, покрытие, зона регенерации, отступ, вода, зима, дети",
+    )
+    p1 = p1[:-len("</section>")] + '<figure class="e-fig"><div id="pb-ch"></div><figcaption id="pb-chn"></figcaption></figure></section>'
+    p2 = panel(
+        "pbcirc", "02", "Циркуляция и водоподготовка",
+        "Расход и класс насоса, фильтр, диаметры труб по скоростям, закладные, обеззараживание и вода на промывку. Диапазоны это ориентиры практики, модель подбирают по паспорту.",
+        f("Напор системы", "pb-H", "10", "м") + f("Часов работы насоса в сутки", "pb-ph", "12", "ч"),
+        out("Результат", kv("Расход и напор", "pb-q") + kv("Насос", "pb-pump") + kv("Фильтр", "pb-filt") + kv("Трубы", "pb-pipes") + kv("Закладные", "pb-emb")
+            + kv("Обеззараживание", "pb-dis-o") + kv("Промывка", "pb-wash") + kv("Свежая вода", "pb-fresh"), "pb-v1"),
+        "Q = V / t оборота, P = Q · H / (367 · КПД)<br>Фильтр: площадь = Q / 40 м³/ч·м², трубы по скорости не более 1,5 м/с на всасе и 2 м/с на напоре",
+    )
+    p3 = panel(
+        "pbheat", "03", "Нагрев и энергия сезона",
+        "Потери по площади зеркала, место и покрытие, первичный нагрев, подбор теплового насоса и электричество за сезон. Допущения вы задаёте сами.",
+        f("Температура воды в начале сезона", "pb-ts", "15", "°С") + f("Время первичного нагрева", "pb-t0", "24", "ч")
+        + f("COP теплового насоса за сезон", "pb-cop", "4,5", "") + f("Тариф", "pb-tar", "0,3037", "BYN/кВт·ч"),
+        out("Результат", kv("Потери", "pb-loss") + kv("Первичный нагрев", "pb-p0") + kv("Тепловой насос", "pb-hp") + kv("Тепло за сезон", "pb-eh") + kv("Электричество на нагрев", "pb-ee")
+            + kv("Стоимость нагрева", "pb-cost") + kv("С покрытием и без", "pb-cmp") + kv("Электричество в сутки", "pb-day") + kv("Всего за сезон", "pb-seas"), "pb-v2"),
+        "Потери = S · 0,25 кВт/м² · k<sub>места</sub> · k<sub>покрытия</sub>; E = Потери · часы + V · 1,163 · ΔT; E<sub>эл</sub> = E / COP",
+    )
+    p4 = panel(
+        "pbbio", "04", "Биопул и растения",
+        "Зона регенерации, bog-фильтр и посадочная ведомость. Работает для типа «Биопул», каталог растений общий с калькулятором пруда.",
+        '<p class="e-note">Параметры берутся с первой вкладки: размеры, глубина и доля зоны регенерации.</p>',
+        out("Результат", kv("Зона регенерации", "pb-bio-r") + kv("Bog-фильтр", "pb-bio-g") + kv("Насос", "pb-bio-p") + kv("Растений", "pb-bio-n"), "pb-v3"),
+        "Растений = площадь регенерации · 8 шт/м²; щебень = площадь · 0,3 м",
+    )
+    p4 = p4.replace('data-panel="pbbio">', 'data-panel="pbbio" data-xtbl="1">', 1)
+    p4 = p4[:-len("</section>")] + '<h4 class="e-h4">Посадочная ведомость</h4><div id="pb-pt"></div></section>'
+    pricegrid = "".join(f(lbl, "pb-p-" + k, "", "BYN") for k, lbl in [
+        ("bowl", "Чаша, за м³ объёма"), ("fin", "Отделка, за м²"), ("pump", "Насос, за шт"), ("filt", "Фильтр, за шт"), ("grav", "Щебень bog-фильтра, за м³"), ("skim", "Скиммер, за шт"),
+        ("noz", "Форсунка, за шт"), ("cell", "Ячейка электролиза, за шт"), ("uv", "УФ-установка, за шт"), ("dos", "Дозатор pH и ORP, за комплект"), ("hp", "Тепловой насос, за шт"),
+        ("cov", "Покрытие, за м²"), ("fence", "Ограждение, за м"), ("alarm", "Датчик падения в воду, за шт"), ("plant", "Растение, за шт (средняя)")])
+    p5 = panel(
+        "pbbud", "05", "Смета-ведомость",
+        "Количества берутся из расчёта. Цены не заложены: введите цены из ваших предложений, сумма пересчитается.",
+        '<p class="e-note"><b>Ваши цены за единицу</b></p>' + pricegrid + '<button class="e-btn sm" id="pb-p-reset" type="button">Очистить цены</button>',
+        out("Результат", kv("Позиций с ценой", "pb-b-n") + kv("Итого", "pb-b-sum"), "pb-b-verdict"),
+        "Сумма = Σ (количество · ваша цена за единицу)",
+    )
+    p5 = p5.replace('data-panel="pbbud">', 'data-panel="pbbud" data-xtbl="1">', 1)
+    p5 = p5[:-len("</section>")] + '<h4 class="e-h4">Ведомость</h4><div id="pb-bt"></div></section>'
+    from art_pool import article
+    p6 = ('<section class="e-panel" id="pbart" data-panel="pbart"><div class="e-sech"><small>06</small><h2>Бассейны: чаши, вода, энергия, зима</h2></div>'
+          '<p class="e-lead2">Четыре контура, типы чаш, водоподготовка, тепло и энергия сезона, монтаж и зимовка, нормативный контур.</p>' + article() + '</section>')
+    subs = [("pbgeo", "Параметры"), ("pbcirc", "Вода"), ("pbheat", "Нагрев"), ("pbbio", "Биопул"), ("pbbud", "Смета"), ("pbart", "Статья")]
+    sub = '<div class="e-sub" role="tablist" aria-label="Бассейны">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
+    return (
+        head("Справочники · Бассейны", "Бассейны и биопулы: расчёт и статья",
+             "Оборот и насос, фильтр, трубы, нагрев и энергия сезона, обеззараживание, зона регенерации биопула и ведомость.")
+        + RU_ONLY + tabs("pool") + sub
+        + '<div class="e-elec" id="e-pb">' + "".join(_rows(x) if x in (p1, p2, p3, p4, p5) else x for x in [p1, p2, p3, p4, p5, p6]) + "</div>"
+        + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Оборот, нагрузка на фильтр, УФ, электролиз, потери тепла и COP это ориентиры практики, зимой потери больше, чем в летней модели. '
+          'Модель оборудования подбирают по паспорту. Порядок оформления стационарного бассейна, отступы от границы и санитарные требования к воде проверяйте по действующим актам и в местной администрации до начала работ.</p></div>'
+        + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
+        + '<script src="/static/pond-model.js?v=1"></script><script src="/static/pool-model.js?v=1"></script><script src="/static/pool.js?v=1"></script><script src="/static/export.js?v=2"></script>'
+    )
+
+
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + hub())
@@ -1099,7 +1181,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=25">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + forms())

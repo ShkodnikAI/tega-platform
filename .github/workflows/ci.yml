@@ -44,3 +44,5 @@ jobs:
         run: python3 -I tests/norms/test_norms.py
       - name: pond model tests
         run: node tests/unit/pond-model.test.js
+      - name: pool model tests
+        run: node tests/unit/pool-model.test.js
