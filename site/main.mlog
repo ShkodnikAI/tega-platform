@@ -377,6 +377,7 @@ pattern HeadTpl(_x: String) -> String {
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
 <link rel=\"stylesheet\" href=\"/static/site.css?v=16\">
+<script defer src=\"https://cloud.umami.is/script.js\" data-website-id=\"680eac0a-3a18-4cde-a0f4-7c7a915b7158\"></script>
 </head>
 <body class=\"pg-{{ page }}\">
 <div class=\"wip\" role=\"status\">{{ t.wip }}</div>
