@@ -1212,7 +1212,7 @@ def ai_panel(pid, num, title="Запрос для ИИ-агента"):
         ("cert", "Сертификаты и паспорт", True), ("safety", "Безопасность в условиях применения", True), ("energy", "Стоимость владения", False)])
     return (
         f'<section class="e-panel" id="{pid}" data-panel="{pid}"><div class="e-sech"><small>{num}</small><h2>{title}</h2></div>'
-        '<p class="e-lead2">Технически грамотный запрос для ИИ-агента (Claude, ChatGPT или другого): расчёт, количества и требования уже внутри. Выберите регион и категории, скопируйте запрос и отправьте агенту.</p>'
+        '<p class="e-lead2">Технически грамотный запрос для ИИ-агента (Claude, Google, Qwen, Grok или другого): расчёт, количества и требования уже внутри. Выберите регион и категории, скопируйте запрос и отправьте агенту.</p>'
         '<div id="ai-root" class="ai">'
         '<div class="ai-step"><span>1</span><h3>Регион и покупка</h3></div>'
         + f("Страна", "ai-country", "Беларусь", wide=False, mode="text") + f("Город или область", "ai-city", "Минск", wide=False, mode="text")
@@ -1225,8 +1225,9 @@ def ai_panel(pid, num, title="Запрос для ИИ-агента"):
         + '<div class="ai-step"><span>4</span><h3>Готовый запрос</h3></div>'
         '<div class="ai-card"><div class="ai-bar"><b>Запрос для агента</b><span id="ai-len"></span></div><pre id="ai-out" class="ai-out"></pre>'
         '<div class="ai-act"><button class="e-btn" id="ai-copy" type="button">Копировать</button><button class="e-btn ghost" id="ai-dl" type="button">Скачать .txt</button>'
-        '<button class="e-btn ghost" id="ai-claude" type="button">Открыть в Claude</button><button class="e-btn ghost" id="ai-gpt" type="button">Открыть в ChatGPT</button></div>'
-        '<p class="e-note">Запрос копируется в буфер обмена. Если агент не принял длинный текст по ссылке, вставьте его вручную. Цены, рейтинги и ссылки агент найдёт сам, обязательно проверяйте их по источникам: они меняются.</p></div>'
+        '<button class="e-btn ghost" id="ai-claude" type="button">Claude</button><button class="e-btn ghost" id="ai-google" type="button">Google (режим ИИ)</button>'
+        '<button class="e-btn ghost" id="ai-gemini" type="button">Gemini</button><button class="e-btn ghost" id="ai-qwen" type="button">Qwen</button><button class="e-btn ghost" id="ai-grok" type="button">Grok</button></div>'
+        '<p class="e-note">Кнопки сервисов копируют запрос в буфер и открывают сервис. Если он не подставил текст сам (Gemini не подставляет, остальным мешает длина), вставьте запрос вручную. Цены, рейтинги и ссылки агент найдёт сам, обязательно проверяйте их по источникам: они меняются.</p></div>'
         '</div></section>'
     )
 
@@ -1313,7 +1314,7 @@ def bath():
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Мощность печи, вентиляция, масса камней, отступки и обогрев поверхностей это ориентиры практики, модель печи и условия установки задаёт паспорт. '
           'Линию питания окончательно выбирает электрик, дровяную печь, дымоход и отступки проверяют по паспорту и требованиям пожарной безопасности. Порядок оформления постройки и отступы от границы уточняйте в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/bath-model.js?v=1"></script><script src="/static/aireq.js?v=1"></script><script src="/static/bath.js?v=2"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/bath-model.js?v=1"></script><script src="/static/aireq.js?v=2"></script><script src="/static/bath.js?v=2"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
