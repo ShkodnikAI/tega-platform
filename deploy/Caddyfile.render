@@ -59,5 +59,7 @@
 	reverse_proxy 127.0.0.1:8080 {
 		header_up X-Forwarded-For {client_ip}
 		header_up X-Real-IP {client_ip}
+		# Umami Cloud: разрешаем скрипт аналитики и отправку событий (остальная политика не меняется)
+		header_down Content-Security-Policy "default-src 'self'" "default-src 'self'; script-src 'self' https://cloud.umami.is; connect-src 'self' https://api-gateway.umami.dev https://cloud.umami.is"
 	}
 }
