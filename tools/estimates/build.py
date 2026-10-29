@@ -28,6 +28,7 @@ REF_TABS = [
     ("solar", "/spravochniki/solnechnaya-generaciya", "est_tab_solar"),
     ("cond", "/spravochniki/konditsionirovanie", "est_tab_cond"),
     ("smart", "/spravochniki/umnyj-dom", "est_tab_smart"),
+    ("price", "/spravochniki/cenoobrazovanie", "est_tab_price"),
 ]
 
 
@@ -92,6 +93,7 @@ def ref_hub():
         _group("Правила и нормы", "Как считаются объёмы и как проверяется качество: для сметчиков, прорабов и технадзора.", [
             _card("Объёмы работ", "По каким правилам считаются площади: что вычитается, что добавляется, какие коэффициенты.", "/spravochniki/obyemy", "Справочник"),
             _card("Качество работ", "Нормы приёмки по видам работ: отделка, бетон, кладка, дерево, электрика, трубопроводы и испытания.", "/spravochniki/kachestvo", "Справочник"),
+            _card("Из чего состоит цена", "ОХР и ОПР, плановая прибыль, структура затрат и граница конкурсного коэффициента.", "/spravochniki/cenoobrazovanie", "Статья"),
         ])
         + _group("Инженерные расчёты", "Калькуляторы для проектировщиков и монтажников с проверкой по нормам.", [
             _card("Электрика", "Сечение кабеля, ток короткого замыкания, заземление, освещение, подбор автомата и УЗО, справка по аппаратам.", "/spravochniki/elektrika", "Калькуляторы готовы"),
@@ -1005,6 +1007,18 @@ def smart():
     )
 
 
+def price():
+    from art_price import article
+    return (
+        head("Справочники · Ценообразование", "Из чего состоит цена строительных работ",
+             "ОХР и ОПР, плановая прибыль, постатейная структура затрат и конкурсный коэффициент: почему цена не растягивается в обе стороны.")
+        + RU_ONLY + tabs("price")
+        + '<div class="e-ref"><div class="e-sech"><small>01</small><h2>Конструкция цены</h2></div>' + article() + '</div>'
+        + '<div class="e-basis"><b>Важно знать</b><p>Это справочная статья, а не смета и не юридическая консультация. Нормы, коэффициенты и границы торгов меняются и зависят от вида работ и закупки: '
+          'перед применением в договоре их сверяет специалист по тексту действующих актов.</p></div>'
+    )
+
+
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
     src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + hub())
@@ -1012,7 +1026,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=25">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + forms())
