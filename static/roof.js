@@ -65,7 +65,8 @@
       form: val('rf-form'), L: num('rf-L'), W: num('rf-W'), ov: num('rf-ov'), alpha: num('rf-a'), valleys: num('rf-vl'), eaveH: num('rf-eh'),
       mat: val('rf-mat'), insT: num('rf-ins'), lifeMode: val('rf-life'),
       sk: num('rf-sk'), ce: num('rf-ce'), ct: num('rf-ct'), gOther: num('rf-go'), span: num('rf-sp'), step: num('rf-st'), b: num('rf-b'), h: num('rf-h'), grade: val('rf-gr'),
-      gutter: val('rf-gut'), horizon: num('rf-hor'), priceBase: num('rf-pb'), priceDemol: num('rf-pd'), az: val('rf-az'), pvShare: num('rf-pv')
+      gutter: val('rf-gut'), horizon: num('rf-hor'), priceBase: num('rf-pb'), priceDemol: num('rf-pd'), az: val('rf-az'), pvShare: num('rf-pv'),
+      pie: val('rf-pie'), insKind: val('rf-ik'), rNorm: num('rf-rn'), cross: val('rf-cr') === 'yes', ventOk: val('rf-vo'), struct: val('rf-str'), crew: num('rf-cw'), laborCover: num('rf-lc'), pvScheme: val('rf-ps'), pvVent: val('rf-pvv')
     };
     c.prices = prices(); c.priceCover = c.prices[c.mat];
     return c;
@@ -73,9 +74,9 @@
   function valid(c) {
     return c.L >= 2 && c.L <= 60 && c.W >= 2 && c.W <= 40 && c.ov >= 0 && c.ov <= 2 && c.alpha >= 0.5 && c.alpha <= 75 && c.valleys >= 0 && c.eaveH >= 1 && c.eaveH <= 20 && c.insT >= 0 && c.insT <= 500 &&
       c.sk > 0 && c.sk <= 6 && c.ce > 0 && c.ce <= 2 && c.ct > 0 && c.ct <= 1.5 && c.gOther >= 0 && c.span >= 1 && c.span <= 8 && c.step >= 0.3 && c.step <= 1.5 && c.b >= 30 && c.b <= 200 && c.h >= 75 && c.h <= 400 &&
-      c.horizon >= 10 && c.horizon <= 150 && c.pvShare >= 0 && c.pvShare <= 100;
+      c.horizon >= 10 && c.horizon <= 150 && c.pvShare >= 0 && c.pvShare <= 100 && c.rNorm >= 0 && c.rNorm <= 10 && c.crew >= 1 && c.crew <= 30 && c.laborCover >= 0;
   }
-  var IDS = ['rf-g1', 'rf-g2', 'rf-g3', 'rf-g4', 'rf-m1', 'rf-m2', 'rf-m3', 'rf-m4', 'rf-l1', 'rf-l2', 'rf-l3', 'rf-l4', 'rf-l5', 'rf-w1', 'rf-w2', 'rf-w3', 'rf-w4', 'rf-c1', 'rf-c2', 'rf-c3', 'rf-c4', 'rf-s1', 'rf-s2', 'rf-s3', 'rf-s4'];
+  var IDS = ['rf-g1', 'rf-g2', 'rf-g3', 'rf-g4', 'rf-m1', 'rf-m2', 'rf-m3', 'rf-m4', 'rf-l1', 'rf-l2', 'rf-l3', 'rf-l4', 'rf-l5', 'rf-w1', 'rf-w2', 'rf-w3', 'rf-w4', 'rf-c1', 'rf-c2', 'rf-c3', 'rf-c4', 'rf-s1', 'rf-s2', 'rf-s3', 'rf-s4', 'rf-h1', 'rf-h2', 'rf-h3', 'rf-k1', 'rf-k2', 'rf-k3', 'rf-k4'];
 
   /* пригодность всех покрытий к уклону */
   function drawPitch(c) {
@@ -116,13 +117,13 @@
       if (q.sheath) items.push({ name: 'Сплошной настил (влагостойкая фанера или OSB)', qty: n1(q.sheath, 0) + ' м²', req: 'толщина по шагу стропил и покрытию, влагостойкий класс' });
       if (q.battens) items.push({ name: 'Обрешётка', qty: n1(q.battens, 0) + ' м.п., шаг ' + n1(m.step * 1000, 0) + ' мм', req: 'антисептированная сухая доска, сечение по шагу стропил' });
       items.push({ name: 'Контробрешётка (вентзазор)', qty: n1(q.counter, 0) + ' м.п.', req: 'высота зазора не менее 50 мм' });
-      if (c.insT > 0) items.push({ name: 'Утеплитель и пароизоляция', qty: n1(q.insul, 1) + ' м³ утеплителя ' + n1(c.insT, 0) + ' мм, пароизоляция ' + n1(q.vapour, 0) + ' м²', req: 'негорючий утеплитель между стропилами, пароизоляция с проклейкой стыков' });
+      if (c.insT > 0) items.push({ name: 'Утеплитель и пароизоляция', qty: n1(q.insul, 1) + ' м³ утеплителя ' + n1(c.insT, 0) + ' мм (λ около ' + n1(r.lam, 3) + (r.hasR ? ', R не менее ' + n1(c.rNorm, 2) + ' м²·°C/Вт' : '') + '), пароизоляция ' + n1(q.vapour, 0) + ' м²', req: 'негорючий утеплитель, пароизоляция с проклейкой стыков, ' + (c.cross ? 'второй слой перекрёстно' : 'мостики холода стропил закрыть') });
       items.push({ name: 'Коньковые, торцевые и карнизные планки, ендовы', qty: 'конёк и рёбра ' + n1(q.ridgeLen, 0) + ' м.п., торцы ' + n1(q.verge, 0) + ' м.п., ендовы ' + n1(q.valleys, 0) + ' м.п.', req: 'от того же производителя и цвета, что покрытие' });
       items.push({ name: 'Водосточная система', qty: 'жёлоб ' + n1(r.gutterLen, 0) + ' м.п., труб ' + r.pipes + ' шт по ' + n1(c.eaveH, 1) + ' м', req: r.gutter.name + ', стальная с полимерным покрытием или пластик с морозостойкостью до −40 °C' });
       if (r.guardLen) items.push({ name: 'Снегозадержатели', qty: n1(r.guardLen, 0) + ' м.п.', req: 'трубчатые или решётчатые, совместимые с покрытием, крепёж к обрешётке или стропилам по паспорту' });
     }
     items.push({ name: 'Крепёж, герметики, проходки кровельные', qty: 'комплект', req: 'саморезы и гвозди с покрытием для кровли, манжеты для труб и вентиляции' });
-    if (c.pvShare > 0) items.push({ name: 'Солнечные модули на кровле', qty: n1(r.pvKw, 1) + ' кВт пиковой мощности', req: 'крепление без повреждения гидроизоляции, расчёт нагрузки на стропила, ориентация ' + AZ[c.az] });
+    if (c.pvShare > 0) items.push({ name: 'Солнечные модули на кровле', qty: n1(r.pvKw, 1) + ' кВт пиковой мощности', req: 'схема: ' + ({ on: 'на кронштейнах над кровлей', in: 'вместо покрытия с вентзазором 60–100 мм', bipv: 'фотоэлектрическая кровля', ballast: 'балластные рамы' }[c.pvScheme]) + ', расчёт нагрузки на стропила, ориентация ' + AZ[c.az] });
     var notes = r.warns.map(function (w) { return w.text; });
     notes.push('Числа кровельных покрытий ориентиры практики: сверить пределы уклона и нагрузки с паспортом системы. Подобрать покрытия трёх ценовых классов, подходящие по уклону и нагрузке.');
     window.TegaAI.update({ title: 'Кровля: ' + m.short, object: obj, items: items, notes: notes });
@@ -133,7 +134,7 @@
     if (!valid(c)) {
       last = null; IDS.forEach(function (i) { set(i, '—'); });
       verdict('rf-verdict', 'Проверьте данные: размеры дома 2–60 × 2–40 м, свес 0–2 м, уклон 0,5–75°, снег 0–6 кПа, пролёт стропила 1–8 м, шаг 0,3–1,5 м, сечение 30–200 × 75–400 мм.', true);
-      ['rf-v1', 'rf-v2', 'rf-v3', 'rf-v4'].forEach(function (i) { verdict(i, '', false); });
+      ['rf-v1', 'rf-v2', 'rf-v3', 'rf-v4', 'rf-v6', 'rf-v7'].forEach(function (i) { verdict(i, '', false); });
       ['rf-ch', 'rf-qt', 'rf-ct'].forEach(function (i) { var n = $(i); if (n) clearNode(n); }); set('rf-chn', '');
       if (window.TegaAI) window.TegaAI.update(null); return;
     }
@@ -196,11 +197,20 @@
     verdict('rf-v4', cnt ? (best ? 'Самое выгодное из подходящих по уклону при ваших ценах: ' + (D.filter(function (m2) { return m2.id === best; })[0].short) + '. Цены вводите с монтажом.' : 'Ни одно покрытие с ценой не подходит по уклону.') : 'Введите цены покрытий с монтажом, и таблица покажет стоимость владения по каждому.', cnt > 0 && !best);
 
     /* солнце */
+    set('rf-h1', 'R кровли ' + fmt(r.rFact, 2) + ' м²·°C/Вт (поверхности ' + fmt(r.rOther, 2) + ' + утеплитель ' + fmt(c.insT, 0) + ' мм / λ ' + fmt(r.lam, 3) + ')' + (r.hasR ? ', требуется ' + fmt(c.rNorm, 2) : ', норма не задана'));
+    set('rf-h2', r.hasR ? 'нужно ' + fmt(r.tReq, 0) + ' мм, с округлением до 50 мм ' + fmt(r.tRound, 0) + ' мм' : 'на 1 м²·°C/Вт нужно ' + fmt(r.lam * 1000, 0) + ' мм этого утеплителя');
+    set('rf-h3', r.ventArea ? 'отверстий не менее ' + fmt(r.ventArea * 1e4, 0) + ' см² в сумме: около ' + fmt(r.ventPerEave, 0) + ' см² на 1 м карниза и ' + fmt(r.ventPerRidge, 0) + ' см² на 1 м конька' : 'плоская кровля без вентиляционного зазора, воздух решают парогидроизоляцией и аэраторами');
+    verdict('rf-v6', r.warns.filter(function (w) { return /Сопротивление|перекрёстн|Утепление только|вентилир/.test(w.text); }).map(function (w) { return w.text; }).join(' '), r.warns.some(function (w) { return w.level === 'red' && /Сопротивление|вентилир/.test(w.text); }));
+    set('rf-k1', fmt(r.lab.total, 0) + ' чел·ч, ' + fmt(r.perM2Hours, 2) + ' чел·ч на м² (покрытие ' + fmt(r.laborRate, 2) + ')');
+    set('rf-k2', 'бригада ' + r.crew + ' чел.: около ' + fmt(r.days, 0) + ' рабочих дней по 8 часов, без погодных простоев');
+    set('rf-k3', 'стропила ' + fmt(r.lab.rafters, 0) + ', утепление ' + fmt(r.lab.pie, 0) + ', основание ' + fmt(r.lab.base, 0) + ', покрытие ' + fmt(r.lab.cover, 0) + ', водосток ' + fmt(r.lab.water, 0) + ' чел·ч');
+    set('rf-k4', 'осмотр и чистка около ' + r.maintHours + ' чел·ч в год (ориентир практики)');
+    verdict('rf-v7', '', false);
     set('rf-s1', 'пригодная площадь ' + fmt(r.pvArea, 0) + ' м², около ' + fmt(r.pvKw, 1) + ' кВт пиковой мощности');
-    set('rf-s2', fmt(r.pvKwh, 0) + ' кВт·ч в год (ориентация ' + AZ[c.az] + ', множитель уклона ' + fmt(r.pvTilt, 2) + ', ориентации ' + fmt(r.pvAz, 2) + ')');
+    set('rf-s2', fmt(r.pvKwhNet, 0) + ' кВт·ч в год с потерями схемы ' + fmt(r.pvLoss * 100, 1) + ' % (без них ' + fmt(r.pvKwh, 0) + '; ориентация ' + AZ[c.az] + ', множитель уклона ' + fmt(r.pvTilt, 2) + ', ориентации ' + fmt(r.pvAz, 2) + ')');
     set('rf-s3', 'добавочная нагрузка около ' + fmt(r.pvMass, 0) + ' кг на кровлю (около 15 кг/м² модулей)');
     set('rf-s4', 'кровля по нижней оценке ' + fmt(m.lifeLo, 0) + ' лет против 25–30 лет у панелей');
-    verdict('rf-v5', c.pvShare > 0 && m.lifeLo < 25 ? 'Покрытие может не пережить панели: меняйте кровлю до монтажа или выберите более долговечное.' : '', c.pvShare > 0 && m.lifeLo < 25);
+    verdict('rf-v5', r.warns.filter(function (w) { return /анел|Снегозадерж|Балласт|Схема|Северн/.test(w.text); }).map(function (w) { return w.text; }).join(' '), r.warns.some(function (w) { return w.level === 'red' && /анел/.test(w.text); }));
     drawPitch(c); aiSpec(c, r);
   }
 

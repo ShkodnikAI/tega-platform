@@ -32,6 +32,12 @@ M = [
 ]
 KEYS = ["id", "grp", "name", "short", "min", "special", "steep", "mass", "lifeLo", "lifeHi", "maint", "waste", "cls", "noise", "repair", "install", "fire", "base", "step"]
 MATERIALS = [dict(zip(KEYS, r)) for r in M]
+# трудозатраты монтажа самого покрытия, чел·ч на м²: для металла, мягкой, фальца, черепицы и мембраны по ориентирам ТЗ (80–100, 120–150, 150–180, 220–260, 60–80 чел·ч на 100 м²),
+# остальное оценка по аналогии. Ориентиры практики, у бригады они свои, в калькуляторе поле можно переопределить.
+LABOR = {"bit_roll": 0.9, "pvc": 0.7, "epdm": 0.7, "spray_pu": 0.5, "spray_pua": 0.5, "liquid": 0.8, "green": 1.5, "corr_bit": 0.7, "soft": 1.35, "profil": 0.8, "metal_tile": 0.9,
+         "composite": 1.1, "fibre": 1.0, "seam_steel": 1.65, "seam_zinc": 1.9, "cement": 2.4, "ceramic": 2.4, "slate": 3.0, "pv_tile": 2.0}
+for _m in MATERIALS:
+    _m["labor"] = LABOR[_m["id"]]
 BY = {m["id"]: m for m in MATERIALS}
 
 
