@@ -1197,6 +1197,40 @@ def pool():
     )
 
 
+def ai_panel(pid, num, title="Запрос для ИИ-агента"):
+    """Общая вкладка: по данным расчёта собирает запрос на подбор материалов и оборудования в трёх ценовых категориях."""
+    def chk(id_, label, on=True):
+        return f'<label class="o-chk"><input type="checkbox" id="{id_}"{" checked" if on else ""}><span>{label}</span></label>'
+    tiers = (
+        '<div class="ai-tiers">'
+        '<label class="ai-tier"><input type="checkbox" id="ai-t-eco" checked><span><b>Эконом</b><small>минимально достаточное и безопасное</small></span></label>'
+        '<label class="ai-tier"><input type="checkbox" id="ai-t-std" checked><span><b>Стандарт</b><small>оптимум цены и качества</small></span></label>'
+        '<label class="ai-tier"><input type="checkbox" id="ai-t-prem" checked><span><b>Премиум</b><small>лучшее по качеству и сервису</small></span></label>'
+        '</div>')
+    crit = "".join(chk("ai-c-" + k, t, on) for k, t, on in [
+        ("rating", "Рейтинг не ниже 4,5", True), ("reviews", "Отзывы владельцев", True), ("stock", "Наличие в регионе", True), ("warranty", "Гарантия и сервис", True),
+        ("cert", "Сертификаты и паспорт", True), ("safety", "Безопасность в условиях применения", True), ("energy", "Стоимость владения", False)])
+    return (
+        f'<section class="e-panel" id="{pid}" data-panel="{pid}"><div class="e-sech"><small>{num}</small><h2>{title}</h2></div>'
+        '<p class="e-lead2">Технически грамотный запрос для ИИ-агента (Claude, ChatGPT или другого): расчёт, количества и требования уже внутри. Выберите регион и категории, скопируйте запрос и отправьте агенту.</p>'
+        '<div id="ai-root" class="ai">'
+        '<div class="ai-step"><span>1</span><h3>Регион и покупка</h3></div>'
+        + f("Страна", "ai-country", "Беларусь", wide=False, mode="text") + f("Город или область", "ai-city", "Минск", wide=False, mode="text")
+        + sel("Где покупать", "ai-shop", [("region", "Магазины региона"), ("online", "Интернет с доставкой"), ("any", "Любые источники")])
+        + sel("Валюта цен", "ai-cur", [("BYN", "BYN"), ("RUB", "RUB"), ("EUR", "EUR"), ("USD", "USD")])
+        + '<div class="ai-step"><span>2</span><h3>Ценовые категории</h3></div>' + tiers
+        + '<div class="ai-step"><span>3</span><h3>Критерии выбора</h3></div><div class="ai-crit">' + crit + '</div>'
+        + f("Ориентир бюджета на комплект (необязательно)", "ai-budget", "", "", wide=True, mode="text")
+        + '<div class="e-f wide"><label for="ai-note">Пожелания (необязательно)</label><div class="e-in"><textarea id="ai-note" rows="3" placeholder="Например: тихая работа, управление с телефона, цвет, торговые марки, которых нужно избегать"></textarea></div></div>'
+        + '<div class="ai-step"><span>4</span><h3>Готовый запрос</h3></div>'
+        '<div class="ai-card"><div class="ai-bar"><b>Запрос для агента</b><span id="ai-len"></span></div><pre id="ai-out" class="ai-out"></pre>'
+        '<div class="ai-act"><button class="e-btn" id="ai-copy" type="button">Копировать</button><button class="e-btn ghost" id="ai-dl" type="button">Скачать .txt</button>'
+        '<button class="e-btn ghost" id="ai-claude" type="button">Открыть в Claude</button><button class="e-btn ghost" id="ai-gpt" type="button">Открыть в ChatGPT</button></div>'
+        '<p class="e-note">Запрос копируется в буфер обмена. Если агент не принял длинный текст по ссылке, вставьте его вручную. Цены, рейтинги и ссылки агент найдёт сам, обязательно проверяйте их по источникам: они меняются.</p></div>'
+        '</div></section>'
+    )
+
+
 def bath():
     def chk(label, id_):
         return f'<div class="e-f wide"><div class="e-in"><label class="o-chk"><input type="checkbox" id="{id_}"><span>{label}</span></label></div></div>'
@@ -1267,8 +1301,9 @@ def bath():
     from art_bath import article
     p6 = ('<section class="e-panel" id="btart" data-panel="btart"><div class="e-sech"><small>06</small><h2>Бани и сауны: режимы, ограждения, печи, безопасность</h2></div>'
           '<p class="e-lead2">Режим как точка на карте, пирог стен, печи и камни, электрика, пожар и угарный газ, хамам, монтаж и типовые ошибки.</p>' + article() + '</section>')
-    subs = [("bageo", "Параметры"), ("baheat", "Печь и электрика"), ("baenc", "Ограждения"), ("baham", "Хамам"), ("babud", "Смета"), ("btart", "Статья")]
-    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p6])
+    p7 = ai_panel("baai", "07")
+    subs = [("bageo", "Параметры"), ("baheat", "Печь и электрика"), ("baenc", "Ограждения"), ("baham", "Хамам"), ("babud", "Смета"), ("baai", "Запрос для ИИ"), ("btart", "Статья")]
+    subs, pl = art_first(subs, [p1, p2, p3, p4, p5, p7, p6])
     sub = '<div class="e-sub" role="tablist" aria-label="Бани и сауны">' + "".join(f'<a href="#{k}" data-sub="{k}"{ART_CLS if k in ART_IDS else ""}>{n}</a>' for k, n in subs) + "</div>"
     return (
         head("Справочники · Бани и сауны", "Бани и сауны: расчёт и статья",
@@ -1278,22 +1313,22 @@ def bath():
         + '<div class="e-basis"><b>Важно знать</b><p>Это ориентировочный расчёт для разговора с подрядчиком, а не проект. Мощность печи, вентиляция, масса камней, отступки и обогрев поверхностей это ориентиры практики, модель печи и условия установки задаёт паспорт. '
           'Линию питания окончательно выбирает электрик, дровяную печь, дымоход и отступки проверяют по паспорту и требованиям пожарной безопасности. Порядок оформления постройки и отступы от границы уточняйте в местной администрации до начала работ.</p></div>'
         + '<noscript><p class="e-note">Для расчётов нужен JavaScript.</p></noscript>'
-        + '<script src="/static/bath-model.js?v=1"></script><script src="/static/bath.js?v=1"></script><script src="/static/export.js?v=2"></script>'
+        + '<script src="/static/bath-model.js?v=1"></script><script src="/static/aireq.js?v=1"></script><script src="/static/bath.js?v=2"></script><script src="/static/export.js?v=2"></script>'
     )
 
 
 def main():
     src = "// Страницы раздела «Расчёт смет». Файл создаётся скриптом tools/estimates/build.py, правьте текст там.\n\n"
-    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + hub())
-    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + ref_hub())
-    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + volumes())
-    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + quality())
-    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + elec())
+    src += pattern("EstHubTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + hub())
+    src += pattern("EstRefTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + ref_hub())
+    src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + volumes())
+    src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + quality())
+    src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + elec())
     for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath)):
-        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=25">' + fn())
-    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + otdelka())
-    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=25">' + forms())
-    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=25">' + tabs("calc"))
+        src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=26">' + fn())
+    src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + otdelka())
+    src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
+    src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=26">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 

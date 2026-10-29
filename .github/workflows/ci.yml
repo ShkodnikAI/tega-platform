@@ -48,3 +48,5 @@ jobs:
         run: node tests/unit/pool-model.test.js
       - name: bath model tests
         run: node tests/unit/bath-model.test.js
+      - name: ai request tests
+        run: node tests/unit/aireq.test.js
