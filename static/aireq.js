@@ -115,7 +115,7 @@
   function openIn(btn, base) {
     var t = $('ai-out').textContent;
     copy(btn);
-    window.open(base + encodeURIComponent(t.length > 6000 ? t.slice(0, 6000) : t), '_blank', 'noopener');
+    window.open(base.indexOf('?') < 0 ? base : base + encodeURIComponent(t.length > 6000 ? t.slice(0, 6000) : t), '_blank', 'noopener');
   }
   function init() {
     var root_ = $('ai-root'); if (!root_) return;
@@ -123,8 +123,9 @@
     var b;
     if ((b = $('ai-copy'))) b.addEventListener('click', function () { copy(b); });
     if ((b = $('ai-dl'))) b.addEventListener('click', download);
-    if ((b = $('ai-claude'))) b.addEventListener('click', function () { openIn(b, 'https://claude.ai/new?q='); });
-    if ((b = $('ai-gpt'))) b.addEventListener('click', function () { openIn(b, 'https://chatgpt.com/?q='); });
+    [['ai-claude', 'https://claude.ai/new?q='], ['ai-google', 'https://www.google.com/search?udm=50&q='], ['ai-gemini', 'https://gemini.google.com/app'], ['ai-qwen', 'https://chat.qwen.ai/?q='], ['ai-grok', 'https://grok.com/?q=']].forEach(function (x) {
+      var el = $(x[0]); if (el) el.addEventListener('click', function () { openIn(el, x[1]); });
+    });
     render();
   }
   api.update = function (s) { spec = s; render(); };
