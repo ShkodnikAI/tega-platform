@@ -24,6 +24,14 @@ pattern DictRu(_x: String) -> Map {
   sp3_t: "Обозначения на чертежах",
   sp3_d: "Окна, двери и размерные цепочки: как читать условные обозначения.",
   sp_soon: "Скоро",
+  ref_tag2: "Справочник",
+  ref_title: "Новое в справочнике",
+  ref_lead: "Статьи и калькуляторы для заказчиков и специалистов: документы, нормы, расчёты.",
+  ref_tag: "Статья · 2026",
+  ref1_t: "Текущий ремонт: договоры, сметы и расчёты",
+  ref1_d: "Дефектный акт, локальная смета, цена, закупка, допработы и приёмка: что обязательно и что сверять по актам.",
+  ref2_t: "Справочники и расчёты",
+  ref2_d: "Калькуляторы по инженерным системам, кровлям и отделке, статьи и образцы форм.",
   desc: "ТЭГА ПЛЮС: ремонтно-строительные работы в Минске и по Беларуси. Элегантный инженерный подход. Более 20 лет опыта, более 1000 объектов.",
   nav_aria: "Основное меню",
   lang_aria: "Язык сайта",
@@ -46,6 +54,7 @@ pattern DictRu(_x: String) -> Map {
   est_tab_cond: "Кондиционирование",
   est_tab_smart: "Умный дом",
   est_tab_price: "Цена работ",
+  est_tab_repair: "Текущий ремонт",
   est_tab_pond: "Пруды",
   est_tab_pool: "Бассейны",
   est_tab_bath: "Бани и сауны",
@@ -133,6 +142,14 @@ pattern DictBe(_x: String) -> Map {
   sp3_t: "Абазначэнні на чарцяжах",
   sp3_d: "Вокны, дзверы і памерныя ланцужкі: як чытаць умоўныя абазначэнні.",
   sp_soon: "Хутка",
+  ref_tag2: "Даведнік",
+  ref_title: "Новае ў даведніку",
+  ref_lead: "Артыкулы і калькулятары для заказчыкаў і спецыялістаў: дакументы, нормы, разлікі.",
+  ref_tag: "Артыкул · 2026",
+  ref1_t: "Бягучы рамонт: дагаворы, каштарысы і разлікі",
+  ref1_d: "Дэфектны акт, лакальны каштарыс, цана, закупка, дадатковыя работы і прыёмка: што абавязкова і што звяраць па актах.",
+  ref2_t: "Даведнікі і разлікі",
+  ref2_d: "Калькулятары па інжынерных сістэмах, дахах і аддзелцы, артыкулы і ўзоры формаў.",
   desc: "ТЭГА ПЛЮС: рамонтна-будаўнічыя работы ў Мінску і па Беларусі. Элегантны інжынерны падыход. Больш за 20 гадоў вопыту, больш за 1000 аб’ектаў.",
   nav_aria: "Асноўнае меню",
   lang_aria: "Мова сайта",
@@ -155,6 +172,7 @@ pattern DictBe(_x: String) -> Map {
   est_tab_cond: "Кандыцыянаванне",
   est_tab_smart: "Разумны дом",
   est_tab_price: "Кошт работ",
+  est_tab_repair: "Бягучы рамонт",
   est_tab_pond: "Сажалкі",
   est_tab_pool: "Басейны",
   est_tab_bath: "Лазні і сауны",
@@ -242,6 +260,14 @@ pattern DictEn(_x: String) -> Map {
   sp3_t: "Drawing symbols",
   sp3_d: "Windows, doors and dimension chains: how to read the conventions.",
   sp_soon: "Soon",
+  ref_tag2: "Reference",
+  ref_title: "New in the reference",
+  ref_lead: "Articles and calculators for clients and specialists: documents, norms, calculations.",
+  ref_tag: "Article · 2026",
+  ref1_t: "Current repair: contracts, estimates and calculations",
+  ref1_d: "Defect report, local estimate, price, procurement, extra works and acceptance: what is required and what to check against the acts.",
+  ref2_t: "Reference and calculators",
+  ref2_d: "Calculators for engineering systems, roofs and finishing, articles and sample forms.",
   desc: "TEGA PLUS: renovation and construction in Minsk and across Belarus. Elegant engineering approach. Over 20 years of experience, more than 1,000 completed projects.",
   nav_aria: "Main menu",
   lang_aria: "Site language",
@@ -264,6 +290,7 @@ pattern DictEn(_x: String) -> Map {
   est_tab_cond: "Air conditioning",
   est_tab_smart: "Smart home",
   est_tab_price: "Work pricing",
+  est_tab_repair: "Current repair",
   est_tab_pond: "Ponds",
   est_tab_pool: "Pools",
   est_tab_bath: "Baths and saunas",
@@ -467,6 +494,14 @@ pattern HomeTpl(_x: String) -> String {
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp1_t }}</h3><p>{{ t.sp1_d }}</p></div>
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_top }}</span><h3>{{ t.sp2_t }}</h3><p>{{ t.sp2_d }}</p></div>
 <div class=\"help-card\"><span class=\"help-tag\">{{ t.sp_soon }}</span><h3>{{ t.sp3_t }}</h3><p>{{ t.sp3_d }}</p></div>
+</div>
+</div></section>
+<section class=\"help\"><div class=\"wrap\">
+<h2>{{ t.ref_title }}</h2>
+<p class=\"lead\">{{ t.ref_lead }}</p>
+<div class=\"help-grid\">
+<a class=\"help-card\" href=\"{{ p }}/raschet-smet/tekushchiy-remont\"><span class=\"help-tag\">{{ t.ref_tag }}</span><h3>{{ t.ref1_t }}</h3><p>{{ t.ref1_d }}</p></a>
+<a class=\"help-card\" href=\"{{ p }}/spravochniki\"><span class=\"help-tag\">{{ t.ref_tag2 }}</span><h3>{{ t.ref2_t }}</h3><p>{{ t.ref2_d }}</p></a>
 </div>
 </div></section>
 <section class=\"cta\"><div class=\"wrap\">
@@ -760,6 +795,11 @@ pattern EstPondPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/prudy", "est", d.est_tab_pond, true, est.EstPondTpl(""))
 }
 
+pattern EstRepairPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/raschet-smet/tekushchiy-remont", "est", d.est_tab_repair, true, est.EstRepairTpl(""))
+}
+
 pattern EstPricePage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/cenoobrazovanie", "est", d.est_tab_price, true, est.EstPriceTpl(""))
@@ -805,6 +845,7 @@ server {
   route "/spravochniki/konditsionirovanie" method=GET { return EstCondPage("ru") }
   route "/spravochniki/umnyj-dom" method=GET { return EstSmartPage("ru") }
   route "/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("ru") }
+  route "/raschet-smet/tekushchiy-remont" method=GET { return EstRepairPage("ru") }
   route "/spravochniki/prudy" method=GET { return EstPondPage("ru") }
   route "/spravochniki/basseyny" method=GET { return EstPoolPage("ru") }
   route "/spravochniki/bani" method=GET { return EstBathPage("ru") }
@@ -825,6 +866,7 @@ server {
   route "/be/spravochniki/konditsionirovanie" method=GET { return EstCondPage("be") }
   route "/be/spravochniki/umnyj-dom" method=GET { return EstSmartPage("be") }
   route "/be/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("be") }
+  route "/be/raschet-smet/tekushchiy-remont" method=GET { return EstRepairPage("be") }
   route "/be/spravochniki/prudy" method=GET { return EstPondPage("be") }
   route "/be/spravochniki/basseyny" method=GET { return EstPoolPage("be") }
   route "/be/spravochniki/bani" method=GET { return EstBathPage("be") }
@@ -845,6 +887,7 @@ server {
   route "/en/spravochniki/konditsionirovanie" method=GET { return EstCondPage("en") }
   route "/en/spravochniki/umnyj-dom" method=GET { return EstSmartPage("en") }
   route "/en/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("en") }
+  route "/en/raschet-smet/tekushchiy-remont" method=GET { return EstRepairPage("en") }
   route "/en/spravochniki/prudy" method=GET { return EstPondPage("en") }
   route "/en/spravochniki/basseyny" method=GET { return EstPoolPage("en") }
   route "/en/spravochniki/bani" method=GET { return EstBathPage("en") }
