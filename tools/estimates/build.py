@@ -18,6 +18,7 @@ EST_TABS = [
     ("fin", "/raschet-smet/otdelka", "est_tab_fin"),
     ("forms", "/raschet-smet/formy", "est_tab_forms"),
     ("price", "/raschet-smet/cenoobrazovanie", "est_tab_price"),
+    ("repair", "/raschet-smet/tekushchiy-remont", "est_tab_repair"),
 ]
 REF_TABS = [
     ("rhub", "/spravochniki", "ref_tab_hub"),
@@ -81,6 +82,7 @@ def hub():
         _card("Инженерные системы", "Электрика, водоснабжение, отопление, вентиляция. Расчёт стоимости по объёму работ."),
         _card("Образцы форм", "Шесть печатных форм сметы: смета, смета по помещениям, спецификации, заявка на материалы, ведомость состава работ. PDF и PNG с водяным знаком.", "/raschet-smet/formy", "Образцы"),
         _card("Из чего состоит цена", "ОХР и ОПР, плановая прибыль, структура затрат и граница конкурсного коэффициента.", "/raschet-smet/cenoobrazovanie", "Статья"),
+        _card("Текущий ремонт в 2026 году", "Дефектный акт, локальная смета, цена и договор, закупка, допработы, приёмка и учёт: что обязательно и что проверять.", "/raschet-smet/tekushchiy-remont", "Статья"),
         _card("Общая смета по объекту", "Собирает выбранные расчёты в одну смету с итогами по помещениям и разделам."),
     ])
     more = (
@@ -1061,6 +1063,18 @@ def price():
     )
 
 
+def repair():
+    from art_repair import article
+    return (
+        head("Расчёт смет · Текущий ремонт", "Текущий ремонт: договоры, сметы и расчёты в 2026 году",
+             "Что нужно вместо проекта, как составить дефектный акт и локальную смету, как формируется цена, оформляются допработы и принимаются работы.")
+        + RU_ONLY + tabs("repair")
+        + '<div class="e-ref"><div class="e-sech"><small>01</small><h2>Порядок работы по документам</h2></div>' + article() + '</div>'
+        + '<div class="e-basis"><b>Важно знать</b><p>Это справочная статья, а не смета и не юридическая консультация. Нормативные акты 2026 года менялись несколько раз: '
+          'номера, проценты и пороги перед применением в договоре сверяет специалист по тексту действующих актов.</p></div>'
+    )
+
+
 def pond():
     p1 = panel(
         "pdgeo", "01", "Параметры и паспорт пруда",
@@ -1526,7 +1540,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind), ("EstRoofTpl", roof)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind), ("EstRoofTpl", roof), ("EstRepairTpl", repair)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=26">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
