@@ -162,7 +162,7 @@
     ink.appendChild(pickc);
     ink.appendChild(el('label', {}, 'свой цвет'));
     styleBox.appendChild(ink);
-    styleBox.appendChild(el('div', { 'class': 'idoc-sample' }, 'Иванов Иван Иванович, 12.05.2026'));
+    styleBox.appendChild(el('div', { 'class': 'idoc-sample' }, 'Будович Мастак Якаснавич, 12.05.2026'));
   }
   applyStyle();
 
