@@ -1106,7 +1106,7 @@ def idoc_act():
     import art_idoc
     return (
         head("Исполнительная документация · Акты", "Акты: заполнить онлайн",
-             "Выберите акт, заполните поля и распечатайте бланк или сохраните его. Формы перенесены из СН 1.03.04-2020, СП 4.01.08-2024 и СП 4.02.08-2024.")
+             "Выберите акт, заполните поля и распечатайте бланк или сохраните его. Формы перенесены из СН 1.03.04-2020, СП 4.01.08-2024, СП 4.02.08-2024, СП 4.02.07-2024 и СП 4.01.07-2024.")
         + RU_ONLY + tabs("idact") + art_idoc.akty_body()
     )
 
@@ -1582,9 +1582,9 @@ def main():
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
     import art_idoc_forms
     art_idoc_forms.write_js(ROOT / "static" / "idoc-data.js")
-    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=28">' + idoc_hub())
-    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=28">' + idoc_art())
-    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=28">' + idoc_act())
+    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=29">' + idoc_hub())
+    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=29">' + idoc_art())
+    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=29">' + idoc_act())
     src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=26">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))

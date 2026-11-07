@@ -39,10 +39,40 @@
     return [block.text || ''];
   }
 
+  /* Участники комиссии: form.parties = [{k,label,def}]; включены по умолчанию, кроме тех, у кого def=false.
+     Состояние хранится в vals['_on_<k>'] ('1' / '0'). Блок с role и подпись с keys скрываются, если участник выключен. */
+  function partyOn(form, vals, k) {
+    var ps = form.parties || [];
+    for (var i = 0; i < ps.length; i++) {
+      if (ps[i].k !== k) continue;
+      var v = (vals || {})['_on_' + k];
+      if (v === '1') return true;
+      if (v === '0') return false;
+      return ps[i].def !== false;
+    }
+    return true;
+  }
+  function shown(form, vals) {
+    return form.blocks.map(function (b) {
+      if (b.role && !partyOn(form, vals, b.role)) return null;
+      if (b.k === 'sign') {
+        var keep = [], keys = [];
+        b.roles.forEach(function (r, i) {
+          var k = b.keys && b.keys[i];
+          if (k && !partyOn(form, vals, k)) return;
+          keep.push(r); keys.push(k);
+        });
+        if (!keep.length) return null;
+        return { k: 'sign', dt: b.dt, roles: keep, keys: keys };
+      }
+      return b;
+    }).filter(Boolean);
+  }
+
   /* Список полей формы по порядку появления, без повторов по ключу. */
-  function fields(form) {
+  function fields(form, vals) {
     var seen = {}, list = [];
-    form.blocks.forEach(function (b) {
+    shown(form, vals).forEach(function (b) {
       if (b.k === 'date') {
         if (b.city && !seen._city) { seen._city = 1; list.push({ key: '_city', type: 'text', label: 'Населённый пункт' }); }
         if (!seen._date) { seen._date = 1; list.push({ key: '_date', type: 'date', label: b.label || 'Дата акта' }); }
@@ -112,7 +142,7 @@
   function renderHtml(form, vals) {
     vals = vals || {};
     var out = ['<div class="idoc-paper">'];
-    form.blocks.forEach(function (b) {
+    shown(form, vals).forEach(function (b) {
       switch (b.k) {
         case 'title':
           out.push('<div class="idoc-title">' + b.lines.map(function (l) { return '<div>' + inline(l, vals) + '</div>'; }).join('') + '</div>');
@@ -120,7 +150,7 @@
         case 'date':
           out.push('<div class="idoc-dateline">' + (b.city
             ? '<span class="fld' + (vals._city ? '' : ' empty') + '"><span class="v">' + (vals._city ? esc(vals._city) : '&nbsp;') + '</span><small>населённый пункт</small></span>'
-            : '<span></span>') + '<span class="idoc-date">' + dateHtml(vals._date) + '</span></div>');
+            : '<span></span>') + '<span class="idoc-date' + (dateParts(vals._date) ? ' hw' : '') + '">' + dateHtml(vals._date) + '</span></div>');
           break;
         case 'h':
           out.push('<div class="idoc-h">' + esc(b.text) + '</div>');
@@ -147,7 +177,7 @@
   function renderText(form, vals) {
     vals = vals || {};
     var out = [];
-    form.blocks.forEach(function (b) {
+    shown(form, vals).forEach(function (b) {
       switch (b.k) {
         case 'title':
           out.push(b.lines.map(function (l) { return inline(l, vals, true); }).join('\n'));
@@ -176,12 +206,12 @@
 
   /* Сколько полей заполнено (для индикатора). */
   function progress(form, vals) {
-    var fs = fields(form), n = 0;
+    var fs = fields(form, vals), n = 0;
     fs.forEach(function (f) { if (String((vals || {})[f.key] || '').trim()) n++; });
     return { filled: n, total: fs.length };
   }
 
-  var api = { parse: parse, fields: fields, renderHtml: renderHtml, renderText: renderText, progress: progress, dateText: dateText, MONTHS: MONTHS, SEP: SEP };
+  var api = { parse: parse, fields: fields, partyOn: partyOn, renderHtml: renderHtml, renderText: renderText, progress: progress, dateText: dateText, MONTHS: MONTHS, SEP: SEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.TegaIdoc = api;
 })(typeof window !== 'undefined' ? window : this);

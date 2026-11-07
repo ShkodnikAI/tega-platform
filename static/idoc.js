@@ -41,9 +41,35 @@
     return n;
   }
 
+  /* Кто входит в комиссию и подписывает акт: выключенные участники исчезают из бланка, полей и подписей. */
+  var partiesBox = document.getElementById('idoc-parties');
+  function buildParties() {
+    partiesBox.textContent = '';
+    var ps = form.parties || [];
+    partiesBox.hidden = !ps.length;
+    if (!ps.length) return;
+    partiesBox.appendChild(el('b', {}, 'Кто входит в комиссию и подписывает акт'));
+    ps.forEach(function (pt) {
+      var lab = el('label');
+      var cb = el('input', { type: 'checkbox' });
+      cb.checked = C.partyOn(form, vals, pt.k);
+      cb.addEventListener('change', function () {
+        vals['_on_' + pt.k] = cb.checked ? '1' : '0';
+        buildFields();
+        paint();
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveDraft, 250);
+      });
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(pt.label));
+      partiesBox.appendChild(lab);
+    });
+    partiesBox.appendChild(el('small', {}, 'Снятая галочка убирает строку комиссии и подпись из акта. Состав комиссии определяют договор и проект.'));
+  }
+
   function buildFields() {
     fieldsBox.textContent = '';
-    C.fields(form).forEach(function (f, i) {
+    C.fields(form, vals).forEach(function (f, i) {
       var id = 'idf-' + f.key;
       var wrap = el('div', { 'class': 'idoc-f' });
       wrap.appendChild(el('label', { 'for': id }, f.label));
@@ -81,6 +107,7 @@
     info.appendChild(document.createTextNode('. ' + f.use));
     info.appendChild(el('br'));
     info.appendChild(document.createTextNode('Место в Перечне: ' + f.perechen + '.'));
+    buildParties();
     buildFields();
     paint();
     if (!keepHash) { try { history.replaceState(null, '', '#' + f.id); } catch (e) { /* ignore */ } }
@@ -129,6 +156,7 @@
     var all = store();
     delete all[form.id];
     store(all);
+    buildParties();
     buildFields();
     paint();
     say('Поля очищены');

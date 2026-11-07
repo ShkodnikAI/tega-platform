@@ -7,7 +7,7 @@ const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(__dirname + '/../../static/idoc-data.js', 'utf8'), ctx);
 const D = ctx.window.IDOC_DATA;
 
-assert.strictEqual(D.forms.length, 13, 'число форм');
+assert.strictEqual(D.forms.length, 26, 'число форм');
 const ids = D.forms.map(f => f.id);
 assert.strictEqual(new Set(ids).size, ids.length, 'id форм уникальны');
 const groups = D.groups.map(g => g.id);
@@ -69,3 +69,37 @@ assert.strictEqual(t.length, 5);
 assert(t[1].ml === true && t[1].cap === 'подпись');
 assert(t[3].kind === 'u' && t[3].opts.length === 2);
 console.log('idoc: ok (' + D.forms.length + ' форм)');
+
+// участники комиссии: снятая галочка убирает строку комиссии, поля и подпись
+const sl = D.forms.find(f => f.id === 'sn-l');
+assert(sl.parties.length === 4 && sl.parties.find(x => x.k === 'sub').def === false, 'субподрядчик выключен по умолчанию');
+assert(!C.fields(sl).some(x => x.key === 'sub'), 'поле субподрядчика скрыто по умолчанию');
+assert(C.fields(sl, { _on_sub: '1' }).some(x => x.key === 'sub'), 'поле субподрядчика появилось после включения');
+assert(!C.fields(sl, { _on_an: '0' }).some(x => x.key === 'an'), 'поле авторского надзора скрыто');
+const signsOf = (f, v) => (C.renderHtml(f, v).match(/class="idoc-sign"/g) || []).length;
+assert.strictEqual(signsOf(sl, {}), 3, 'три подписи по умолчанию');
+assert.strictEqual(signsOf(sl, { _on_sub: '1' }), 4);
+assert.strictEqual(signsOf(sl, { _on_an: '0', _on_tn: '0' }), 1);
+assert(!C.renderText(sl, { _on_an: '0' }).includes('авторского надзора'));
+assert(C.renderText(sl, { _on_sub: '1' }).includes('субподрядной организации'));
+assert.strictEqual(C.progress(sl, { _on_an: '0' }).total, C.fields(sl, { _on_an: '0' }).length);
+const nv = D.forms.find(f => f.id === 'nv-a');
+assert.strictEqual(signsOf(nv, { _on_proj: '0' }), 3);
+assert(!C.renderHtml(nv, { _on_proj: '0' }).includes('Представитель проектной организации'));
+// участник без привязки (форма без parties) всегда включён
+assert(C.partyOn({ parties: [] }, {}, 'x') === true);
+
+// все формы: у каждой строки комиссии и подписи есть соответствие, переключатели работают
+D.forms.forEach(f => {
+  const keys = (f.parties || []).map(x => x.k);
+  f.blocks.filter(x => x.k === 'sign').forEach(sb => {
+    assert(sb.keys && sb.keys.length === sb.roles.length, f.id + ': keys у подписи');
+    if (keys.length) sb.keys.forEach(k => assert(keys.includes(k), f.id + ': подпись без участника ' + k));
+  });
+  keys.forEach(k => {
+    const off = {}; off['_on_' + k] = '0';
+    const html = C.renderHtml(f, off);
+    assert(!html.includes('[['), f.id + ': поля после выключения ' + k);
+  });
+});
+console.log('idoc tests ok');
