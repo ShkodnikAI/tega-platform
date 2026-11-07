@@ -138,6 +138,26 @@
     }).join('');
   }
 
+  /* Перечень материалов и документов о качестве (список хранится в браузере, см. idoc.js). */
+  function matsHtml(list) {
+    list = list || [];
+    var n = Math.max(8, list.length), rows = '';
+    for (var i = 0; i < n; i++) {
+      var m = list[i] || {};
+      rows += '<tr><td class="n">' + (i + 1) + '</td><td><span class="hw">' + esc(m.name || '') + '</span></td><td><span class="hw">' + esc(m.doc || '') + '</span></td></tr>';
+    }
+    return '<table class="idoc-mats"><thead><tr><th>№</th><th>Наименование материала, изделия, конструкции</th><th>Документ о качестве: вид, номер, дата, изготовитель</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  function matsText(list) {
+    list = list || [];
+    var n = Math.max(8, list.length), out = ['№  Наименование  —  Документ о качестве'];
+    for (var i = 0; i < n; i++) {
+      var m = list[i] || {};
+      out.push((i + 1) + '.  ' + (m.name || '__________') + '  —  ' + (m.doc || '__________'));
+    }
+    return out.join('\n');
+  }
+
   /* Бланк в HTML. */
   function renderHtml(form, vals) {
     vals = vals || {};
@@ -154,6 +174,9 @@
           break;
         case 'h':
           out.push('<div class="idoc-h">' + esc(b.text) + '</div>');
+          break;
+        case 'mats':
+          out.push(matsHtml(vals._mats));
           break;
         case 'li':
           out.push('<div class="idoc-li">— ' + inline(b.text, vals) + '</div>');
@@ -187,6 +210,9 @@
           break;
         case 'h':
           out.push('\n' + b.text.toUpperCase());
+          break;
+        case 'mats':
+          out.push(matsText(vals._mats));
           break;
         case 'li':
           out.push('— ' + inline(b.text, vals, true));

@@ -225,7 +225,7 @@ def akty_body():
     opts = ""
     for gid, gname in GROUPS:
         opts += f'<optgroup label="{gname}">'
-        for f in FORMS:
+        for f in sorted(FORMS, key=lambda x: 0 if x.get("title") else 1 if x["id"] == "mat-list" else 2):
             if f["group"] == gid:
                 opts += f'<option value="{f["id"]}">{f["short"]}</option>'
         opts += "</optgroup>"
@@ -235,6 +235,7 @@ def akty_body():
         '<p class="idoc-info" id="idoc-info"></p>'
         '<div class="idoc-grid">'
         '<div class="idoc-left"><div class="idoc-parties" id="idoc-parties" hidden></div>'
+        '<div class="idoc-mem" id="idoc-mem"></div>'
         '<form class="idoc-fields" id="idoc-fields" aria-label="Поля акта"></form></div>'
         '<div class="idoc-view"><div class="idoc-bar">'
         '<button type="button" id="idoc-print">Печать / PDF</button><button type="button" id="idoc-copy">Копировать текст</button>'
@@ -242,9 +243,9 @@ def akty_body():
         '<span class="idoc-prog" id="idoc-prog"></span><span class="idoc-status" id="idoc-status" role="status" aria-live="polite"></span></div>'
         '<div class="idoc-paperwrap" id="idoc-paper"></div></div></div>'
         '<noscript><p class="e-note">Для заполнения нужен включённый JavaScript.</p></noscript></div>'
-        + _box("Как пользоваться", "Заполните поля слева, бланк справа обновляется сразу. «Печать / PDF» откроет печать браузера: там можно выбрать «Сохранить как PDF». "
+        + _box("Как пользоваться", "Заполните поля слева, бланк справа обновляется сразу. В начале каждого раздела есть титульный лист: объект и фамилии участников вводятся один раз и подставляются во все акты, так же как и перечень материалов с сертификатами. Файл сохраняется с именем «раздел - акт - дата». «Печать / PDF» откроет печать браузера: там можно выбрать «Сохранить как PDF». "
                "Подписи ставят на бумаге или заверяют ЭЦП. Данные остаются в вашем браузере и никуда не отправляются; черновик хранится только на этом устройстве, кнопка «Очистить» его удаляет.")
         + _box("Откуда формы", "Тексты форм перенесены из СН 1.03.04-2020 (прил. А, Л, М), СП 4.01.08-2024 (прил. А, Б, В, К, Л, М), СП 4.02.08-2024 (прил. А, Б, В, Г), СП 4.02.07-2024 (прил. А, Б, В, Е, Ж, П) и СП 4.01.07-2024 (прил. А, В, М, Н, П, Р). Значения в полях пишутся шрифтом, имитирующим рукописный; на печати он синий, как чернила. "
                "Это не заменяет официальное издание: перед применением сверьте форму с действующим текстом, а объём и состав комиссии с договором подряда и проектом.")
-        + '<script src="/static/idoc-data.js?v=2"></script><script src="/static/idoc-core.js?v=2"></script><script src="/static/idoc.js?v=2"></script>'
+        + '<script src="/static/idoc-data.js?v=3"></script><script src="/static/idoc-core.js?v=3"></script><script src="/static/idoc.js?v=3"></script>'
     )
