@@ -179,8 +179,37 @@
   }
 
   /* Бланк в HTML. */
+  /* Титульный лист раздела: макет А4 с логотипом и реквизитами ООО «ТЭГА ПЛЮС» (данные с страницы «Контакты»). */
+  var ORG = ['<b>ООО «ТЭГА ПЛЮС»</b>', '220059, г. Минск, ул. Шамякина, 9, пом. 1Н', 'тел. +375 17 347-11-09, факс +375 17 347-11-06',
+    'tegabymi@gmail.com', 'УНП 190729589, ОКПО 376949605000', 'р/с BY65 UNBS 3012 0037 0500 4000 0933', 'ЗАО «БСБ Банк», BIC UNBSBY2X'];
+  function renderTitle(form, vals) {
+    var section = '', obj = '', dog = '', rows = [], dts = [];
+    shown(form, vals).forEach(function (b) {
+      if (b.k === 'title') { section = String(b.lines[1] || '').replace(/^Раздел:\s*/, ''); return; }
+      if (b.k !== 'p' && b.k !== 'pc') return;
+      var ps = parse(b.text), label = '', f = null;
+      ps.forEach(function (x) { if (x.t === 'txt') label += x.v; else if (!f) f = x; });
+      if (!f) return;
+      label = label.trim();
+      var fh = fieldHtml(f, vals);
+      if (f.key === 'obj') obj = '<div class="tp-obj"><div class="tp-lb">' + esc(label) + '</div>' + fh + '</div>';
+      else if (f.key === 'dog') dog = '<div class="tp-row"><div class="tp-lb">' + esc(label) + '</div>' + fh + '</div>';
+      else if (f.key === 'd1' || f.key === 'd2') dts.push('<div><div class="tp-lb">' + esc(label) + '</div>' + fh + '</div>');
+      else rows.push('<div class="tp-row"><div class="tp-lb">' + esc(label) + '</div>' + fh + '</div>');
+    });
+    var foot = '<div class="tp-foot"><span class="fld' + (vals._city ? '' : ' empty') + '"><span class="v">' + (vals._city ? esc(vals._city) : '&nbsp;') +
+      '</span><small>населённый пункт</small></span><span class="idoc-date' + (dateParts(vals._date) ? ' hw' : '') + '">' + dateHtml(vals._date) + '</span></div>';
+    return '<div class="idoc-paper idoc-tp"><div class="tp-in">' +
+      '<div class="tp-head"><img src="/static/logo-ru.png" alt="ТЭГА ПЛЮС"><div class="tp-org">' + ORG.join('<br>') + '</div></div>' +
+      '<div class="tp-bar"></div>' +
+      '<div class="tp-ttl"><h1>ИСПОЛНИТЕЛЬНАЯ<br>ДОКУМЕНТАЦИЯ</h1><div class="s">Раздел</div><div class="n">' + esc(section) + '</div></div>' +
+      '<div class="tp-body">' + obj + dog + rows.join('') + (dts.length ? '<div class="tp-dts">' + dts.join('') + '</div>' : '') + '</div>' +
+      foot + '</div><div class="tp-strip"></div></div>';
+  }
+
   function renderHtml(form, vals) {
     vals = vals || {};
+    if (form.title === true) return renderTitle(form, vals);
     var out = ['<div class="idoc-paper">'];
     shown(form, vals).forEach(function (b) {
       switch (b.k) {
