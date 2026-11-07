@@ -406,9 +406,9 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-h{text-align:center;font-weight:700;margin:16px 0 8px}
 .idoc-paper .fld{display:inline-block;min-width:min(16em,100%);max-width:100%;vertical-align:bottom;text-align:center}
 .idoc-paper .fld.ml{display:block;margin:2px 0 4px}
-.idoc-paper .fld .v{display:block;min-height:1.45em;padding:0 4px;border-bottom:1px solid #111;text-align:left;font:400 17px/1.55 'Bad Script','Segoe Script','Comic Sans MS',cursive;color:#16358a;white-space:pre-wrap;overflow-wrap:anywhere}
-.idoc-paper .idoc-date.hw{font:400 17px/1.4 'Bad Script','Segoe Script',cursive;color:#16358a}
-.idoc-paper .ch.hw u,.idoc-paper .ch.hw s{color:#16358a}
+.idoc-paper .fld .v{display:block;min-height:1.45em;padding:0 4px;border-bottom:1px solid #111;text-align:left;font:400 calc(17px*var(--idoc-hs,1))/1.55 var(--idoc-hand,'Bad Script'),'Segoe Script',cursive;color:var(--idoc-ink,#16358a);white-space:pre-wrap;overflow-wrap:anywhere}
+.idoc-paper .idoc-date.hw{font:400 calc(17px*var(--idoc-hs,1))/1.4 var(--idoc-hand,'Bad Script'),'Segoe Script',cursive;color:var(--idoc-ink,#16358a)}
+.idoc-paper .ch.hw u,.idoc-paper .ch.hw s{color:var(--idoc-ink,#16358a)}
 .idoc-left{min-width:0}
 .idoc-mem{border:1.5px dashed #9a9ca3;padding:12px 14px;margin:0 0 12px;background:#fff;font-size:14px}
 .idoc-mem>b{display:block;font-size:13px;margin:0 0 4px}
@@ -425,7 +425,7 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-mats th,.idoc-mats td{border:1px solid #111;padding:3px 6px;text-align:left;vertical-align:top;height:1.9em}
 .idoc-mats th{font-weight:700;text-align:center}
 .idoc-mats td.n{width:2.5em;text-align:center}
-.idoc-paper .hw{font:400 16px/1.4 'Bad Script','Segoe Script',cursive;color:#16358a}
+.idoc-paper .hw{font:400 calc(16px*var(--idoc-hs,1))/1.4 var(--idoc-hand,'Bad Script'),'Segoe Script',cursive;color:var(--idoc-ink,#16358a)}
 .idoc-parties[hidden]{display:none}
 .idoc-parties{border:1.5px dashed #9a9ca3;padding:12px 14px;margin:0 0 12px;background:#fff}
 .idoc-parties b{display:block;font-size:13px;margin:0 0 6px}
@@ -469,15 +469,34 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-tp .tp-row{display:grid;grid-template-columns:calc(var(--m)*62) minmax(0,1fr);gap:calc(var(--m)*5);align-items:start;margin-top:calc(var(--m)*3)}
 .idoc-tp .tp-obj{margin-bottom:calc(var(--m)*1)}
 .idoc-tp .fld{display:block;min-width:0;max-width:none;text-align:center}
-.idoc-tp .fld .v{min-height:calc(var(--m)*7);padding:0 calc(var(--m)*1);border-bottom:1px solid #1d1f23;font:400 calc(var(--pt)*12.5)/calc(var(--m)*7) 'Bad Script','Segoe Script',cursive;color:#16358a;text-align:left}
+.idoc-tp .fld .v{min-height:calc(var(--m)*7);padding:0 calc(var(--m)*1);border-bottom:1px solid #1d1f23;font:400 calc(var(--pt)*12.5*var(--idoc-hs,1))/calc(var(--m)*7) var(--idoc-hand,'Bad Script'),'Segoe Script',cursive;color:var(--idoc-ink,#16358a);text-align:left}
 .idoc-tp .tp-obj .fld .v{min-height:calc(var(--m)*14);border-bottom:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--m)*7 - 1px),#1d1f23 calc(var(--m)*7 - 1px),#1d1f23 calc(var(--m)*7))}
 .idoc-tp .fld small{font:400 calc(var(--pt)*8.2)/1.2 var(--sans);color:#6a6d75;margin-top:calc(var(--m)*.8)}
 .idoc-tp .tp-dts{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--m)*10);margin-top:calc(var(--m)*5)}
 .idoc-tp .tp-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end}
 .idoc-tp .tp-foot .fld{width:calc(var(--m)*55)}
 .idoc-tp .idoc-date{font-weight:600;font-size:calc(var(--pt)*10.5)}
-.idoc-tp .idoc-date.hw{font:400 calc(var(--pt)*12.5)/1.4 'Bad Script','Segoe Script',cursive;color:#16358a}
+.idoc-tp .idoc-date.hw{font:400 calc(var(--pt)*12.5*var(--idoc-hs,1))/1.4 var(--idoc-hand,'Bad Script'),'Segoe Script',cursive;color:var(--idoc-ink,#16358a)}
 .idoc-tp .tp-strip{position:absolute;left:0;right:0;bottom:0;height:calc(.47619cqw*7);background:#1d1f23}
 .idoc-tp .tp-strip:before{content:"";position:absolute;left:0;top:0;bottom:0;width:33%;background:#e3000f}
 @page idoctp{size:A4;margin:0}
 @media print{#id-print .idoc-paper.idoc-tp{page:idoctp;width:210mm;height:297mm;max-width:none;aspect-ratio:auto}}
+
+/* выбор почерка и чернил */
+@font-face{font-family:'Caveat';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/caveat-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/caveat-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Marck Script';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/marck-script-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Marck Script';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/marck-script-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Neucha';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/neucha-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Neucha';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/neucha-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Pangolin';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/pangolin-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Pangolin';font-style:normal;font-weight:400;font-display:swap;src:url(/static/fonts/pangolin-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+.idoc-style{border:1.5px dashed #9a9ca3;padding:12px 14px;margin:0 0 12px;background:#fff;font-size:14px}
+.idoc-style>b{display:block;font-size:13px;margin:0 0 6px}
+.idoc-style select{width:100%;min-height:40px;font:inherit;padding:6px 8px;border:1.5px solid #1d1f23;background:#fff;margin:0 0 8px}
+.idoc-ink{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 8px}
+.idoc-ink button{width:34px;height:34px;border:2px solid #fff;outline:1.5px solid #9a9ca3;border-radius:50%;cursor:pointer;padding:0}
+.idoc-ink button[aria-pressed="true"]{outline:3px solid #1d1f23}
+.idoc-ink input[type=color]{width:38px;height:34px;padding:0;border:1.5px solid #9a9ca3;background:#fff;cursor:pointer}
+.idoc-ink label{font-size:12px;color:var(--muted)}
+.idoc-sample{border-bottom:1px solid #1d1f23;padding:2px 4px;font:400 calc(17px*var(--idoc-hs,1))/1.5 var(--idoc-hand,'Bad Script'),cursive;color:var(--idoc-ink,#16358a);min-height:34px}
