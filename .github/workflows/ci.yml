@@ -54,3 +54,5 @@ jobs:
         run: node tests/unit/roof-model.test.js
       - name: ai request tests
         run: node tests/unit/aireq.test.js
+      - name: executive documentation forms tests
+        run: node tests/unit/idoc.test.js

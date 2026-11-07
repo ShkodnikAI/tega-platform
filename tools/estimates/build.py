@@ -20,6 +20,11 @@ EST_TABS = [
     ("price", "/raschet-smet/cenoobrazovanie", "est_tab_price"),
     ("repair", "/raschet-smet/tekushchiy-remont", "est_tab_repair"),
 ]
+ID_TABS = [
+    ("idhub", "/ispolnitelnaya-dokumentatsiya", "id_tab_hub"),
+    ("idart", "/ispolnitelnaya-dokumentatsiya/poryadok", "id_tab_art"),
+    ("idact", "/ispolnitelnaya-dokumentatsiya/akty", "id_tab_act"),
+]
 REF_TABS = [
     ("rhub", "/spravochniki", "ref_tab_hub"),
     ("vol", "/spravochniki/obyemy", "est_tab_vol"),
@@ -41,10 +46,11 @@ REF_TABS = [
 
 
 def tabs(active):
+    idg = active in [k for k, _, _ in ID_TABS]
     ref = active in [k for k, _, _ in REF_TABS]
-    aria = "ref_nav_aria" if ref else "est_nav_aria"
+    aria = "id_nav_aria" if idg else ("ref_nav_aria" if ref else "est_nav_aria")
     out = f'<nav class="e-tabs" aria-label="{{{{ t.{aria} }}}}">'
-    for key, path, label in (REF_TABS if ref else EST_TABS):
+    for key, path, label in (ID_TABS if idg else (REF_TABS if ref else EST_TABS)):
         cur = ' class="on" aria-current="page"' if key == active else ""
         out += f'<a href="{{{{ p }}}}{path}"{cur}>{{{{ t.{label} }}}}</a>'
     return out + "</nav>"
@@ -80,6 +86,7 @@ def hub():
         _card("Отделка помещений", "Помещения, ведомость отделки, смета, цена и шесть печатных форм. Стены, откосы, потолки и полы.", "/raschet-smet/otdelka", "Готово к проверке"),
         _card("Демонтаж и черновые работы", "Перегородки, стяжка, штукатурка, выравнивание."),
         _card("Инженерные системы", "Электрика, водоснабжение, отопление, вентиляция. Расчёт стоимости по объёму работ."),
+        _card("Исполнительная документация", "Акты и журналы по Перечню Минстройархитектуры, порядок оформления и заполняемые онлайн формы актов.", "/ispolnitelnaya-dokumentatsiya", "Раздел"),
         _card("Образцы форм", "Шесть печатных форм сметы: смета, смета по помещениям, спецификации, заявка на материалы, ведомость состава работ. PDF и PNG с водяным знаком.", "/raschet-smet/formy", "Образцы"),
         _card("Из чего состоит цена", "ОХР и ОПР, плановая прибыль, структура затрат и граница конкурсного коэффициента.", "/raschet-smet/cenoobrazovanie", "Статья"),
         _card("Текущий ремонт в 2026 году", "Дефектный акт, локальная смета, цена и договор, закупка, допработы, приёмка и учёт: что обязательно и что проверять.", "/raschet-smet/tekushchiy-remont", "Статья"),
@@ -103,6 +110,7 @@ def ref_hub():
         _group("Правила и нормы", "Как считаются объёмы и как проверяется качество: для сметчиков, прорабов и технадзора.", [
             _card("Объёмы работ", "По каким правилам считаются площади: что вычитается, что добавляется, какие коэффициенты.", "/spravochniki/obyemy", "Справочник"),
             _card("Качество работ", "Нормы приёмки по видам работ: отделка, бетон, кладка, дерево, электрика, трубопроводы и испытания.", "/spravochniki/kachestvo", "Справочник"),
+            _card("Исполнительная документация", "Перечень актов и журналов, порядок оформления, электронный вид и заполняемые онлайн акты скрытых работ и испытаний систем.", "/ispolnitelnaya-dokumentatsiya", "Раздел"),
         ])
         + _group("Инженерные расчёты", "Калькуляторы для проектировщиков и монтажников с проверкой по нормам.", [
             _card("Электрика", "Сечение кабеля, ток короткого замыкания, заземление, освещение, подбор автомата и УЗО, справка по аппаратам.", "/spravochniki/elektrika", "Калькуляторы готовы"),
@@ -1075,6 +1083,34 @@ def repair():
     )
 
 
+def idoc_hub():
+    import art_idoc
+    return (
+        head("Исполнительная документация", "Исполнительная документация: акты, журналы, порядок оформления",
+             "Что входит в Перечень, какой редакции придерживаться, кто и когда подписывает акты. Заполняемые онлайн формы актов по официальным текстам.")
+        + RU_ONLY + tabs("idhub") + art_idoc.hub_body()
+    )
+
+
+def idoc_art():
+    import art_idoc
+    return (
+        head("Исполнительная документация · Статья", "Порядок оформления и нормативы",
+             "Перечень исполнительной документации по постановлениям № 47 и № 84, обязанности подрядчика, акты, журнал производства работ, электронный вид и передача заказчику.")
+        + RU_ONLY + tabs("idart")
+        + '<div class="e-ref"><div class="e-sech"><small>01</small><h2>Порядок и нормативы</h2></div>' + art_idoc.poryadok_body() + '</div>'
+    )
+
+
+def idoc_act():
+    import art_idoc
+    return (
+        head("Исполнительная документация · Акты", "Акты: заполнить онлайн",
+             "Выберите акт, заполните поля и распечатайте бланк или сохраните его. Формы перенесены из СН 1.03.04-2020, СП 4.01.08-2024 и СП 4.02.08-2024.")
+        + RU_ONLY + tabs("idact") + art_idoc.akty_body()
+    )
+
+
 def pond():
     p1 = panel(
         "pdgeo", "01", "Параметры и паспорт пруда",
@@ -1544,6 +1580,11 @@ def main():
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=26">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
+    import art_idoc_forms
+    art_idoc_forms.write_js(ROOT / "static" / "idoc-data.js")
+    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=28">' + idoc_hub())
+    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=28">' + idoc_art())
+    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=28">' + idoc_act())
     src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=26">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
