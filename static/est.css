@@ -424,6 +424,7 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-mats{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px}
 .idoc-mats th,.idoc-mats td{border:1px solid #111;padding:3px 6px;text-align:left;vertical-align:top;height:1.9em}
 .idoc-mats th{font-weight:700;text-align:center}
+.idoc-mats.wide{font-size:10px;table-layout:fixed}.idoc-mats.wide th,.idoc-mats.wide td{padding:2px 3px;overflow-wrap:anywhere;hyphens:auto}
 .idoc-mats td.n{width:2.5em;text-align:center}
 .idoc-paper .hw{font:400 calc(16px*var(--idoc-hs,1))/1.4 var(--idoc-hand,'Bad Script'),'Segoe Script',cursive;color:var(--idoc-ink,#16358a)}
 .idoc-parties[hidden]{display:none}

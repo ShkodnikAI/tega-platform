@@ -151,7 +151,7 @@
   }
   function tblHtml(b, vals) {
     var rows = tblRows(b, vals);
-    return '<table class="idoc-mats"><thead><tr>' + b.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    return '<table class="idoc-mats' + (b.cols.length > 8 ? ' wide' : '') + '"><thead><tr>' + b.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
       rows.map(function (r) { return '<tr>' + b.cols.map(function (c, i) { return '<td><span class="hw">' + esc(r[i] || '') + '</span></td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
   }
   function tblText(b, vals) {
