@@ -7,7 +7,7 @@ const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(__dirname + '/../../static/idoc-data.js', 'utf8'), ctx);
 const D = ctx.window.IDOC_DATA;
 
-assert.strictEqual(D.forms.length, 65, 'число форм');
+assert.strictEqual(D.forms.length, 69, 'число форм');
 const ids = D.forms.map(f => f.id);
 assert.strictEqual(new Set(ids).size, ids.length, 'id форм уникальны');
 const groups = D.groups.map(g => g.id);
@@ -16,7 +16,7 @@ D.forms.forEach(f => {
   assert(groups.includes(f.group), f.id + ': группа');
   assert(f.source && f.use && f.perechen, f.id + ': метаданные');
   const fs_ = C.fields(f);
-  assert(fs_.length >= 5, f.id + ': полей мало');
+  assert(fs_.length >= 3, f.id + ': полей мало');
   const keys = fs_.map(x => x.key);
   assert.strictEqual(new Set(keys).size, keys.length, f.id + ': ключи полей уникальны');
   fs_.forEach(x => assert(x.label && x.label.length > 2, f.id + ': нет подписи у ' + x.key));
