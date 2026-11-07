@@ -7,7 +7,7 @@ const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(__dirname + '/../../static/idoc-data.js', 'utf8'), ctx);
 const D = ctx.window.IDOC_DATA;
 
-assert.strictEqual(D.forms.length, 33, 'число форм');
+assert.strictEqual(D.forms.length, 57, 'число форм');
 const ids = D.forms.map(f => f.id);
 assert.strictEqual(new Set(ids).size, ids.length, 'id форм уникальны');
 const groups = D.groups.map(g => g.id);
@@ -103,7 +103,7 @@ D.forms.forEach(f => {
   });
 });
 // титульные листы и перечень материалов
-['gen', 'vk', 'ot', 'ov', 'nv', 'ne'].forEach(g => assert(D.forms.some(f => f.group === g && f.title), 'титульный лист: ' + g));
+['gen', 'vk', 'ot', 'ov', 'nv', 'el', 'ne'].forEach(g => assert(D.forms.some(f => f.group === g && f.title), 'титульный лист: ' + g));
 D.groups.forEach(g => assert(g.section && g.section.length > 3, 'раздел у группы ' + g.id));
 const ml = D.forms.find(f => f.id === 'mat-list');
 const mh = C.renderHtml(ml, { _mats: [{ name: 'Цемент <b>', doc: 'Сертификат № 5' }] });
@@ -111,3 +111,14 @@ assert(mh.includes('idoc-mats') && mh.includes('Сертификат № 5') && 
 assert((mh.match(/<tr>/g) || []).length === 9, 'шапка и минимум 8 строк в перечне');
 assert(C.renderText(ml, { _mats: [{ name: 'Песок', doc: 'паспорт 1' }] }).includes('1.  Песок  —  паспорт 1'));
 console.log('idoc tests ok');
+
+// таблицы форм РДС: строки вводятся через «;», пустые строки добирают до минимума
+const e5 = D.forms.find(f => f.id === 'el-5');
+let eh = C.renderHtml(e5, { t: 'Автомат ВА47-29; ВА47-29; зав. № 123; 2; шт.\nЩит ЩРН; ЩРН-12' });
+assert(eh.includes('Автомат ВА47-29') && eh.includes('зав. № 123') && eh.includes('ЩРН-12'));
+assert((eh.match(/<tr>/g) || []).length === 9, 'шапка и 8 строк');
+assert(C.renderText(e5, { t: 'A; B' }).includes('A  |  B'));
+assert(C.fields(e5).some(x => x.key === 't' && x.type === 'area' && x.hint.includes('колонки через')));
+eh = C.renderHtml(e5, { t: '<img src=x>; <b>' });
+assert(!eh.includes('<img') && eh.includes('&lt;img'));
+console.log('idoc tables ok');

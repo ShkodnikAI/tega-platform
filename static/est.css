@@ -420,6 +420,7 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-matsbox input{display:block;width:100%;min-height:44px;margin:6px 0 0;padding:8px 10px;border:1.5px solid #c6c8cd;font:16px var(--sans);box-sizing:border-box}
 .idoc-matrow{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);line-height:1.35}
 .idoc-x{flex:none;width:44px;height:44px;border:1.5px solid #c6c8cd;background:#fff;font-size:20px;cursor:pointer}
+.idoc-hint{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:4px}
 .idoc-mats{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px}
 .idoc-mats th,.idoc-mats td{border:1px solid #111;padding:3px 6px;text-align:left;vertical-align:top;height:1.9em}
 .idoc-mats th{font-weight:700;text-align:center}
@@ -442,7 +443,7 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-sign .l small{font:11px/1.25 var(--sans);color:#4a4d55}
 .idoc-src{margin-top:20px;font:11px var(--sans);color:#777;text-align:right}
 #id-print{display:none}
-@media(max-width:900px){.idoc-grid{grid-template-columns:1fr}.idoc-fields{max-height:none}.idoc-paper{padding:18px 16px}.idoc-p,.idoc-li{text-align:left}.idoc-prog{margin-left:0}.idoc-sign{flex-wrap:wrap}.idoc-sign .r{flex-basis:100%}}
+@media(max-width:900px){.idoc-grid{grid-template-columns:minmax(0,1fr)}.idoc-paper{overflow-x:auto}.idoc-fields{max-height:none}.idoc-paper{padding:18px 16px}.idoc-p,.idoc-li{text-align:left}.idoc-prog{margin-left:0}.idoc-sign{flex-wrap:wrap}.idoc-sign .r{flex-basis:100%}}
 @media print{
   @page{size:A4;margin:16mm 14mm}
   body.id-printing > *:not(#id-print){display:none!important}
