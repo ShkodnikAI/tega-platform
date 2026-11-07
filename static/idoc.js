@@ -118,6 +118,54 @@
     memBox.appendChild(det);
   }
 
+  /* Почерк и цвет чернил: выбор запоминается в браузере и применяется к бланку и к печати. */
+  var SKEY = 'tega.idoc.style.v1';
+  var HANDS = [
+    { id: 'bad', name: 'Bad Script', fam: "'Bad Script'", s: 1 },
+    { id: 'marck', name: 'Marck Script', fam: "'Marck Script'", s: 1.05 },
+    { id: 'caveat', name: 'Caveat', fam: "'Caveat'", s: 1.3 },
+    { id: 'neucha', name: 'Neucha', fam: "'Neucha'", s: 1.05 },
+    { id: 'pangolin', name: 'Pangolin', fam: "'Pangolin'", s: 0.95 },
+    { id: 'nunito', name: 'Nunito (шрифт сайта)', fam: "'Nunito'", s: 0.9 },
+    { id: 'plex', name: 'IBM Plex Mono (шрифт сайта)', fam: "'IBM Plex Mono'", s: 0.82 }
+  ];
+  var INKS = [
+    { c: '#16358a', n: 'Синие' }, { c: '#14161a', n: 'Чёрные' }, { c: '#4b2a85', n: 'Фиолетовые' }, { c: '#e3000f', n: 'Красные (фирменный цвет)' }
+  ];
+  var style = load(SKEY, { font: 'bad', ink: '#16358a' });
+  function hand() { for (var i = 0; i < HANDS.length; i++) if (HANDS[i].id === style.font) return HANDS[i]; return HANDS[0]; }
+  function applyStyle() {
+    var h = hand(), s = document.documentElement.style;
+    s.setProperty('--idoc-hand', h.fam);
+    s.setProperty('--idoc-hs', String(h.s));
+    s.setProperty('--idoc-ink', /^#[0-9a-f]{6}$/i.test(style.ink) ? style.ink : '#16358a');
+  }
+  function saveStyle() { try { localStorage.setItem(SKEY, JSON.stringify(style)); } catch (e) { /* хранилище недоступно */ } applyStyle(); }
+  var styleBox = document.getElementById('idoc-style');
+  function buildStyle() {
+    styleBox.textContent = '';
+    styleBox.appendChild(el('b', {}, 'Почерк и цвет чернил'));
+    var sel = el('select', { id: 'idoc-hand', 'aria-label': 'Шрифт заполнения' });
+    HANDS.forEach(function (h) { var o = el('option', { value: h.id }, h.name); if (h.id === style.font) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', function () { style.font = sel.value; saveStyle(); });
+    styleBox.appendChild(sel);
+    var ink = el('div', { 'class': 'idoc-ink' });
+    INKS.forEach(function (k) {
+      var b = el('button', { type: 'button', title: k.n, 'aria-label': k.n, 'aria-pressed': String(style.ink.toLowerCase() === k.c) });
+      b.style.backgroundColor = k.c;
+      b.addEventListener('click', function () { style.ink = k.c; saveStyle(); buildStyle(); });
+      ink.appendChild(b);
+    });
+    var pickc = el('input', { type: 'color', value: style.ink, 'aria-label': 'Свой цвет чернил' });
+    pickc.addEventListener('input', function () { style.ink = pickc.value; saveStyle(); });
+    pickc.addEventListener('change', buildStyle);
+    ink.appendChild(pickc);
+    ink.appendChild(el('label', {}, 'свой цвет'));
+    styleBox.appendChild(ink);
+    styleBox.appendChild(el('div', { 'class': 'idoc-sample' }, 'Иванов Иван Иванович, 12.05.2026'));
+  }
+  applyStyle();
+
   function buildFields() {
     fieldsBox.textContent = '';
     C.fields(form, vals).forEach(function (f, i) {
@@ -242,5 +290,6 @@
   document.getElementById('idoc-clear').addEventListener('click', clearForm);
   window.addEventListener('hashchange', function () { var h = location.hash.slice(1); if (h && h !== form.id && find(h)) open(h, true); });
 
+  buildStyle();
   open((location.hash || '').slice(1) || D.forms[0].id, !location.hash);
 })();

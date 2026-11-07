@@ -349,6 +349,7 @@ def akty_body():
         '<p class="idoc-info" id="idoc-info"></p>'
         '<div class="idoc-grid">'
         '<div class="idoc-left"><div class="idoc-parties" id="idoc-parties" hidden></div>'
+        '<div class="idoc-style" id="idoc-style"></div>'
         '<div class="idoc-mem" id="idoc-mem"></div>'
         '<form class="idoc-fields" id="idoc-fields" aria-label="Поля акта"></form></div>'
         '<div class="idoc-view"><div class="idoc-bar">'
@@ -361,5 +362,5 @@ def akty_body():
                "Подписи ставят на бумаге или заверяют ЭЦП. Данные остаются в вашем браузере и никуда не отправляются; черновик хранится только на этом устройстве, кнопка «Очистить» его удаляет.")
         + _box("Откуда формы", "Тексты форм перенесены из СН 1.03.04-2020 (прил. А, Л, М), СП 4.01.08-2024 (прил. А, Б, В, К, Л, М), СП 4.02.08-2024 (прил. А, Б, В, Г), СП 4.02.07-2024 (прил. А, Б, В, Е, Ж, П) и СП 4.01.07-2024 (прил. А, В, М, Н, П, Р), РДС 1.03.01-98 (формы 1–22 и 25). Значения в полях пишутся шрифтом, имитирующим рукописный; на печати он синий, как чернила. "
                "Это не заменяет официальное издание: перед применением сверьте форму с действующим текстом, а объём и состав комиссии с договором подряда и проектом.")
-        + '<script src="/static/idoc-data.js?v=4"></script><script src="/static/idoc-core.js?v=5"></script><script src="/static/idoc.js?v=4"></script>'
+        + '<script src="/static/idoc-data.js?v=4"></script><script src="/static/idoc-core.js?v=5"></script><script src="/static/idoc.js?v=6"></script>'
     )

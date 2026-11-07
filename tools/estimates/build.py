@@ -1582,9 +1582,9 @@ def main():
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
     import art_idoc_forms
     art_idoc_forms.write_js(ROOT / "static" / "idoc-data.js")
-    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=33">' + idoc_hub())
-    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=33">' + idoc_art())
-    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=33">' + idoc_act())
+    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=35">' + idoc_hub())
+    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=35">' + idoc_art())
+    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=35">' + idoc_act())
     src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=26">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
