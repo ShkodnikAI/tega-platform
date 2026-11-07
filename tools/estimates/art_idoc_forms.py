@@ -360,6 +360,16 @@ GROUPS = [
     ("ne", "Наружные сети электроснабжения: общая форма СН 1.03.04-2020"),
 ]
 
+# Раздел работ для названия файла и титульного листа.
+SECTIONS = {
+    "gen": "Общестрой",
+    "vk": "Водопровод и канализация",
+    "ot": "Отопление, вентиляция, кондиционирование",
+    "ov": "Отопление, вентиляция, кондиционирование",
+    "nv": "Наружные сети водопровода и канализации",
+    "ne": "Наружные сети электроснабжения",
+}
+
 # ───────────── участники комиссии ─────────────
 # Ключ участника, подпись в переключателе, включён ли по умолчанию.
 PARTY = {
@@ -402,7 +412,9 @@ def tag_roles(forms):
     for f in forms:
         order = []
         for b in f["blocks"]:
-            if b.get("k") == "p" and "[[" in b["text"]:
+            if b.get("role") and b["role"] not in order:
+                order.append(b["role"])
+            if b.get("k") == "p" and "[[" in b["text"] and not b.get("role"):
                 pre = b["text"].split("[[", 1)[0]
                 if len(pre) < 140 and "произвела" not in pre and not pre.lstrip()[:1].isdigit():
                     k = _match(_LINE_RULES, pre)
@@ -421,11 +433,14 @@ def tag_roles(forms):
 import art_idoc_forms2 as _f2  # noqa: E402  (формы второй редакции; импорт после определения помощников)
 
 FORMS.extend(_f2.FORMS2)
+import art_idoc_forms3 as _f3  # noqa: E402  (титульные листы и перечень сертификатов)
+
+FORMS.extend(_f3.build(FORMS))
 tag_roles(FORMS)
 
 
 def write_js(path):
-    data = {"forms": FORMS, "groups": [{"id": a, "name": b} for a, b in GROUPS]}
+    data = {"forms": FORMS, "groups": [{"id": a, "name": b, "section": SECTIONS[a]} for a, b in GROUPS]}
     js = ("/* Данные форм актов. Создаётся скриптом tools/estimates/build.py из art_idoc_forms.py, правьте там. */\n"
           "window.IDOC_DATA = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";\n")
     pathlib.Path(path).write_text(js, encoding="utf-8")

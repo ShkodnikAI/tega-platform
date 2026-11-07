@@ -7,7 +7,7 @@ const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(__dirname + '/../../static/idoc-data.js', 'utf8'), ctx);
 const D = ctx.window.IDOC_DATA;
 
-assert.strictEqual(D.forms.length, 26, 'число форм');
+assert.strictEqual(D.forms.length, 33, 'число форм');
 const ids = D.forms.map(f => f.id);
 assert.strictEqual(new Set(ids).size, ids.length, 'id форм уникальны');
 const groups = D.groups.map(g => g.id);
@@ -22,7 +22,7 @@ D.forms.forEach(f => {
   fs_.forEach(x => assert(x.label && x.label.length > 2, f.id + ': нет подписи у ' + x.key));
   const html = C.renderHtml(f, {}), txt = C.renderText(f, {});
   assert(!html.includes('[[') && !txt.includes('[['), f.id + ': остались необработанные поля');
-  assert(html.includes('idoc-signs'), f.id + ': нет подписей');
+  if (!f.title) assert(html.includes('idoc-signs'), f.id + ': нет подписей');
   assert(txt.includes(f.source), f.id + ': нет источника в тексте');
   const p0 = C.progress(f, {});
   assert.strictEqual(p0.filled, 0);
@@ -102,4 +102,12 @@ D.forms.forEach(f => {
     assert(!html.includes('[['), f.id + ': поля после выключения ' + k);
   });
 });
+// титульные листы и перечень материалов
+['gen', 'vk', 'ot', 'ov', 'nv', 'ne'].forEach(g => assert(D.forms.some(f => f.group === g && f.title), 'титульный лист: ' + g));
+D.groups.forEach(g => assert(g.section && g.section.length > 3, 'раздел у группы ' + g.id));
+const ml = D.forms.find(f => f.id === 'mat-list');
+const mh = C.renderHtml(ml, { _mats: [{ name: 'Цемент <b>', doc: 'Сертификат № 5' }] });
+assert(mh.includes('idoc-mats') && mh.includes('Сертификат № 5') && mh.includes('&lt;b&gt;') && !mh.includes('<b>'));
+assert((mh.match(/<tr>/g) || []).length === 9, 'шапка и минимум 8 строк в перечне');
+assert(C.renderText(ml, { _mats: [{ name: 'Песок', doc: 'паспорт 1' }] }).includes('1.  Песок  —  паспорт 1'));
 console.log('idoc tests ok');

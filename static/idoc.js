@@ -8,6 +8,10 @@
   if (!D || !C || !root) return;
 
   var KEY = 'tega.idoc.v1';
+  var PKEY = 'tega.idoc.profile.v1';   /* данные объекта и участники: вводятся один раз, подставляются во все акты */
+  var MKEY = 'tega.idoc.mats.v1';      /* список материалов и документов о качестве */
+  var SHARED = ['_city', 'obj', 'dog', 'zak', 'gp', 'smo', 'pod', 'sub', 'tn', 'an', 'ruk', 'lab', 'proj', 'pd'];
+  var profile = {}, mats = [];
   var pick = document.getElementById('idoc-form');
   var fieldsBox = document.getElementById('idoc-fields');
   var paperBox = document.getElementById('idoc-paper');
@@ -22,6 +26,15 @@
   function store(all) {
     try { if (all === undefined) return JSON.parse(localStorage.getItem(KEY) || '{}'); localStorage.setItem(KEY, JSON.stringify(all)); } catch (e) { /* хранилище недоступно */ }
     return {};
+  }
+  function load(k, dflt) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? dflt : v; } catch (e) { return dflt; } }
+  function put(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* хранилище недоступно */ } }
+  profile = load(PKEY, {});
+  mats = load(MKEY, []);
+  if (!Array.isArray(mats)) mats = [];
+  function view() { var v = {}; Object.keys(vals).forEach(function (k) { v[k] = vals[k]; }); v._mats = mats; return v; }
+  function applyProfile() {
+    SHARED.forEach(function (k) { if (vals[k] === undefined && profile[k]) vals[k] = profile[k]; });
   }
   function saveDraft() {
     var all = store();
@@ -67,6 +80,44 @@
     partiesBox.appendChild(el('small', {}, 'Снятая галочка убирает строку комиссии и подпись из акта. Состав комиссии определяют договор и проект.'));
   }
 
+  /* Память: данные объекта и перечень материалов. */
+  var memBox = document.getElementById('idoc-mem');
+  function buildMem() {
+    memBox.textContent = '';
+    memBox.appendChild(el('b', {}, 'Запоминается в этом браузере'));
+    memBox.appendChild(el('small', {}, 'Объект, организации и фамилии подписантов вводятся один раз и подставляются во все акты. На сервер ничего не отправляется.'));
+    var forget = el('button', { type: 'button', 'class': 'idoc-mini' }, 'Забыть данные объекта');
+    forget.addEventListener('click', function () {
+      profile = {}; put(PKEY, profile);
+      SHARED.forEach(function (k) { vals[k] = ''; });
+      buildFields(); paint(); saveDraft(); say('Данные объекта удалены из браузера');
+    });
+    memBox.appendChild(forget);
+    var det = el('details', { 'class': 'idoc-matsbox' });
+    if (form && form.id === 'mat-list') det.open = true;
+    det.appendChild(el('summary', {}, 'Материалы и сертификаты (' + mats.length + ')'));
+    var list = el('div', { 'class': 'idoc-matlist' });
+    mats.forEach(function (m, i) {
+      var row = el('div', { 'class': 'idoc-matrow' });
+      row.appendChild(el('span', {}, (i + 1) + '. ' + m.name + (m.doc ? ' — ' + m.doc : '')));
+      var del = el('button', { type: 'button', 'class': 'idoc-x', 'aria-label': 'Удалить материал ' + (i + 1) }, '×');
+      del.addEventListener('click', function () { mats.splice(i, 1); put(MKEY, mats); buildMem(); paint(); });
+      row.appendChild(del);
+      list.appendChild(row);
+    });
+    det.appendChild(list);
+    var n = el('input', { type: 'text', placeholder: 'Материал, изделие', 'aria-label': 'Наименование материала', autocomplete: 'off' });
+    var d = el('input', { type: 'text', placeholder: 'Сертификат или паспорт: номер, дата, изготовитель', 'aria-label': 'Документ о качестве', autocomplete: 'off' });
+    var add = el('button', { type: 'button', 'class': 'idoc-mini' }, 'Добавить в перечень');
+    add.addEventListener('click', function () {
+      if (!n.value.trim()) { say('Введите наименование материала'); return; }
+      mats.push({ name: n.value.trim(), doc: d.value.trim() }); put(MKEY, mats); buildMem(); paint();
+      det.open = true;
+    });
+    det.appendChild(n); det.appendChild(d); det.appendChild(add);
+    memBox.appendChild(det);
+  }
+
   function buildFields() {
     fieldsBox.textContent = '';
     C.fields(form, vals).forEach(function (f, i) {
@@ -85,14 +136,23 @@
       inp.setAttribute('data-k', f.key);
       inp.value = vals[f.key] || '';
       var evt = f.type === 'choice' || f.type === 'date' ? 'change' : 'input';
-      inp.addEventListener(evt, function () { vals[f.key] = inp.value; paint(); clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 250); });
+      inp.addEventListener(evt, function () { vals[f.key] = inp.value; if (SHARED.indexOf(f.key) >= 0) { profile[f.key] = inp.value; put(PKEY, profile); } paint(); clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 250); });
       wrap.appendChild(inp);
+      if (f.key === 'mat') {
+        var fill = el('button', { type: 'button', 'class': 'idoc-mini' }, 'Подставить из перечня материалов');
+        fill.addEventListener('click', function () {
+          if (!mats.length) { say('Перечень материалов пуст: добавьте материалы ниже, в блоке «Материалы и сертификаты»'); return; }
+          vals.mat = mats.map(function (m) { return m.name + (m.doc ? ' (' + m.doc + ')' : ''); }).join('; ');
+          inp.value = vals.mat; paint(); saveDraft();
+        });
+        wrap.appendChild(fill);
+      }
       fieldsBox.appendChild(wrap);
     });
   }
 
   function paint() {
-    paperBox.innerHTML = C.renderHtml(form, vals);
+    paperBox.innerHTML = C.renderHtml(form, view());
     var p = C.progress(form, vals);
     prog.textContent = 'Заполнено полей: ' + p.filled + ' из ' + p.total;
   }
@@ -101,6 +161,7 @@
     var f = find(id) || D.forms[0];
     form = f;
     vals = store()[f.id] || {};
+    applyProfile();
     pick.value = f.id;
     info.textContent = '';
     info.appendChild(el('b', {}, f.source));
@@ -108,18 +169,25 @@
     info.appendChild(el('br'));
     info.appendChild(document.createTextNode('Место в Перечне: ' + f.perechen + '.'));
     buildParties();
+    buildMem();
     buildFields();
     paint();
     if (!keepHash) { try { history.replaceState(null, '', '#' + f.id); } catch (e) { /* ignore */ } }
   }
 
   /* ───────── сохранение ───────── */
-  function fileName(ext) {
+  /* Имя файла: раздел — акт — дата (дата акта, а если её нет, сегодняшняя). */
+  function baseName() {
     var d = new Date();
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
-    return 'akt-' + form.id + '-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '.' + ext;
+    var date = /^\d{4}-\d{2}-\d{2}$/.test(vals._date || '') ? vals._date : d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    var sec = '';
+    D.groups.forEach(function (g) { if (g.id === form.group) sec = g.section || g.name; });
+    var name = [sec, form.short, date].filter(Boolean).join(' - ');
+    return name.replace(/[\\\/:*?"<>|\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150);
   }
-  function plain() { return C.renderText(form, vals); }
+  function fileName(ext) { return baseName() + '.' + ext; }
+  function plain() { return C.renderText(form, view()); }
 
   function copy() {
     var t = plain();
@@ -139,10 +207,13 @@
     var old = document.getElementById('id-print');
     if (old) old.remove();
     var box = el('div', { id: 'id-print' });
-    box.innerHTML = C.renderHtml(form, vals);
+    box.innerHTML = C.renderHtml(form, view());
     document.body.appendChild(box);
     document.body.classList.add('id-printing');
+    var oldTitle = document.title;
+    document.title = baseName();   /* браузер предлагает это имя при сохранении в PDF */
     var end = function () {
+      document.title = oldTitle;
       document.body.classList.remove('id-printing');
       box.remove();
       window.removeEventListener('afterprint', end);
