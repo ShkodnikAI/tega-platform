@@ -73,6 +73,10 @@ pattern DictRu(_x: String) -> Map {
   nav_ref: "Справочники",
   ref_nav_aria: "Разделы справочников",
   ref_tab_hub: "Справочники",
+  id_tab_hub: "Исполнительная документация",
+  id_tab_art: "Порядок и нормативы",
+  id_tab_act: "Акты онлайн",
+  id_nav_aria: "Разделы исполнительной документации",
   discuss: "Обсудить объект",
   h1: "Ремонтно-строительные работы в Минске и по Беларуси",
   lead: "Более 20 лет на рынке. Более 1000 выполненных объектов. Берём проект от замысла до сдачи.",
@@ -191,6 +195,10 @@ pattern DictBe(_x: String) -> Map {
   nav_ref: "Даведнікі",
   ref_nav_aria: "Раздзелы даведнікаў",
   ref_tab_hub: "Даведнікі",
+  id_tab_hub: "Выканаўчая дакументацыя",
+  id_tab_art: "Парадак і нарматывы",
+  id_tab_act: "Акты анлайн",
+  id_nav_aria: "Раздзелы выканаўчай дакументацыі",
   discuss: "Абмеркаваць аб’ект",
   h1: "Рамонтна-будаўнічыя работы ў Мінску і па Беларусі",
   lead: "Больш за 20 гадоў на рынку. Больш за 1000 выкананых аб’ектаў. Вядзём праект ад задумы да здачы.",
@@ -309,6 +317,10 @@ pattern DictEn(_x: String) -> Map {
   nav_ref: "Reference",
   ref_nav_aria: "Reference sections",
   ref_tab_hub: "Reference",
+  id_tab_hub: "Executive documentation",
+  id_tab_art: "Procedure and standards",
+  id_tab_act: "Acts online",
+  id_nav_aria: "Executive documentation sections",
   discuss: "Discuss your project",
   h1: "Renovation and construction in Minsk and across Belarus",
   lead: "Over 20 years on the market. More than 1,000 completed projects. We take a project from concept to handover.",
@@ -800,6 +812,21 @@ pattern EstRepairPage(lang: String) -> Html {
   return Shell(lang, "/raschet-smet/tekushchiy-remont", "est", d.est_tab_repair, true, est.EstRepairTpl(""))
 }
 
+pattern IdHubPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/ispolnitelnaya-dokumentatsiya", "est", d.id_tab_hub, true, est.IdHubTpl(""))
+}
+
+pattern IdArtPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/ispolnitelnaya-dokumentatsiya/poryadok", "est", d.id_tab_art, true, est.IdArtTpl(""))
+}
+
+pattern IdActPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/ispolnitelnaya-dokumentatsiya/akty", "est", d.id_tab_act, true, est.IdActTpl(""))
+}
+
 pattern EstPricePage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/cenoobrazovanie", "est", d.est_tab_price, true, est.EstPriceTpl(""))
@@ -851,6 +878,9 @@ server {
   route "/spravochniki/bani" method=GET { return EstBathPage("ru") }
   route "/spravochniki/vetrogeneratory" method=GET { return EstWindPage("ru") }
   route "/spravochniki/krovli" method=GET { return EstRoofPage("ru") }
+  route "/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("ru") }
+  route "/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("ru") }
+  route "/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
@@ -872,6 +902,9 @@ server {
   route "/be/spravochniki/bani" method=GET { return EstBathPage("be") }
   route "/be/spravochniki/vetrogeneratory" method=GET { return EstWindPage("be") }
   route "/be/spravochniki/krovli" method=GET { return EstRoofPage("be") }
+  route "/be/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("be") }
+  route "/be/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("be") }
+  route "/be/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
@@ -893,6 +926,9 @@ server {
   route "/en/spravochniki/bani" method=GET { return EstBathPage("en") }
   route "/en/spravochniki/vetrogeneratory" method=GET { return EstWindPage("en") }
   route "/en/spravochniki/krovli" method=GET { return EstRoofPage("en") }
+  route "/en/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("en") }
+  route "/en/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("en") }
+  route "/en/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
