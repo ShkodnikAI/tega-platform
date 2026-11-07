@@ -10,7 +10,7 @@
   var KEY = 'tega.idoc.v1';
   var PKEY = 'tega.idoc.profile.v1';   /* данные объекта и участники: вводятся один раз, подставляются во все акты */
   var MKEY = 'tega.idoc.mats.v1';      /* список материалов и документов о качестве */
-  var SHARED = ['_city', 'obj', 'dog', 'zak', 'gp', 'smo', 'pod', 'sub', 'tn', 'an', 'ruk', 'lab', 'proj', 'pd'];
+  var SHARED = ['_city', 'mo', 'zakorg', 'obj', 'dog', 'zak', 'gp', 'smo', 'pod', 'sub', 'tn', 'an', 'ruk', 'lab', 'proj', 'pd'];
   var profile = {}, mats = [];
   var pick = document.getElementById('idoc-form');
   var fieldsBox = document.getElementById('idoc-fields');
@@ -138,6 +138,7 @@
       var evt = f.type === 'choice' || f.type === 'date' ? 'change' : 'input';
       inp.addEventListener(evt, function () { vals[f.key] = inp.value; if (SHARED.indexOf(f.key) >= 0) { profile[f.key] = inp.value; put(PKEY, profile); } paint(); clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 250); });
       wrap.appendChild(inp);
+      if (f.hint) wrap.appendChild(el('small', { 'class': 'idoc-hint' }, f.hint));
       if (f.key === 'mat') {
         var fill = el('button', { type: 'button', 'class': 'idoc-mini' }, 'Подставить из перечня материалов');
         fill.addEventListener('click', function () {

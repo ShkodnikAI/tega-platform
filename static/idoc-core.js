@@ -78,6 +78,10 @@
         if (!seen._date) { seen._date = 1; list.push({ key: '_date', type: 'date', label: b.label || 'Дата акта' }); }
         return;
       }
+      if (b.k === 'tbl') {
+        if (!seen[b.key]) { seen[b.key] = 1; list.push({ key: b.key, type: 'area', label: b.label, hint: 'Одна строка таблицы на строку ввода, колонки через «;»: ' + b.cols.join(' ; ') }); }
+        return;
+      }
       textsOf(b).forEach(function (s) {
         parse(s).forEach(function (x) {
           if (x.t === 'txt' || seen[x.key]) return;
@@ -138,6 +142,22 @@
     }).join('');
   }
 
+  /* Таблица формы: строки вводятся в одном поле, колонки разделяет «;». Пустые строки добавляются до минимума. */
+  function tblRows(b, vals) {
+    var rows = String((vals || {})[b.key] || '').split('\n').map(function (r) { return r.trim(); }).filter(Boolean)
+      .map(function (r) { return r.split(';').map(function (c) { return c.trim(); }); });
+    while (rows.length < (b.min || 5)) rows.push([]);
+    return rows;
+  }
+  function tblHtml(b, vals) {
+    var rows = tblRows(b, vals);
+    return '<table class="idoc-mats"><thead><tr>' + b.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr>' + b.cols.map(function (c, i) { return '<td><span class="hw">' + esc(r[i] || '') + '</span></td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+  }
+  function tblText(b, vals) {
+    return [b.cols.join('  |  ')].concat(tblRows(b, vals).map(function (r) { return b.cols.map(function (c, i) { return r[i] || '________'; }).join('  |  '); })).join('\n');
+  }
+
   /* Перечень материалов и документов о качестве (список хранится в браузере, см. idoc.js). */
   function matsHtml(list) {
     list = list || [];
@@ -178,6 +198,9 @@
         case 'mats':
           out.push(matsHtml(vals._mats));
           break;
+        case 'tbl':
+          out.push(tblHtml(b, vals));
+          break;
         case 'li':
           out.push('<div class="idoc-li">— ' + inline(b.text, vals) + '</div>');
           break;
@@ -213,6 +236,9 @@
           break;
         case 'mats':
           out.push(matsText(vals._mats));
+          break;
+        case 'tbl':
+          out.push(tblText(b, vals));
           break;
         case 'li':
           out.push('— ' + inline(b.text, vals, true));
