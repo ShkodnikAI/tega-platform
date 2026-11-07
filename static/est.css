@@ -450,3 +450,34 @@ a.e-card:hover h3{color:var(--red)}
   body.id-printing #id-print{display:block}
   #id-print .idoc-paper{box-shadow:none;padding:0;max-width:none;font-size:13px}
 }
+
+/* титульный лист раздела: А4, единицы через ширину листа (cqw), одинаково на экране и при печати */
+.idoc-paper.idoc-tp{padding:0;width:100%;max-width:780px;aspect-ratio:210/297;container-type:inline-size;overflow:hidden;position:relative;font-family:var(--sans);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.idoc-tp .tp-in{--m:.47619cqw;--pt:.168cqw;position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--m)*14) calc(var(--m)*20) calc(var(--m)*17);font:400 calc(var(--pt)*10.5)/1.3 var(--sans);color:#1d1f23}
+.idoc-tp .tp-head{display:flex;justify-content:space-between;align-items:center}
+.idoc-tp .tp-head img{height:calc(var(--m)*22);width:auto}
+.idoc-tp .tp-org{text-align:right;font-size:calc(var(--pt)*7.6);line-height:1.5;color:#4a4d55}
+.idoc-tp .tp-org b{font-size:calc(var(--pt)*10.5);color:#1d1f23}
+.idoc-tp .tp-bar{height:calc(var(--m)*2.2);background:#e3000f;margin-top:calc(var(--m)*5);position:relative}
+.idoc-tp .tp-bar:after{content:"";position:absolute;right:0;top:0;height:100%;width:calc(var(--m)*38);background:#1d1f23}
+.idoc-tp .tp-ttl{text-align:center;margin-top:calc(var(--m)*9)}
+.idoc-tp .tp-ttl h1{font:700 calc(var(--pt)*25)/1.2 var(--sans);letter-spacing:.14em;margin:0}
+.idoc-tp .tp-ttl .s{margin-top:calc(var(--m)*4);font-size:calc(var(--pt)*11);color:#4a4d55;letter-spacing:.04em}
+.idoc-tp .tp-ttl .n{margin-top:calc(var(--m)*1.5);font-size:calc(var(--pt)*16);font-weight:700;color:#e3000f}
+.idoc-tp .tp-body{margin-top:calc(var(--m)*8)}
+.idoc-tp .tp-lb{font-weight:600;line-height:calc(var(--m)*7)}
+.idoc-tp .tp-row{display:grid;grid-template-columns:calc(var(--m)*62) minmax(0,1fr);gap:calc(var(--m)*5);align-items:start;margin-top:calc(var(--m)*3)}
+.idoc-tp .tp-obj{margin-bottom:calc(var(--m)*1)}
+.idoc-tp .fld{display:block;min-width:0;max-width:none;text-align:center}
+.idoc-tp .fld .v{min-height:calc(var(--m)*7);padding:0 calc(var(--m)*1);border-bottom:1px solid #1d1f23;font:400 calc(var(--pt)*12.5)/calc(var(--m)*7) 'Bad Script','Segoe Script',cursive;color:#16358a;text-align:left}
+.idoc-tp .tp-obj .fld .v{min-height:calc(var(--m)*14);border-bottom:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--m)*7 - 1px),#1d1f23 calc(var(--m)*7 - 1px),#1d1f23 calc(var(--m)*7))}
+.idoc-tp .fld small{font:400 calc(var(--pt)*8.2)/1.2 var(--sans);color:#6a6d75;margin-top:calc(var(--m)*.8)}
+.idoc-tp .tp-dts{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--m)*10);margin-top:calc(var(--m)*5)}
+.idoc-tp .tp-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end}
+.idoc-tp .tp-foot .fld{width:calc(var(--m)*55)}
+.idoc-tp .idoc-date{font-weight:600;font-size:calc(var(--pt)*10.5)}
+.idoc-tp .idoc-date.hw{font:400 calc(var(--pt)*12.5)/1.4 'Bad Script','Segoe Script',cursive;color:#16358a}
+.idoc-tp .tp-strip{position:absolute;left:0;right:0;bottom:0;height:calc(.47619cqw*7);background:#1d1f23}
+.idoc-tp .tp-strip:before{content:"";position:absolute;left:0;top:0;bottom:0;width:33%;background:#e3000f}
+@page idoctp{size:A4;margin:0}
+@media print{#id-print .idoc-paper.idoc-tp{page:idoctp;width:210mm;height:297mm;max-width:none;aspect-ratio:auto}}
