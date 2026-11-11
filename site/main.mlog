@@ -76,6 +76,7 @@ pattern DictRu(_x: String) -> Map {
   id_tab_hub: "Исполнительная документация",
   id_tab_art: "Порядок и нормативы",
   id_tab_act: "Акты онлайн",
+  id_tab_term: "Сроки работ",
   id_nav_aria: "Разделы исполнительной документации",
   discuss: "Обсудить объект",
   h1: "Ремонтно-строительные работы в Минске и по Беларуси",
@@ -198,6 +199,7 @@ pattern DictBe(_x: String) -> Map {
   id_tab_hub: "Выканаўчая дакументацыя",
   id_tab_art: "Парадак і нарматывы",
   id_tab_act: "Акты анлайн",
+  id_tab_term: "Тэрміны работ",
   id_nav_aria: "Раздзелы выканаўчай дакументацыі",
   discuss: "Абмеркаваць аб’ект",
   h1: "Рамонтна-будаўнічыя работы ў Мінску і па Беларусі",
@@ -320,6 +322,7 @@ pattern DictEn(_x: String) -> Map {
   id_tab_hub: "Executive documentation",
   id_tab_art: "Procedure and standards",
   id_tab_act: "Acts online",
+  id_tab_term: "Work terms",
   id_nav_aria: "Executive documentation sections",
   discuss: "Discuss your project",
   h1: "Renovation and construction in Minsk and across Belarus",
@@ -827,6 +830,11 @@ pattern IdActPage(lang: String) -> Html {
   return Shell(lang, "/ispolnitelnaya-dokumentatsiya/akty", "est", d.id_tab_act, true, est.IdActTpl(""))
 }
 
+pattern IdTermPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/ispolnitelnaya-dokumentatsiya/sroki", "est", d.id_tab_term, true, est.IdTermTpl(""))
+}
+
 pattern EstPricePage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/cenoobrazovanie", "est", d.est_tab_price, true, est.EstPriceTpl(""))
@@ -881,6 +889,7 @@ server {
   route "/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("ru") }
+  route "/ispolnitelnaya-dokumentatsiya/sroki" method=GET { return IdTermPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
   route "/be/raschet-smet" method=GET { return EstHubPage("be") }
@@ -905,6 +914,7 @@ server {
   route "/be/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("be") }
+  route "/be/ispolnitelnaya-dokumentatsiya/sroki" method=GET { return IdTermPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
   route "/en/raschet-smet" method=GET { return EstHubPage("en") }
@@ -929,6 +939,7 @@ server {
   route "/en/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("en") }
+  route "/en/ispolnitelnaya-dokumentatsiya/sroki" method=GET { return IdTermPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
   route "/o-kompanii" method=GET { return AboutPage("ru") }
