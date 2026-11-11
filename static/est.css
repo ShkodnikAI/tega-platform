@@ -530,3 +530,8 @@ a.e-card:hover h3{color:var(--red)}
 .idoc-brand .br-strip:before{content:"";position:absolute;left:0;top:0;bottom:0;width:33%;background:#e3000f}
 @media(max-width:900px){.idoc-brand .br-strip{margin:22px -16px -18px}.idoc-brand .br-head{flex-wrap:wrap}.idoc-brand .br-org{text-align:left}}
 @media print{#id-print .idoc-brand .br-strip{margin:22px 0 0}}
+.tm-info{flex:1 1 100%;margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
+.tm-info.bad{color:var(--red)}
+.tm-st .e-f.u{flex:0 1 90px;min-width:80px}
+.tm-sch td,.tm-cur td{white-space:nowrap}
+.tm-cur tr.tm-hl td{background:rgba(227,0,15,.1);font-weight:600}

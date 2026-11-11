@@ -40,47 +40,73 @@ assert.strictEqual(T.ru(T.endDate(d('02.03.2026'), 6, { mode: '5', on: { '2026-0
 assert.strictEqual(T.endDate(d('02.03.2026'), 0, {}), null);
 assert.strictEqual(T.workDaysBetween(d('02.03.2026'), d('08.03.2026'), { mode: '5' }), 5);
 
-// трудозатраты
-const st = T.stages([{ hours: 160, workers: 4 }, { hours: 80, workers: 2 }], { shift: 8, k: 1, shifts: 1 });
-assert.strictEqual(st.total, 5 + 5);
-assert.strictEqual(st.hours, 240);
-// параллельный этап: берём наибольший
-const sp = T.stages([{ hours: 160, workers: 4 }, { hours: 80, workers: 2, par: true }, { hours: 8, workers: 1 }], { shift: 8, k: 1, shifts: 1 });
-assert.strictEqual(sp.total, 5 + 1);
-// первый этап не может быть параллельным
-assert.strictEqual(T.stages([{ hours: 8, workers: 1, par: true }], { shift: 8, k: 1, shifts: 1 }).total, 1);
-// коэффициент и смены; дробные дни округляются вверх, но не из-за погрешности
-assert.strictEqual(T.stages([{ hours: 100, workers: 5 }], { shift: 8, k: 1.25, shifts: 1 }).rows[0].days, 2);
-assert.strictEqual(T.stages([{ hours: 0.3 * 8 * 10, workers: 1 }], { shift: 8, k: 1, shifts: 1 }).rows[0].days, 3);
-assert.strictEqual(T.stages([{ hours: 160, workers: 4 }], { shift: 8, k: 1, shifts: 2 }).total, 3);
-assert(T.stages([{ hours: 1, workers: 0 }], { shift: 8, k: 1, shifts: 1 }).error);
-assert(T.stages([{ hours: 1, workers: 1 }], { shift: 0, k: 1, shifts: 1 }).error);
+// эффективность бригады
+assert.strictEqual(T.eff(1, 0.1, 0.4), 1);
+assert(Math.abs(T.eff(8, 0.1, 0.4) - 1 / 1.7) < 1e-9);
+assert.strictEqual(T.eff(50, 0.1, 0.4), 0.4);
+assert.strictEqual(T.eff(5, 0, 0), 1);
+
+const G = { k: 1, shifts: 1, a: 0.1, floor: 0.4 };
+// пример: 80 м², 8 м² на человека в смену
+let r = T.stage({ vol: 80, rate: 8, workers: 1 }, G);
+assert.strictEqual(r.days, 10); assert.strictEqual(r.naive, 10);
+r = T.stage({ vol: 80, rate: 8, workers: 8 }, G);
+assert.strictEqual(r.naive, 1.25);          // «логика обывателя»
+assert(r.days >= 2 && r.days <= 4, 'реальный срок больше наивного: ' + r.days);
+assert(r.effWorkers < 8 && r.effWorkers > 3);
+// подготовка добавляет время
+assert.strictEqual(T.stage({ vol: 80, rate: 8, workers: 1, prep: 1 }, G).days, 11);
+// фронт ограничивает: 80 м² при минимум 20 м² на человека — работают не больше 4
+r = T.stage({ vol: 80, rate: 8, workers: 8, front: 20 }, G);
+assert.strictEqual(r.use, 4); assert.strictEqual(r.idle, 4); assert.strictEqual(r.maxN, 4);
+assert.strictEqual(T.stage({ vol: 80, rate: 8, workers: 8, front: 20 }, G).days, T.stage({ vol: 80, rate: 8, workers: 4, front: 20 }, G).days);
+// коэффициент и смены
+assert.strictEqual(T.stage({ vol: 80, rate: 8, workers: 1 }, { k: 1.25, shifts: 1, a: 0, floor: 0 }).days, 8);
+assert.strictEqual(T.stage({ vol: 80, rate: 8, workers: 1 }, { k: 1, shifts: 2, a: 0, floor: 0 }).days, 5);
+// без потерь результат совпадает с наивным
+assert.strictEqual(T.stage({ vol: 80, rate: 8, workers: 8 }, { k: 1, shifts: 1, a: 0, floor: 0 }).days, 2);
+// ошибки
+assert(T.stage({ vol: 0, rate: 8, workers: 1 }, G).error);
+assert(T.stage({ vol: 1, rate: 0, workers: 1 }, G).error);
+assert(T.stage({ vol: 1, rate: 1, workers: 0 }, G).error);
+assert(T.stage({ vol: 1, rate: 1, workers: 1 }, { k: 0, shifts: 1 }).error);
+
+// кривая: дни не растут с ростом бригады, эффект убывает
+const c = T.curve({ vol: 80, rate: 8, workers: 1 }, G, 12);
+assert.strictEqual(c.rows[0].days, 10);
+for (let i = 1; i < c.rows.length; i++) assert(c.rows[i].days <= c.rows[i - 1].days);
+assert(c.best > 1 && c.best < 12);
+assert(c.rows[7].days > Math.ceil(c.rows[7].naive), 'у 8 рабочих реальный срок больше наивного');
+assert(c.rows[11].use === 12);
+// подбор бригады под срок
+const s0 = { vol: 80, rate: 8, workers: 1 };
+const n5 = T.need(s0, G, 5);
+assert(n5 >= 2 && T.stage({ vol: 80, rate: 8, workers: n5 }, G).days <= 5);
+assert(T.stage({ vol: 80, rate: 8, workers: n5 - 1 }, G).days > 5);
+assert.strictEqual(T.need({ vol: 80, rate: 8, workers: 1, prep: 3 }, G, 2), null);
+assert.strictEqual(T.need({ vol: 80, rate: 8, workers: 1, front: 40 }, G, 1), null);
+
+// график: 2 этапа подряд с перерывом в 1 календарный день; 02.03.2026 — понедельник
+const A = T.stage({ vol: 40, rate: 8, workers: 1 }, { k: 1, shifts: 1, a: 0, floor: 0 });   // 5 дней
+const B = T.stage({ vol: 16, rate: 8, workers: 1, pause: 0 }, { k: 1, shifts: 1, a: 0, floor: 0 }); // 2 дня
+A.pause = 1;
+let sc = T.schedule(d('02.03.2026'), [A, B], { mode: '5' });
+assert.strictEqual(T.ru(sc.rows[0].start), '02.03.2026'); assert.strictEqual(T.ru(sc.rows[0].end), '06.03.2026');
+assert.strictEqual(T.ru(sc.rows[1].start), '09.03.2026'); // пт + 1 + пауза 1 = вс → первый рабочий пн
+assert.strictEqual(T.ru(sc.end), '10.03.2026');
+A.pause = 3;
+sc = T.schedule(d('02.03.2026'), [A, B], { mode: '5' });
+assert.strictEqual(T.ru(sc.rows[1].start), '10.03.2026'); assert.strictEqual(T.ru(sc.end), '11.03.2026');
+// параллельный этап стартует вместе с предыдущим
+B.par = true; A.pause = 0;
+sc = T.schedule(d('02.03.2026'), [A, B], { mode: '5' });
+assert.strictEqual(T.ru(sc.rows[1].start), '02.03.2026'); assert.strictEqual(T.ru(sc.rows[1].end), '03.03.2026'); assert.strictEqual(T.ru(sc.end), '06.03.2026');
+// праздник сдвигает окончание
+sc = T.schedule(d('02.03.2026'), [A], { mode: '5', off: { '2026-03-04': 1 } });
+assert.strictEqual(T.ru(sc.end), '09.03.2026');
+// старт в выходной: первый день — понедельник
+sc = T.schedule(d('07.03.2026'), [A], { mode: '5' });
+assert.strictEqual(T.ru(sc.rows[0].start), '09.03.2026'); assert.strictEqual(T.ru(sc.end), '13.03.2026');
 assert.strictEqual(T.num('1 234,5'), 1234.5);
 assert(Number.isNaN(T.num('')));
-
-// приёмка и гарантия
-const h = T.handover({ ready: d('01.06.2026'), accStart: d('01.07.2026'), signed: d('10.07.2026'), kind: 'obj' });
-assert.strictEqual(T.ru(h.commissionBy), '21.06.2026');
-assert.strictEqual(T.ru(h.appointBy), '01.06.2026');
-assert.strictEqual(T.ru(h.approveBy), '25.07.2026');
-assert.strictEqual(h.warrantyFrom, null);
-assert.strictEqual(T.ru(h.warrantyFromLatest), '25.07.2026');
-assert.strictEqual(T.ru(h.warrantyTo), '25.07.2031');
-assert.strictEqual(T.handover({ accStart: d('01.07.2026'), short: true }).appointBy.getTime(), d('16.06.2026').getTime());
-const h2 = T.handover({ approved: d('20.07.2026'), kind: 'repair' });
-assert.strictEqual(T.ru(h2.warrantyFrom), '20.07.2026');
-assert.strictEqual(T.ru(h2.warrantyTo), '20.07.2028');
-assert.strictEqual(T.handover({ approved: d('20.07.2026'), kind: 'obj', years: 7 }).years, 7);
-
-// неустойка
-let p = T.penalty('p76a', 100000, 10);
-assert.strictEqual(p.sum, 2000); assert.strictEqual(p.capped, false); assert.strictEqual(p.cap, 20000);
-p = T.penalty('p76a', 100000, 150);
-assert.strictEqual(p.sum, 20000); assert.strictEqual(p.capped, true); assert.strictEqual(p.daysToCap, 100);
-p = T.penalty('p76b', 1000, 60);
-assert.strictEqual(p.sum, 1000); assert.strictEqual(p.capped, true); assert.strictEqual(p.daysToCap, 50);
-assert.strictEqual(T.penalty('p75b', 5000, 3).sum, 30);
-assert.strictEqual(T.penalty('p75a', 5000, 3, 0.1).sum, 15);
-assert(T.penalty('x', 1, 1).error);
-assert(T.penalty('p75a', -1, 1).error);
 console.log('terms: ok');

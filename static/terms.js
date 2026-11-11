@@ -3,158 +3,166 @@
   'use strict';
   var T = window.TegaTerms, root = document.getElementById('terms');
   if (!T || !root) return;
-  var KEY = 'tega.terms.v1';
+  var KEY = 'tega.terms.v2';
   var $ = function (id) { return document.getElementById(id); };
-  var st = { stages: [{ name: 'Этап 1', hours: '160', workers: '4', par: false }] };
-  var IDS = ['tm-shift', 'tm-k', 'tm-shifts', 'tm-start', 'tm-mode', 'tm-sc', 'tm-days', 'tm-extra', 'tm-dog', 'tm-off', 'tm-on', 'tm-ready', 'tm-acc', 'tm-short', 'tm-sign', 'tm-appr', 'tm-kind', 'tm-yrs', 'tm-pk', 'tm-pb', 'tm-pd', 'tm-pr'];
+  /* Стартовый пример: облицовка санузла 80 м², 8 м² на рабочего за смену. */
+  var st = { stages: [{ name: 'Облицовка плиткой', vol: '80', unit: 'м²', rate: '8', workers: '8', front: '10', prep: '0,5', pause: '1', par: false }] };
+  var IDS = ['tm-k', 'tm-shifts', 'tm-a', 'tm-floor', 'tm-start', 'tm-mode', 'tm-extra', 'tm-dog', 'tm-off', 'tm-on', 'tm-pick', 'tm-target'];
 
   function load() {
     try {
       var v = JSON.parse(localStorage.getItem(KEY) || 'null');
       if (!v) return;
       if (Array.isArray(v.stages) && v.stages.length) st.stages = v.stages.slice(0, 40);
-      IDS.forEach(function (id) { if (v.f && v.f[id] != null && $(id)) $(id).value = v.f[id]; });
-      if (v.link != null) $('tm-link').checked = !!v.link;
+      IDS.forEach(function (id) { if (v.f && v.f[id] != null && $(id) && id !== 'tm-pick') $(id).value = v.f[id]; });
     } catch (e) { /* хранилище недоступно */ }
   }
   function save() {
     try {
       var f = {}; IDS.forEach(function (id) { f[id] = $(id).value; });
-      localStorage.setItem(KEY, JSON.stringify({ stages: st.stages, f: f, link: $('tm-link').checked }));
+      localStorage.setItem(KEY, JSON.stringify({ stages: st.stages, f: f }));
     } catch (e) { /* хранилище недоступно */ }
   }
   function put(id, text) { $(id).textContent = text; }
-  function verdict(n, text, bad) {
-    var v = $('tm' + n + '-v'); v.textContent = text || ''; v.className = 'verdict' + (bad ? ' bad' : '');
-  }
+  function verdict(n, text, bad) { var v = $('tm' + n + '-v'); v.textContent = text || ''; v.className = 'verdict' + (bad ? ' bad' : ''); }
   function dateOf(id) { var s = $(id).value; return s ? T.parseDate(s) : null; }
-  function rub(x) { return x.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' руб.'; }
   function plural(n, a, b, c) { var m = Math.abs(n) % 100, k = m % 10; return m > 10 && m < 20 ? c : k > 1 && k < 5 ? b : k === 1 ? a : c; }
   function dn(n) { return n + ' ' + plural(n, 'день', 'дня', 'дней'); }
+  function f1(x) { return (Math.round(x * 10) / 10).toLocaleString('ru-RU'); }
+  function pct(x) { return Math.round(x * 100) + ' %'; }
+  function glob() { return { k: T.num($('tm-k').value), shifts: T.num($('tm-shifts').value), a: (T.num($('tm-a').value) || 0) / 100, floor: (T.num($('tm-floor').value) || 0) / 100 }; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
   /* ---- панель 1: этапы ---- */
+  function field(s, i, cls, lab, key, mode, ph, unit) {
+    var w = el('div', 'e-f ' + cls), l = el('label', '', lab), d = el('div', 'e-in'), x = document.createElement('input');
+    x.id = 'tm-s' + key + i; l.htmlFor = x.id; x.value = s[key] || ''; x.autocomplete = 'off';
+    if (mode) x.inputMode = mode; if (ph) x.placeholder = ph;
+    x.addEventListener('input', function () { s[key] = x.value; calc(); });
+    d.appendChild(x); if (unit) d.appendChild(el('span', 'u', unit)); w.appendChild(l); w.appendChild(d); return w;
+  }
   function drawStages() {
     var box = $('tm-stages'); box.textContent = '';
     st.stages.forEach(function (s, i) {
-      var row = document.createElement('div'); row.className = 'tm-st';
-      function inp(cls, lab, key, mode, ph) {
-        var w = document.createElement('div'); w.className = 'e-f ' + cls;
-        var l = document.createElement('label'); l.textContent = lab; l.htmlFor = 'tm-s' + key + i;
-        var d = document.createElement('div'); d.className = 'e-in';
-        var x = document.createElement('input'); x.id = 'tm-s' + key + i; x.value = s[key] || ''; x.autocomplete = 'off';
-        if (mode) x.inputMode = mode; if (ph) x.placeholder = ph;
-        x.addEventListener('input', function () { s[key] = x.value; calc(); });
-        d.appendChild(x); w.appendChild(l); w.appendChild(d); return w;
-      }
-      row.appendChild(inp('wide', 'Этап', 'name', '', 'Название'));
-      row.appendChild(inp('', 'Трудозатраты, чел.-ч', 'hours', 'decimal'));
-      row.appendChild(inp('', 'Рабочих', 'workers', 'decimal'));
-      var lab = document.createElement('label'); lab.className = 'tm-chk';
-      var c = document.createElement('input'); c.type = 'checkbox'; c.checked = !!s.par && i > 0; c.disabled = i === 0;
+      var row = el('div', 'tm-st');
+      row.appendChild(field(s, i, 'wide', 'Этап', 'name', '', 'Название'));
+      row.appendChild(field(s, i, '', 'Объём', 'vol', 'decimal'));
+      row.appendChild(field(s, i, 'u', 'Единица', 'unit', '', 'м²'));
+      row.appendChild(field(s, i, '', 'Выработка 1 рабочего за смену', 'rate', 'decimal'));
+      row.appendChild(field(s, i, '', 'Рабочих', 'workers', 'numeric'));
+      row.appendChild(field(s, i, '', 'Мин. фронта на 1 рабочего', 'front', 'decimal', 'без ограничения'));
+      row.appendChild(field(s, i, '', 'Подготовка, дней', 'prep', 'decimal'));
+      row.appendChild(field(s, i, '', 'Перерыв после, календ. дн.', 'pause', 'numeric'));
+      var lab = el('label', 'tm-chk'), c = document.createElement('input');
+      c.type = 'checkbox'; c.checked = !!s.par && i > 0; c.disabled = i === 0;
       c.addEventListener('change', function () { s.par = c.checked; calc(); });
-      lab.appendChild(c); lab.appendChild(document.createTextNode(' параллельно предыдущему'));
-      row.appendChild(lab);
+      lab.appendChild(c); lab.appendChild(document.createTextNode(' параллельно предыдущему')); row.appendChild(lab);
       if (st.stages.length > 1) {
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn-s ghost'; b.textContent = 'Удалить';
-        b.setAttribute('aria-label', 'Удалить этап ' + (i + 1));
+        var b = el('button', 'btn-s ghost', 'Удалить'); b.type = 'button'; b.setAttribute('aria-label', 'Удалить этап ' + (i + 1));
         b.addEventListener('click', function () { st.stages.splice(i, 1); drawStages(); calc(); });
         row.appendChild(b);
       }
+      var info = el('p', 'tm-info'); info.id = 'tm-i' + i; info.setAttribute('role', 'status'); row.appendChild(info);
       box.appendChild(row);
     });
+    var pick = $('tm-pick'), cur = pick.value;
+    pick.textContent = '';
+    st.stages.forEach(function (s, i) { var o = el('option', '', (i + 1) + '. ' + (s.name || 'Этап')); o.value = String(i); pick.appendChild(o); });
+    pick.value = st.stages[+cur] ? cur : '0';
   }
 
-  var res1 = null;
+  var rs = [], g = null;
   function calc1() {
-    var r = T.stages(st.stages, { shift: $('tm-shift').value, k: $('tm-k').value, shifts: $('tm-shifts').value });
-    res1 = r.error ? null : r;
-    if (r.error) { put('tm1-h', '—'); put('tm1-d', '—'); put('tm1-b', '—'); verdict(1, r.error, true); return; }
-    put('tm1-h', Math.round(r.hours * 100) / 100 + ' чел.-ч');
-    put('tm1-d', dn(r.total));
-    put('tm1-b', String(r.blocks.length));
-    verdict(1, 'Дни этапов: ' + r.rows.map(function (x) { return x.days; }).join(' + ') + '. Частичные дни округлены вверх.');
+    g = glob(); rs = []; var naive = 0, total = 0, bad = null, blocks = 0, last = 0;
+    st.stages.forEach(function (s, i) {
+      var r = T.stage(s, g), info = $('tm-i' + i);
+      rs.push(r);
+      if (r.error) { info.textContent = r.error; info.className = 'tm-info bad'; if (!bad) bad = 'Этап ' + (i + 1) + ': ' + r.error; return; }
+      var u = s.unit || 'ед.', msg = 'Реально ' + dn(r.days) + ' (в деле ' + r.use + ' из ' + r.N + ', эффективность ' + pct(r.e) + ', работа ' + f1(r.work) + ' дн. + подготовка ' + f1(r.prep) + '). По простой арифметике ' + f1(r.naive) + ' дн.';
+      if (r.idle > 0) msg += ' Рабочих сверх фронта: ' + r.idle + ', они работу не ускоряют.';
+      info.textContent = msg; info.className = 'tm-info';
+      if (s.par && i > 0) { last = Math.max(last, r.days); } else { total += last; last = r.days; }
+      if (s.par && i > 0) { naive = naive; }
+      blocks += (s.par && i > 0) ? 0 : 1;
+    });
+    total += last;
+    if (bad) { put('tm1-d', '—'); put('tm1-n', '—'); put('tm1-x', '—'); put('tm1-b', '—'); verdict(1, bad, true); return; }
+    /* простая арифметика: тот же порядок блоков, но без потерь, подготовки и фронта */
+    var nv = 0, nl = 0;
+    rs.forEach(function (r, i) { var d = Math.ceil(r.naive - 1e-9) || 1; if (st.stages[i].par && i > 0) nl = Math.max(nl, d); else { nv += nl; nl = d; } });
+    nv += nl;
+    put('tm1-d', dn(total)); put('tm1-n', dn(nv)); put('tm1-x', (total >= nv ? '+' : '') + (total - nv) + ' дн.'); put('tm1-b', String(blocks));
+    verdict(1, total > nv ? 'Реальный срок больше простого: поправки на бригаду, фронт и подготовку добавили ' + dn(total - nv) + '.' : 'Поправки срок не изменили: бригада небольшая и фронт свободный.');
   }
 
-  /* ---- панель 2: календарь ---- */
+  /* ---- панель 2: график ---- */
   function calc2() {
-    var link = $('tm-link').checked;
-    $('tm-days').disabled = link;
-    if (link && res1) $('tm-days').value = String(res1.total);
-    var start = dateOf('tm-start'), days = T.num($('tm-days').value), extra = T.num($('tm-extra').value) || 0;
-    var off = T.parseOff($('tm-off').value), on = T.parseOff($('tm-on').value);
     ['tm2-end', 'tm2-cal', 'tm2-off', 'tm2-gap'].forEach(function (id) { put(id, '—'); });
-    var warn = [];
+    $('tm-sched').textContent = '';
+    var start = dateOf('tm-start'), extra = Math.max(0, Math.ceil(T.num($('tm-extra').value) || 0));
+    var off = T.parseOff($('tm-off').value), on = T.parseOff($('tm-on').value), warn = [];
     if (off.bad.length) warn.push('Не распознано в нерабочих днях: ' + off.bad.join('; ') + '.');
     if (on.bad.length) warn.push('Не распознано в рабочих днях вместо выходных: ' + on.bad.join('; ') + '.');
-    if (!start) { verdict(2, warn.concat('Укажите дату начала работ.').join(' ')); return; }
-    if (!(days >= 1)) { verdict(2, warn.concat('Укажите число рабочих дней (не меньше 1).').join(' ')); return; }
-    var total = Math.ceil(days) + Math.max(0, Math.ceil(extra));
-    var opt = { mode: $('tm-mode').value, off: off.set, on: on.set, startCounts: $('tm-sc').value === '1' };
-    var end = T.endDate(start, total, opt);
-    if (!end) { verdict(2, 'Не удалось найти дату окончания: проверьте нерабочие дни.', true); return; }
+    if (rs.some(function (r) { return r.error; })) { verdict(2, warn.concat('Сначала исправьте этапы в расчёте 1.').join(' '), true); return; }
+    if (!start) { verdict(2, warn.concat('Укажите дату начала работ.').join(' '), warn.length > 0); return; }
+    var opt = { mode: $('tm-mode').value, off: off.set, on: on.set };
+    var list = rs.map(function (r, i) { return { days: r.days, pause: r.pause, par: st.stages[i].par }; });
+    var sc = T.schedule(start, list, opt);
+    if (sc.error) { verdict(2, sc.error, true); return; }
+    sc.rows.forEach(function (r, i) {
+      var tr = document.createElement('tr');
+      [(i + 1) + '. ' + (st.stages[i].name || 'Этап') + (r.par ? ' (параллельно)' : ''), T.ru(r.start), T.ru(r.end), String(r.days), r.pause ? dn(r.pause) : '—'].forEach(function (t) { tr.appendChild(el('td', '', t)); });
+      $('tm-sched').appendChild(tr);
+    });
+    var end = sc.end;
+    if (extra > 0) { end = T.endDate(T.addDays(sc.end, 1), extra, { mode: opt.mode, off: off.set, on: on.set, startCounts: true }) || end; }
     put('tm2-end', T.ru(end));
-    var first = opt.startCounts ? start : T.addDays(start, 1);
-    var cal = T.diffDays(start, end) + 1;
+    var cal = T.diffDays(sc.first, end) + 1;
     put('tm2-cal', dn(cal));
-    var nw = cal - T.workDaysBetween(start, end, { mode: opt.mode, off: off.set, on: on.set });
+    var nw = cal - T.workDaysBetween(sc.first, end, opt);
     put('tm2-off', dn(nw));
-    var dog = dateOf('tm-dog');
+    var dog = dateOf('tm-dog'), bad = off.bad.length || on.bad.length;
     if (dog) {
-      var g = T.diffDays(end, dog);
-      put('tm2-gap', g >= 0 ? 'запас ' + dn(g) : 'просрочка ' + dn(-g));
-      if (g < 0) warn.push('Расчётный срок позже договорного. Основания для пересмотра — п. 66 Правил; без согласованного изменения договора срок не сдвигается.');
+      var gap = T.diffDays(end, dog);
+      put('tm2-gap', gap >= 0 ? 'запас ' + dn(gap) : 'просрочка ' + dn(-gap));
+      if (gap < 0) { warn.push('Расчётный срок позже договорного. Основания для пересмотра — п. 66 Правил; без согласованного изменения договора срок не сдвигается.'); bad = true; }
     }
-    if (first && T.isWork(first, opt.mode, off.set, on.set) === false && opt.startCounts) warn.push('День начала нерабочий: считать начнём с ближайшего рабочего.');
-    verdict(2, (warn.length ? warn.join(' ') + ' ' : '') + 'Итого рабочих дней: ' + total + (extra > 0 ? ' (в том числе ' + Math.ceil(extra) + ' на пересмотр).' : '.'), g_bad(warn));
+    if (!T.isWork(start, opt.mode, off.set, on.set)) warn.push('День начала нерабочий: этап начнётся с ближайшего рабочего дня.');
+    verdict(2, (warn.length ? warn.join(' ') + ' ' : '') + (extra > 0 ? 'В срок включено ' + dn(extra) + ' на пересмотр.' : ''), bad);
   }
-  function g_bad(w) { return w.some(function (x) { return x.indexOf('Не распознано') === 0 || x.indexOf('Расчётный срок позже') === 0; }); }
 
-  /* ---- панель 3: приёмка ---- */
+  /* ---- панель 3: подбор бригады ---- */
   function calc3() {
-    var kind = $('tm-kind').value;
-    $('tm-yrs').disabled = kind !== 'own';
-    var yrs = kind === 'own' ? T.num($('tm-yrs').value) : null;
-    ['tm3-c', 'tm3-a', 'tm3-u', 'tm3-w', 'tm3-e'].forEach(function (id) { put(id, '—'); });
-    if (kind === 'own' && !(yrs >= 1)) { verdict(3, 'Свой гарантийный срок указывают в годах, не меньше 1.', true); return; }
-    var h = T.handover({ ready: dateOf('tm-ready'), accStart: dateOf('tm-acc'), short: $('tm-short').value === '1', signed: dateOf('tm-sign'), approved: dateOf('tm-appr'), kind: kind, years: yrs });
-    if (h.commissionBy) put('tm3-c', T.ru(h.commissionBy));
-    if (h.appointBy) put('tm3-a', T.ru(h.appointBy));
-    if (h.approveBy) put('tm3-u', T.ru(h.approveBy));
-    if (h.warrantyFrom) put('tm3-w', T.ru(h.warrantyFrom));
-    else if (h.warrantyFromLatest) put('tm3-w', 'не позже ' + T.ru(h.warrantyFromLatest));
-    if (h.warrantyTo) put('tm3-e', T.ru(h.warrantyTo) + (h.warrantyFrom ? '' : ' (при утверждении в последний день)'));
-    var notes = [];
-    if (kind === 'obj') notes.push('Гарантия не менее 5 лет (п. 57); для оборудования и материалов срок устанавливает изготовитель.');
-    if (kind === 'repair') notes.push('Для текущего ремонта и пусконаладки не менее 2 лет (п. 57).');
-    if (h.appointBy && dateOf('tm-ready') && h.appointBy < dateOf('tm-ready')) notes.push('Назначить комиссию «за 30 дней до приёмки» уже поздно относительно уведомления: проверьте сроки.');
-    if (!h.commissionBy && !h.appointBy && !h.approveBy && !h.warrantyTo) notes.push('Заполните хотя бы одну дату.');
-    verdict(3, notes.join(' '));
+    var i = +$('tm-pick').value, s = st.stages[i], body = $('tm-curve');
+    body.textContent = ''; put('tm3-best', '—'); put('tm3-need', '—'); put('tm3-now', '—');
+    if (!s || !rs[i] || rs[i].error) { verdict(3, 'Исправьте данные этапа.', true); return; }
+    var max = Math.min(24, Math.max(rs[i].maxN === Infinity ? 24 : rs[i].maxN + 2, 12));
+    var c = T.curve(s, g, max);
+    if (c.error) { verdict(3, c.error, true); return; }
+    c.rows.forEach(function (r) {
+      var tr = document.createElement('tr');
+      if (r.n === c.best) tr.className = 'tm-hl';
+      [String(r.n), String(r.days), f1(r.naive) + ' дн.', pct(r.e) + (r.use < r.n ? ', в деле ' + r.use : ''), '×' + f1(r.speedup)].forEach(function (t) { tr.appendChild(el('td', '', t)); });
+      body.appendChild(tr);
+    });
+    put('tm3-best', c.best + ' ' + plural(c.best, 'рабочий', 'рабочих', 'рабочих'));
+    put('tm3-now', dn(rs[i].days) + ' при ' + rs[i].N);
+    var target = T.num($('tm-target').value), msg = 'Выделена строка, после которой каждый следующий рабочий экономит меньше целого дня.';
+    if (target >= 1) {
+      var n = T.need(s, g, Math.floor(target));
+      if (n === null) { put('tm3-need', 'не получится'); msg = 'За ' + dn(Math.floor(target)) + ' этап не закончить даже при полном фронте: подготовка и поправки занимают больше. Увеличьте срок или сократите подготовку.'; }
+      else { put('tm3-need', n + ' ' + plural(n, 'рабочий', 'рабочих', 'рабочих')); }
+    }
+    verdict(3, msg);
   }
 
-  /* ---- панель 4: неустойка ---- */
-  function calc4() {
-    var k = $('tm-pk').value, p = T.PEN[k];
-    put('tm4-r', '—'); put('tm4-d', '—'); put('tm4-a', '—'); put('tm4-c', '—'); put('tm4-s', '—');
-    $('tm-pbn').textContent = p.p + ': ' + p.t + '. База: ' + p.b + '. Предел: ' + p.c + '.';
-    var base = T.num($('tm-pb').value), days = T.num($('tm-pd').value), rate = T.num($('tm-pr').value);
-    if (!(base >= 0) || !(days >= 0)) { verdict(4, 'Введите базу расчёта и дни просрочки.'); return; }
-    var r = T.penalty(k, base, days, isNaN(rate) ? null : rate);
-    if (r.error) { verdict(4, r.error, true); return; }
-    put('tm4-r', String(r.rate).replace('.', ',') + ' % в день' + (isNaN(rate) || !(rate > 0) ? '' : ' (по договору)'));
-    put('tm4-d', rub(r.perDay));
-    put('tm4-a', rub(r.accrued));
-    put('tm4-c', rub(r.cap));
-    put('tm4-s', rub(r.sum));
-    verdict(4, r.capped ? 'Начисление упёрлось в предел' + (isNaN(rate) || !(rate > 0) ? ' (п. ' + p.p.replace('п. ', '') + ')' : ' (предел взят по правилам; договор может устанавливать иной)') + ': он достигается на ' + dn(r.daysToCap) + ' просрочки.' : 'До предела: ' + rub(r.cap - r.sum) + '. Убытки сверх неустойки возмещаются отдельно (п. 77).');
-  }
-
-  function calc() { calc1(); calc2(); calc3(); calc4(); save(); }
+  function calc() { calc1(); calc2(); calc3(); save(); }
 
   load();
   drawStages();
   $('tm-add').addEventListener('click', function () {
     if (st.stages.length >= 40) return;
-    st.stages.push({ name: 'Этап ' + (st.stages.length + 1), hours: '', workers: '1', par: false }); drawStages(); calc();
+    st.stages.push({ name: 'Этап ' + (st.stages.length + 1), vol: '', unit: '', rate: '', workers: '1', front: '', prep: '0', pause: '0', par: false }); drawStages(); calc();
   });
   root.addEventListener('input', calc);
   root.addEventListener('change', calc);

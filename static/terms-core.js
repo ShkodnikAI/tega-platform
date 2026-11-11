@@ -88,68 +88,82 @@
     return cnt;
   }
 
-  /* Трудозатраты → продолжительность.
-     stage: { hours (чел.-ч), workers, par (идёт параллельно с предыдущим этапом) }.
-     opt: shift (ч), k (коэффициент выполнения норм), shifts (смен в сутки).
-     Дни этапа = hours / (workers × shift × k × shifts), в итоге округляются вверх: часть дня остаётся днём. */
-  function stages(list, opt) {
-    var shift = num(opt.shift), k = num(opt.k), sh = num(opt.shifts), rows = [], blocks = [], total = 0, hours = 0, i;
-    if (!(shift > 0) || !(k > 0) || !(sh > 0)) return { error: 'Смена, коэффициент и число смен должны быть больше нуля.' };
+  /* Эффективность бригады из n человек: каждый добавленный рабочий мешает остальным (общий фронт, подача материала, очередь к инструменту).
+     e(n) = 1 / (1 + a × (n − 1)), не ниже floor. Коэффициенты a и floor задаёт пользователь: в подключённой базе их нет, это не норма. */
+  function eff(n, a, floor) {
+    n = Math.max(1, n);
+    return Math.max(floor > 0 ? floor : 0, 1 / (1 + (a > 0 ? a : 0) * (n - 1)));
+  }
+
+  /* Один этап. s: { vol, rate (выработка 1 рабочего за смену), workers, front (минимум объёма на 1 рабочего; пусто = без ограничения), prep (дней подготовки), pause (календарных дней перерыва после этапа) }.
+     g: { k (выполнение норм), shifts, a (потеря на каждого добавленного), floor (нижний предел эффективности) }.
+     Рабочие сверх фронта в работе не участвуют. Дни этапа = подготовка + объём / (выработка × рабочие × эффективность × k × смены), округление вверх. */
+  function stage(s, g) {
+    var vol = num(s.vol), rate = num(s.rate), N = Math.floor(num(s.workers)), k = num(g.k), sh = num(g.shifts);
+    var prep = num(s.prep); if (!(prep >= 0)) prep = 0;
+    var pause = num(s.pause); if (!(pause >= 0)) pause = 0;
+    var front = num(s.front);
+    if (!(vol > 0)) return { error: 'Объём больше нуля.' };
+    if (!(rate > 0)) return { error: 'Выработка на рабочего больше нуля.' };
+    if (!(N >= 1)) return { error: 'Рабочих не меньше одного.' };
+    if (!(k > 0) || !(sh > 0)) return { error: 'Коэффициент и число смен больше нуля.' };
+    var maxN = front > 0 ? Math.max(1, Math.floor(vol / front + 1e-9)) : Infinity;
+    var use = Math.min(N, maxN), e = eff(use, num(g.a), num(g.floor));
+    var perDay = rate * use * e * k * sh;
+    var naive = vol / (rate * N * k * sh);
+    var work = vol / perDay;
+    return { vol: vol, N: N, use: use, idle: N - use, maxN: maxN, e: e, effWorkers: use * e, perDay: perDay, naive: naive, work: work, prep: prep,
+             days: Math.max(1, Math.ceil(prep + work - 1e-9)), pause: Math.ceil(pause - 1e-9) };
+  }
+
+  /* Дни этапа при другом числе рабочих (для таблицы подбора). */
+  function daysFor(s, g, n) {
+    var t = {}; for (var k in s) t[k] = s[k]; t.workers = n;
+    var r = stage(t, g); return r.error ? null : r;
+  }
+  /* Таблица 1…max рабочих; best — наименьшее число рабочих, после которого каждый следующий экономит меньше целого дня. */
+  function curve(s, g, max) {
+    var rows = [], i, base = null;
+    for (i = 1; i <= max; i++) {
+      var r = daysFor(s, g, i); if (!r) return { error: 'Проверьте данные этапа.' };
+      if (base === null) base = r.days;
+      rows.push({ n: i, days: r.days, use: r.use, e: r.e, effWorkers: r.effWorkers, naive: r.naive, speedup: base / r.days });
+    }
+    var best = rows[rows.length - 1].n;
+    for (i = 0; i < rows.length - 1; i++) if (rows[i].days - rows[i + 1].days < 1) { best = rows[i].n; break; }
+    return { rows: rows, best: best };
+  }
+  /* Минимум рабочих, чтобы уложиться в target рабочих дней. null — не получится даже с полным фронтом. */
+  function need(s, g, target) {
+    var vol = num(s.vol), front = num(s.front), cap = front > 0 ? Math.max(1, Math.floor(vol / front + 1e-9)) : 200;
+    for (var n = 1; n <= cap; n++) { var r = daysFor(s, g, n); if (r && r.days <= target) return n; }
+    return null;
+  }
+
+  /* График. list — этапы с готовыми days и pause (результат stage) и флагом par (параллельно предыдущему).
+     Этап начинается после окончания предыдущего блока и его технологического перерыва (календарные дни). */
+  function schedule(start, list, opt) {
+    var rows = [], blocks = [], i, cur = start, last = null;
     for (i = 0; i < list.length; i++) {
-      var s = list[i], h = num(s.hours), w = num(s.workers);
-      if (!(h >= 0) || !(w > 0)) return { error: 'Этап ' + (i + 1) + ': трудозатраты не меньше нуля, рабочих больше нуля.' };
-      var d = h / (w * shift * k * sh);
-      var row = { name: s.name || '', hours: h, workers: w, raw: d, days: Math.ceil(d - 1e-9), par: !!s.par && i > 0 };
-      rows.push(row);
-      hours += h;
-      if (row.par) { var b = blocks[blocks.length - 1]; b.days = Math.max(b.days, row.days); b.idx.push(i); }
-      else blocks.push({ days: row.days, idx: [i] });
+      var s = list[i], par = !!s.par && i > 0, bs, b;
+      if (par) { b = blocks[blocks.length - 1]; bs = b.start; }
+      else {
+        bs = last ? T_addDays(last.end, 1 + last.pause) : cur;
+        b = { start: bs, end: null, pause: 0 }; blocks.push(b);
+      }
+      var end = endDate(bs, s.days, { mode: opt.mode, off: opt.off, on: opt.on, startCounts: true });
+      if (!end) return { error: 'Не удалось найти дату окончания: проверьте нерабочие дни.' };
+      var real = firstWork(bs, opt);
+      rows.push({ idx: i, par: par, start: real, end: end, days: s.days, pause: s.pause });
+      if (!b.end || end > b.end) b.end = end;
+      if (s.pause > b.pause) b.pause = s.pause;
+      if (!par) last = b; else last = b;
     }
-    blocks.forEach(function (b) { total += b.days; });
-    return { rows: rows, blocks: blocks, total: total, hours: hours };
+    var fin = blocks.length ? blocks[blocks.length - 1].end : null;
+    return { rows: rows, end: fin, first: rows.length ? rows[0].start : null };
   }
+  function T_addDays(d, n) { return addDays(d, n); }
+  function firstWork(d, opt) { for (var g = 0; g < 400; g++, d = addDays(d, 1)) if (isWork(d, opt.mode || '5', opt.off, opt.on)) return d; return d; }
 
-  /* Приёмка и гарантия.
-     Кодекс № 289-З: ст. 104 п. 6 (20 календарных дней на создание комиссии и начало приёмки),
-     ст. 106 п. 4 (комиссия назначается не позднее чем за 30 дней до начала приёмки; 15 дней при сроке строительства менее 30 дней),
-     ст. 114 п. 4 и 8 (утверждение акта в течение 15 дней; дата утверждения — дата приёмки и начало гарантийного срока).
-     Правила № 1450, п. 57 (гарантийный срок не менее 5 лет; для текущего ремонта и пусконаладки не менее 2 лет). */
-  var WARR = { obj: { y: 5, t: 'объект и строительные работы по договору: не менее 5 лет' }, repair: { y: 2, t: 'текущий ремонт, пусконаладочные работы: не менее 2 лет' } };
-  function handover(o) {
-    var r = {};
-    if (o.ready) {
-      r.commissionBy = addDays(o.ready, 20);
-    }
-    if (o.accStart) r.appointBy = addDays(o.accStart, o.short ? -15 : -30);
-    if (o.signed) { r.approveBy = addDays(o.signed, 15); }
-    var from = o.approved || r.approveBy || null;
-    r.warrantyFrom = o.approved || null;
-    r.warrantyFromLatest = !o.approved && r.approveBy ? r.approveBy : null;
-    var years = o.years != null ? o.years : (WARR[o.kind] || WARR.obj).y;
-    r.years = years;
-    if (from) r.warrantyTo = addYears(from, years);
-    return r;
-  }
-
-  /* Неустойка по Правилам № 1450, п. 75 и 76.
-     base — стоимость, от которой считается пеня (для кода p76a — стоимость невыполненных работ).
-     cap: доля от base, на которой пеня останавливается. */
-  var PEN = {
-    p76a: { who: 'Подрядчик', rate: 0.2, cap: 0.2, p: 'п. 76, абз. 2', t: 'просрочка сроков выполнения работ, включая оформление документов', b: 'стоимость невыполненных работ', c: 'не более 20 % их стоимости' },
-    p76b: { who: 'Подрядчик', rate: 2, cap: 1, p: 'п. 76, абз. 3', t: 'несвоевременное устранение дефектов из актов заказчика', b: 'стоимость работ по устранению дефектов', c: 'не более стоимости этих работ' },
-    p75a: { who: 'Заказчик', rate: 0.2, cap: 1, p: 'п. 75, абз. 2', t: 'уклонение от приёмки работ и оформления документов', b: 'стоимость непринятых работ', c: 'не более стоимости этих работ' },
-    p75b: { who: 'Заказчик', rate: 0.2, cap: 1, p: 'п. 75, абз. 3', t: 'несвоевременный расчёт за принятые работы', b: 'неперечисленная сумма', c: 'не более этой суммы, если иное не определено договором' },
-    p75c: { who: 'Заказчик', rate: 0.2, cap: 1, p: 'п. 75, абз. 4', t: 'просрочка поставки материалов, которые по договору поставляет заказчик', b: 'стоимость недопоставленных материалов', c: 'не более фактической стоимости их приобретения, если иное не определено договором' }
-  };
-  function penalty(kind, base, days, rate) {
-    var p = PEN[kind];
-    if (!p) return { error: 'Неизвестный вид неустойки.' };
-    if (!(base >= 0) || !(days >= 0)) return { error: 'Сумма и дни просрочки не могут быть отрицательными.' };
-    var r = rate != null && rate > 0 ? rate : p.rate;
-    var accrued = base * r / 100 * days, cap = base * p.cap, sum = Math.min(accrued, cap);
-    var perDay = base * r / 100;
-    return { rate: r, perDay: perDay, accrued: accrued, cap: cap, sum: sum, capped: accrued > cap, daysToCap: perDay > 0 ? Math.ceil(cap / perDay - 1e-9) : null };
-  }
-
-  return { num: num, parseDate: parseDate, iso: iso, ru: ru, addDays: addDays, addYears: addYears, diffDays: diffDays, parseOff: parseOff, isWork: isWork, endDate: endDate, workDaysBetween: workDaysBetween, stages: stages, handover: handover, penalty: penalty, PEN: PEN, WARR: WARR };
+  return { num: num, parseDate: parseDate, iso: iso, ru: ru, addDays: addDays, addYears: addYears, diffDays: diffDays, parseOff: parseOff, isWork: isWork, endDate: endDate, workDaysBetween: workDaysBetween, firstWork: firstWork, eff: eff, stage: stage, curve: curve, need: need, schedule: schedule };
 });
