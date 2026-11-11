@@ -210,7 +210,8 @@
   function renderHtml(form, vals) {
     vals = vals || {};
     if (form.title === true) return renderTitle(form, vals);
-    var out = ['<div class="idoc-paper">'];
+    var out = ['<div class="idoc-paper' + (form.brand ? ' idoc-brand' : '') + '">'];
+    if (form.brand) out.push('<div class="br-head"><img src="/static/logo-ru.png" alt="ТЭГА ПЛЮС"><div class="br-org">' + ORG.slice(0, 4).join('<br>') + '</div></div><div class="br-bar"></div>');
     shown(form, vals).forEach(function (b) {
       switch (b.k) {
         case 'title':
@@ -244,7 +245,7 @@
           out.push('<p class="idoc-p' + (b.k === 'pc' ? ' c' : '') + '">' + inline(b.text, vals) + '</p>');
       }
     });
-    out.push('<div class="idoc-src">' + esc(form.source) + '</div></div>');
+    out.push('<div class="idoc-src">' + esc(form.source) + '</div>' + (form.brand ? '<div class="br-strip"></div>' : '') + '</div>');
     return out.join('');
   }
 

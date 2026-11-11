@@ -7,7 +7,7 @@ const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(__dirname + '/../../static/idoc-data.js', 'utf8'), ctx);
 const D = ctx.window.IDOC_DATA;
 
-assert.strictEqual(D.forms.length, 69, 'число форм');
+assert.strictEqual(D.forms.length, 70, 'число форм');
 const ids = D.forms.map(f => f.id);
 assert.strictEqual(new Set(ids).size, ids.length, 'id форм уникальны');
 const groups = D.groups.map(g => g.id);
