@@ -61,7 +61,7 @@
     var ps = form.parties || [];
     partiesBox.hidden = !ps.length;
     if (!ps.length) return;
-    partiesBox.appendChild(el('b', {}, 'Кто входит в комиссию и подписывает акт'));
+    partiesBox.appendChild(el('b', {}, form.ptitle || 'Кто входит в комиссию и подписывает акт'));
     ps.forEach(function (pt) {
       var lab = el('label');
       var cb = el('input', { type: 'checkbox' });
@@ -77,7 +77,7 @@
       lab.appendChild(document.createTextNode(pt.label));
       partiesBox.appendChild(lab);
     });
-    partiesBox.appendChild(el('small', {}, 'Снятая галочка убирает строку комиссии и подпись из акта. Состав комиссии определяют договор и проект.'));
+    partiesBox.appendChild(el('small', {}, form.phint || 'Снятая галочка убирает строку комиссии и подпись из акта. Состав комиссии определяют договор и проект.'));
   }
 
   /* Память: данные объекта и перечень материалов. */

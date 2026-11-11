@@ -94,7 +94,7 @@ D.forms.forEach(f => {
   const keys = (f.parties || []).map(x => x.k);
   f.blocks.filter(x => x.k === 'sign').forEach(sb => {
     assert(sb.keys && sb.keys.length === sb.roles.length, f.id + ': keys у подписи');
-    if (keys.length) sb.keys.forEach(k => assert(keys.includes(k), f.id + ': подпись без участника ' + k));
+    if (keys.length) sb.keys.forEach(k => assert(k === null || keys.includes(k), f.id + ': подпись без участника ' + k));
   });
   keys.forEach(k => {
     const off = {}; off['_on_' + k] = '0';
