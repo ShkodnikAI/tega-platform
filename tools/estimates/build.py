@@ -1116,7 +1116,7 @@ def idoc_term():
     import art_terms
     return (
         head("Исполнительная документация · Сроки", "Сроки работ: калькулятор и статья",
-             "Трудозатраты в дни, дни в календарную дату, приёмка и гарантия по Кодексу № 289-З, неустойка по Правилам № 1450. Только по проверенным нормам; чего нет в базе, на странице отмечено.")
+             "Срок этапа с учётом фронта, потерь при росте бригады, подготовки и технологических перерывов, график по датам и подбор числа рабочих. Чего нет в базе, на странице отмечено.")
         + RU_ONLY + tabs("idterm") + art_terms.calc_body() + '<div class="e-sech tm-art"><small>Статья</small><h2>Как устроены сроки</h2></div>' + art_terms.article_body()
     )
 
@@ -1592,10 +1592,10 @@ def main():
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
     import art_idoc_forms
     art_idoc_forms.write_js(ROOT / "static" / "idoc-data.js")
-    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=38">' + idoc_hub())
-    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=38">' + idoc_art())
-    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=38">' + idoc_act())
-    src += pattern("IdTermTpl", '<link rel="stylesheet" href="/static/est.css?v=38">' + idoc_term())
+    src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_hub())
+    src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_art())
+    src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_act())
+    src += pattern("IdTermTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_term())
     src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=26">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
