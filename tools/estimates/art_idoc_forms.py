@@ -429,6 +429,8 @@ def _match(rules, text):
 def tag_roles(forms):
     """Размечает строки комиссии и подписи ролями и записывает form['parties'] в порядке появления."""
     for f in forms:
+        if f.get("parties_fixed"):
+            continue
         order = []
         for b in f["blocks"]:
             if b.get("role") and b["role"] not in order:
