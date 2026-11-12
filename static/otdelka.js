@@ -69,6 +69,26 @@
     s_pf: ['Шпатлёвка откосов финишная', 'м.п.', 0.4], s_sand: ['Шлифовка откосов', 'м.п.', 0.1], s_corner: ['Установка угла перфорированного', 'м.п.', 0.3],
     s_paint: ['Окраска откосов', 'м.п.', 0.2], s_wp: ['Оклейка откосов обоями', 'м.п.', 0.35], s_decor: ['Декор откосов', 'м.п.', 1]
   };
+  // ─── норма из базы НРР-2022 (curated-подборка, см. tools/norms/pick.py и docs/norms-library.md):
+  // для части операций норма чел.-ч/ед. берётся из подборки вместо чисел выше, остальные — без изменений.
+  var PICKS = {}; // id подборки -> {per, unit, labor_h}, подставляется setPicks()
+  var PICK_MAP = { tile: 'tile_wall', f_tile: 'tile_floor', screed_semi: 'screed_cement', screed_self: 'self_leveling_floor', f_laminate: 'laminate_floor', wp: 'wallpaper' };
+  var PICK_MAP_SURF = { // операция -> поверхность -> id подборки (норма на стенах и потолке различается)
+    constr_gklk: { walls: 'gkl_wall', ceiling: 'gkl_ceiling' },
+    pl_cem: { walls: 'plaster_wall', ceiling: 'plaster_ceiling' },
+    pe: { walls: 'putty_wall' },
+    paint: { walls: 'paint_wall_wd', ceiling: 'paint_ceiling_wd' },
+    grunt: { walls: 'primer_wall' }
+  };
+  function setPicks(items) { PICKS = {}; (items || []).forEach(function (p) { PICKS[p.id] = p; }); }
+  function baseNorm(id, surf) {
+    // Единица в базе — свободный текст НРР ("м2 поверхности" и т. п.), а не "м²" как в таблице выше,
+    // поэтому строки не сравниваем: все id в PICK_MAP/PICK_MAP_SURF подобраны так, что единица
+    // нормы и единица операции совпадают по смыслу (площадь для этих операций — всегда м²).
+    var pid = PICK_MAP[id] || (PICK_MAP_SURF[id] && PICK_MAP_SURF[id][surf]), p = pid && PICKS[pid];
+    if (p && p.per > 0 && p.labor_h > 0) return { norm: p.labor_h / p.per, pickId: pid };
+    return null;
+  }
   var SURF = { walls: 'Стены', slopes: 'Откосы', ceiling: 'Потолок', floor: 'Пол' };
   var SURF_ORDER = ['walls', 'slopes', 'ceiling', 'floor'];
   var PAINT = { water: ['Водоэмульсионная', 'paint_water', 0.12], acryl: ['Акриловая', 'paint_acryl', 0.13], silic: ['Силиконовая', 'paint_silic', 0.13], silk: ['Силикатная', 'paint_silk', 0.14] };
@@ -130,7 +150,8 @@
       var g = geo(rm), R = { id: rm.id, name: rm.name, no: ri + 1, geo: g, lines: [], mats: {}, hours: 0 };
       function op(surf, zi, id, qty, normMul, label, unitOv) {
         if (!(qty > 0)) return;
-        var o = O[id], norm = o[2] * (normMul || 1), ln = { surf: surf, zone: zi, id: id, key: id + '|' + (label || ''), name: label || o[0], unit: unitOv || o[1], qty: qty, norm: norm, hours: qty * norm };
+        var o = O[id], unit = unitOv || o[1], b = baseNorm(id, surf), base = b ? b.norm : o[2];
+        var norm = base * (normMul || 1), ln = { surf: surf, zone: zi, id: id, key: id + '|' + (label || ''), name: label || o[0], unit: unit, qty: qty, norm: norm, hours: qty * norm, fromBase: !!b };
         R.lines.push(ln); R.hours += ln.hours;
       }
       function mat(id, qty) { if (qty > 0) R.mats[id] = (R.mats[id] || 0) + qty * WASTE; }
@@ -327,7 +348,8 @@
   }
 
   var API = { M: M, O: O, calc: calc, specs: specs, price: price, geo: geo, newState: newState, newRoom: newRoom, worksByObject: worksByObject, fmt: fmt, r2: r2, num: num, esc: esc,
-    SURF: SURF, SURF_ORDER: SURF_ORDER, PAINT: PAINT, WP: WP, GRUNT: GRUNT, DECOR: DECOR, tileK: tileK, wallSpec: wallSpec, floorSpec: floorSpec, newZone: newZone, unitPrice: unitPrice, KEY: KEY, nid: nid, today: today, zoneAreas: zoneAreas, surfTotal: surfTotal, tileSpec: tileSpec };
+    SURF: SURF, SURF_ORDER: SURF_ORDER, PAINT: PAINT, WP: WP, GRUNT: GRUNT, DECOR: DECOR, tileK: tileK, wallSpec: wallSpec, floorSpec: floorSpec, newZone: newZone, unitPrice: unitPrice, KEY: KEY, nid: nid, today: today, zoneAreas: zoneAreas, surfTotal: surfTotal, tileSpec: tileSpec,
+    setPicks: setPicks };
   root.TegaOtd = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this));
