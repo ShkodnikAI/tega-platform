@@ -165,5 +165,14 @@
   function T_addDays(d, n) { return addDays(d, n); }
   function firstWork(d, opt) { for (var g = 0; g < 400; g++, d = addDays(d, 1)) if (isWork(d, opt.mode || '5', opt.off, opt.on)) return d; return d; }
 
-  return { num: num, parseDate: parseDate, iso: iso, ru: ru, addDays: addDays, addYears: addYears, diffDays: diffDays, parseOff: parseOff, isWork: isWork, endDate: endDate, workDaysBetween: workDaysBetween, firstWork: firstWork, eff: eff, stage: stage, curve: curve, need: need, schedule: schedule };
+  /* Выработка 1 рабочего за смену из нормы трудозатрат НРР-2022: за смену (shiftH часов) один
+     рабочий делает per × shiftH ÷ labor_h единиц, где labor_h — чел.-ч на per единиц измерения.
+     Выполнение норм и число смен в сутки сюда не входят: их задаёт пользователь в панели 1. */
+  function laborRate(per, laborH, shiftH) {
+    per = num(per); laborH = num(laborH); shiftH = num(shiftH);
+    if (!(per > 0) || !(laborH > 0) || !(shiftH > 0)) return null;
+    return per * shiftH / laborH;
+  }
+
+  return { num: num, parseDate: parseDate, iso: iso, ru: ru, addDays: addDays, addYears: addYears, diffDays: diffDays, parseOff: parseOff, isWork: isWork, endDate: endDate, workDaysBetween: workDaysBetween, firstWork: firstWork, eff: eff, stage: stage, curve: curve, need: need, schedule: schedule, laborRate: laborRate };
 });

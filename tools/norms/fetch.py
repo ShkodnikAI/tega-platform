@@ -13,6 +13,9 @@ Decrypted raw tables are unpacked to a temp dir, normalized by build.py, and rem
 import gzip, json, os, shutil, subprocess, sys, tempfile, time, urllib.request, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import pick
+
 NEED = {"rscer.dat", "rscer.fpt", "mat.dat", "mat.fpt", "meh.dat", "meh.fpt"}
 
 
@@ -98,6 +101,16 @@ def main():
             d = json.load(f)
         log("ready: %d works, %d materials, %d machines in %.0fs" %
             (len(d["works"]), len(d["materials"]), len(d["machines"]), time.time() - t0))
+        # Curated extract for public calculators: a small, hand-picked set of labour-hour
+        # figures (see tools/norms/pick.py), published as a plain static file -- this is the
+        # only output of the whole pipeline meant to reach visitors. Written under /srv/static
+        # so Caddy serves it directly; never touches the dynamic app or the full base.
+        curated_out = os.environ.get("NORMS_CURATED_OUT", "/srv/static/norms/terms-picks.json")
+        try:
+            matched, total = pick.write_curated(d, curated_out)
+            log("curated: %d/%d picks matched -> %s" % (matched, total, curated_out))
+        except Exception as e:
+            log("curated export failed: %s (site still works without it)" % type(e).__name__)
         return 0
     except Exception as e:
         import traceback

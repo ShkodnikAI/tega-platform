@@ -109,4 +109,13 @@ sc = T.schedule(d('07.03.2026'), [A], { mode: '5' });
 assert.strictEqual(T.ru(sc.rows[0].start), '09.03.2026'); assert.strictEqual(T.ru(sc.end), '13.03.2026');
 assert.strictEqual(T.num('1 234,5'), 1234.5);
 assert(Number.isNaN(T.num('')));
+
+// выработка из нормы НРР-2022: per × shiftH ÷ labor_h
+assert.strictEqual(T.laborRate(100, 25, 8), 32);
+assert.strictEqual(T.laborRate(1, 2, 8), 4);
+assert.strictEqual(T.laborRate(0, 25, 8), null);
+assert.strictEqual(T.laborRate(100, 0, 8), null);
+assert.strictEqual(T.laborRate(100, 25, 0), null);
+assert.strictEqual(T.laborRate('100', '25', '8'), 32);
+
 console.log('terms: ok');

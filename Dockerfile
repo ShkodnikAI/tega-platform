@@ -30,7 +30,10 @@ COPY static/ /srv/static/
 COPY deploy/Caddyfile.render /etc/caddy/Caddyfile
 COPY tools/norms/ /app/tools/norms/
 COPY deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+ # tools/norms/fetch.py (runs as `tega`) writes a small public curated extract here at
+ # start-up (see docs/norms-library.md); everything else under /srv/static stays read-only.
+ && mkdir -p /srv/static/norms && chown tega:tega /srv/static/norms
 
 ENV METALOGOS_DATA_DIR=/data
 USER tega

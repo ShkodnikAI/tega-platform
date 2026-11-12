@@ -8,6 +8,8 @@
   /* Стартовый пример: облицовка санузла 80 м², 8 м² на рабочего за смену. */
   var st = { stages: [{ name: 'Облицовка плиткой', vol: '80', unit: 'м²', rate: '8', workers: '8', front: '10', prep: '0,5', pause: '1', par: false }] };
   var IDS = ['tm-k', 'tm-shifts', 'tm-a', 'tm-floor', 'tm-start', 'tm-mode', 'tm-extra', 'tm-dog', 'tm-off', 'tm-on', 'tm-pick', 'tm-target'];
+  var PICKS = []; // норма НРР-2022: {id, label, per, unit, labor_h}, подбирается curated-списком на сервере
+  var SHIFT_H = 8; // продолжительность смены для перевода чел.-ч в выработку; РБ, стандартная 8-часовая смена
 
   function load() {
     try {
@@ -41,6 +43,26 @@
     x.addEventListener('input', function () { s[key] = x.value; calc(); });
     d.appendChild(x); if (unit) d.appendChild(el('span', 'u', unit)); w.appendChild(l); w.appendChild(d); return w;
   }
+  /* Норма НРР-2022 для этапа: список options + подстановка выработки при выборе. */
+  function normField(s, i) {
+    var w = el('div', 'e-f wide'), l = el('label', '', 'Норма НРР-2022'), d = el('div', 'e-in'), x = document.createElement('select');
+    x.id = 'tm-snorm' + i; l.htmlFor = x.id;
+    var o0 = el('option', '', 'Своя выработка (ввести вручную)'); o0.value = ''; x.appendChild(o0);
+    PICKS.forEach(function (p) {
+      var o = el('option', '', p.label + ' (' + p.per + ' ' + p.unit + ' — ' + p.labor_h + ' чел.-ч)');
+      o.value = p.id; x.appendChild(o);
+    });
+    x.value = s.normId && PICKS.some(function (p) { return p.id === s.normId; }) ? s.normId : '';
+    x.addEventListener('change', function () {
+      s.normId = x.value;
+      var p = PICKS.filter(function (p) { return p.id === x.value; })[0];
+      if (p) {
+        var r = T.laborRate(p.per, p.labor_h, SHIFT_H);
+        if (r) { s.rate = String(Math.round(r * 100) / 100); var ri = $('tm-srate' + i); if (ri) ri.value = s.rate; s.unit = s.unit || p.unit; var ui = $('tm-sunit' + i); if (ui && !ui.value) ui.value = p.unit; }
+      }
+    });
+    d.appendChild(x); w.appendChild(l); w.appendChild(d); return w;
+  }
   function drawStages() {
     var box = $('tm-stages'); box.textContent = '';
     st.stages.forEach(function (s, i) {
@@ -48,6 +70,7 @@
       row.appendChild(field(s, i, 'wide', 'Этап', 'name', '', 'Название'));
       row.appendChild(field(s, i, '', 'Объём', 'vol', 'decimal'));
       row.appendChild(field(s, i, 'u', 'Единица', 'unit', '', 'м²'));
+      if (PICKS.length) row.appendChild(normField(s, i));
       row.appendChild(field(s, i, '', 'Выработка 1 рабочего за смену', 'rate', 'decimal'));
       row.appendChild(field(s, i, '', 'Рабочих', 'workers', 'numeric'));
       row.appendChild(field(s, i, '', 'Мин. фронта на 1 рабочего', 'front', 'decimal', 'без ограничения'));
@@ -158,8 +181,18 @@
 
   function calc() { calc1(); calc2(); calc3(); save(); }
 
+  /* Подсказки по выработке для некоторых видов работ, из подключённой базы НРР-2022 (curated-список,
+     не поиск по всей базе — см. docs/norms-library.md). Если файла нет, норма просто не показывается. */
+  function loadPicks() {
+    if (typeof fetch !== 'function') return;
+    fetch('/static/norms/terms-picks.json').then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && Array.isArray(j.items) && j.items.length) { PICKS = j.items; drawStages(); calc(); } })
+      .catch(function () { /* норм нет в сборке — калькулятор работает как раньше, вручную */ });
+  }
+
   load();
   drawStages();
+  loadPicks();
   $('tm-add').addEventListener('click', function () {
     if (st.stages.length >= 40) return;
     st.stages.push({ name: 'Этап ' + (st.stages.length + 1), vol: '', unit: '', rate: '', workers: '1', front: '', prep: '0', pause: '0', par: false }); drawStages(); calc();
