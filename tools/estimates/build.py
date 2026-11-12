@@ -1117,7 +1117,7 @@ def idoc_term():
     return (
         head("Исполнительная документация · Сроки", "Сроки работ: калькулятор и статья",
              "Срок этапа с учётом фронта, потерь при росте бригады, подготовки и технологических перерывов, график по датам и подбор числа рабочих. Чего нет в базе, на странице отмечено.")
-        + RU_ONLY + tabs("idterm") + art_terms.calc_body() + '<div class="e-sech tm-art"><small>Статья</small><h2>Как устроены сроки</h2></div>' + art_terms.article_body()
+        + RU_ONLY + tabs("idterm") + art_terms.calc_body() + '<div class="e-sech tm-art"><small>Статья</small><h2>Почему больше людей не значит быстрее</h2></div>' + art_terms.article_body()
     )
 
 
