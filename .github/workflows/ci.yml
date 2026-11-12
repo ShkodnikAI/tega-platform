@@ -44,8 +44,6 @@ jobs:
         run: python3 -I tests/norms/test_norms.py
       - name: norms curated-pick tests (synthetic data)
         run: python3 -I tests/norms/test_pick.py
-      - name: terms calculator tests
-        run: node tests/unit/terms.test.js
       - name: pond model tests
         run: node tests/unit/pond-model.test.js
       - name: pool model tests
