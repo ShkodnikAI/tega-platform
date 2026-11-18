@@ -118,14 +118,7 @@
 
     var days = r.days, laborH = r.laborH;
     set('fd-o4', fmt(laborH, 0) + ' чел.-ч ≈ ' + fmt(days, 1) + ' дней бригады из ' + (c.crew || 4) + ' чел.');
-    var pConc = num('fd-p-conc'), pDay = num('fd-p-day'), pEps = num('fd-p-eps');
-    var sum = 0, has = false;
-    if (isFinite(pConc) && pConc >= 0) { sum += pConc * r.concrete; has = true; }
-    if (isFinite(pDay) && pDay >= 0) { sum += pDay * days; has = true; }
-    var epsArea = lenta ? r.epsTotal : r.eps;
-    if (isFinite(pEps) && pEps >= 0) { sum += pEps * epsArea; has = true; }
-    set('fd-o5', has ? 'по вашим ценам ≈ ' + fmt(sum, 0) + ' BYN (бетон, труд, утепление), вилка ±15 %' : 'введите цены бетона, работ и утепления для сметы, вилка ±15 %');
-    verdict('fd-v2', 'Трудозатраты — ориентир практики по НРР 6.03.01 (сборник 6, монолитные конструкции) и земляным сборникам, без калибровки под конкретную бригаду. Смета не включает армирование, опалубку, дренаж и доставку отдельными позициями — только бетон, труд и утепление по введённым ценам.', false);
+    verdict('fd-v2', 'Трудозатраты — ориентир практики по НРР 6.03.01 (сборник 6, монолитные конструкции) и земляным сборникам, без калибровки под конкретную бригаду.', false);
   }
 
   function apply() {
