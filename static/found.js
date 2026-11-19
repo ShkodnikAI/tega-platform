@@ -92,6 +92,7 @@
     set('fd-g0', massLabel(c));
     var ranked = M.rankTypes(c);
     var best = ranked.length ? ranked[0].score : 0;
+    set('fd-typebest', ranked.length ? ranked[0].type.name : '—');
     var rows = ranked.map(function (it, i) {
       var t = it.type;
       return {
