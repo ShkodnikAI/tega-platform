@@ -31,6 +31,12 @@
     rows.forEach(function (r) {
       var row = document.createElement('tr'); if (r.cls) row.className = r.cls;
       r.cells.forEach(function (c, i) { var td = document.createElement('td'); td.textContent = c; if (i > 0) td.className = 'm'; row.appendChild(td); });
+      if (r.btn) {
+        var td = document.createElement('td'); td.className = 'm';
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'e-btn sm'; b.textContent = r.btn.label;
+        b.addEventListener('click', r.btn.onClick);
+        td.appendChild(b); row.appendChild(td);
+      }
       tb.appendChild(row);
     });
     t.appendChild(tb);
@@ -40,15 +46,32 @@
   var SOIL_NAMES = M.SOIL_NAME || {};
   var last = null;
 
-  function sys() {
-    var el = document.querySelector('input[name="fd-sys"]:checked');
-    return el ? el.value : 'lenta';
-  }
+  /* Выбор системы для точного расчёта (шаг 3) делается кнопкой в таблице рейтинга (шаг 2), а не отдельным
+     переключателем. Для систем с готовыми формулами (лента МЗЛФ / заглублённая и плита) здесь храним, какую
+     считаем точно; sys===null — выбранная система без формул, показываем только справочный диапазон (шаг 2). */
+  var selType = 'mzlf';     /* id из FOUND_TYPES, выбранный пользователем (или null до выбора) */
+  var selSys = 'lenta';     /* 'lenta' | 'plita' | null — чем считает шаг 3/4 */
+  var selShallow = true;    /* для selSys==='lenta': true — МЗЛФ, false — заглублённая */
+
+  /* Какие системы справочника можно считать точно и какими параметрами движка */
+  var CALC_MAP = { mzlf: { sys: 'lenta', shallow: true }, lentaZagl: { sys: 'lenta', shallow: false }, plita: { sys: 'plita' } };
+
+  function sys() { return selSys || 'lenta'; }
 
   function toggleSys() {
-    var s = sys();
+    var s = selSys;
     Array.prototype.forEach.call(document.querySelectorAll('.fd-only-lenta'), function (n) { n.style.display = s === 'lenta' ? '' : 'none'; });
     Array.prototype.forEach.call(document.querySelectorAll('.fd-only-plita'), function (n) { n.style.display = s === 'plita' ? '' : 'none'; });
+    var shEl = $('fd-shallow'); if (shEl) shEl.checked = selShallow;
+  }
+
+  function selectType(id) {
+    var m = CALC_MAP[id];
+    selType = id;
+    if (m) { selSys = m.sys; if (m.sys === 'lenta') selShallow = m.shallow; }
+    else selSys = null;
+    toggleSys();
+    calc();
   }
 
   function cfg() {
@@ -56,7 +79,7 @@
     var c = {
       sys: s, L: num('fd-L'), W: num('fd-W'), floors: num('fd-floors'), wall: val('fd-wall'),
       ceil: val('fd-ceil'), roof: val('fd-roof'),
-      soil: val('fd-soil'), R: num('fd-R'), ugv: num('fd-ugv'), pucin: checked('fd-pucin')
+      soil: val('fd-soil'), R: num('fd-R'), ugv: num('fd-ugv'), pucin: checked('fd-pucin'), basement: checked('fd-basement')
     };
     if (s === 'lenta') {
       c.perim = num('fd-perim'); c.shallow = checked('fd-shallow'); c.F = num('fd-F');
@@ -77,7 +100,7 @@
   }
 
   function massCfg() {
-    return { soil: val('fd-soil'), floors: num('fd-floors'), wall: val('fd-wall'), ceil: val('fd-ceil'), roof: val('fd-roof'), ugv: num('fd-ugv'), pucin: checked('fd-pucin'), priority: priority() };
+    return { soil: val('fd-soil'), floors: num('fd-floors'), wall: val('fd-wall'), ceil: val('fd-ceil'), roof: val('fd-roof'), ugv: num('fd-ugv'), pucin: checked('fd-pucin'), basement: checked('fd-basement'), priority: priority() };
   }
 
   function massLabel(c) {
@@ -91,20 +114,22 @@
     if (!c.soil) { clearNode(host); return; }
     set('fd-g0', massLabel(c));
     var ranked = M.rankTypes(c);
-    var best = ranked.length ? ranked[0].score : 0;
     set('fd-typebest', ranked.length ? ranked[0].type.name : '—');
+    var selT = ranked.find(function (it) { return it.type.id === selType; });
+    set('fd-typesel', selT ? selT.type.name + (CALC_MAP[selType] ? '' : ' (только диапазон стоимости)') : '—');
     var rows = ranked.map(function (it, i) {
       var t = it.type;
       return {
-        cls: i === 0 && it.score >= best - 1e-9 ? 'tot' : '',
+        cls: t.id === selType ? 'tot' : '',
         cells: [
           (i === 0 ? '★ ' : '') + t.name, fmt(t.cost[0], 0) + '–' + fmt(t.cost[1], 0), t.labor, t.term,
           it.reasons.length ? t.risk + '. ' + it.reasons.join('; ') : t.risk
-        ]
+        ],
+        btn: { label: t.id === selType ? 'Выбрано' : 'Выбрать', onClick: function () { selectType(t.id); } }
       };
     });
-    table(host, ['Система', 'у.е./м²', 'Трудозатраты', 'Срок', 'Риск и замечания'], rows);
-    verdict('fd-vtype', 'Рекомендация — по справочным ориентирам практики (статья «Фундаменты», раздел 3) и приведённой массе здания (стены + перекрытия + кровля), не проектное решение. Точный расчёт сечения и армирования MVP считает дальше только для ленты МЗЛФ и плиты.', false);
+    table(host, ['Система', 'у.е./м²', 'Трудозатраты', 'Срок', 'Риск и замечания', ''], rows);
+    verdict('fd-vtype', 'Рекомендация — по справочным ориентирам практики (статья «Фундаменты», раздел 3), приведённой массе здания (стены + перекрытия + кровля) и подвалу, не проектное решение. Кнопка «Выбрать» задаёт систему для шага 3: точный расчёт сечения и армирования есть только для ленты (МЗЛФ и заглублённой) и плиты, для остальных систем шаг 3 показывает справочный диапазон стоимости.', false);
   }
 
   function budget() {
@@ -156,6 +181,17 @@
     verdict('fd-bverdict', 'Цены не заложены: введите свои за единицу, суммы пересчитаются. Расход цемента/песка/щебня на месте — справочный ориентир (ГОСТ 7473-2010, практика), фактическую рецептуру уточняет лаборатория бетонного узла. Электрика, доставка арматуры и прочие позиции сметы сюда не входят.', false);
   }
 
+  function noCalcMsg(c) {
+    var t = (M.FOUND_TYPES || []).find(function (x) { return x.id === selType; });
+    var el = $('fd-nocalc'); if (!el) return;
+    if (!t) { el.hidden = true; return; }
+    var S = c.L > 0 && c.W > 0 ? c.L * c.W : 0;
+    var lo = t.cost[0] * S, hi = t.cost[1] * S;
+    el.hidden = false;
+    el.textContent = 'Для «' + t.name + '» точных формул сечения, арматуры и бетона пока нет (нужна нормативная база — см. статью, раздел 3). Справочная стоимость: ' + fmt(t.cost[0], 0) + '–' + fmt(t.cost[1], 0) + ' у.е./м²' +
+      (S > 0 ? ' × ' + fmt(S, 1) + ' м² ≈ ' + fmt(lo, 0) + '–' + fmt(hi, 0) + ' у.е.' : '') + ' — ориентир статьи «Фундаменты» (не смета, курс у.е. не привязан к BYN).';
+  }
+
   function calc() {
     var c = cfg();
     types();
@@ -163,9 +199,20 @@
       last = null;
       verdict('fd-verdict', 'Укажите длину, ширину и число этажей дома.', true);
       verdict('fd-v1', '', false);
+      var nc0 = $('fd-nocalc'); if (nc0) nc0.hidden = true;
       budget();
       return;
     }
+    if (!selSys) {
+      last = null;
+      verdict('fd-verdict', 'Выберите систему кнопкой «Выбрать» в таблице рейтинга (шаг 2) — для точного расчёта на этом шаге доступны лента и плита.', false);
+      set('fd-c1', '—'); set('fd-c2', '—'); set('fd-c3', '—'); set('fd-c4', '—'); set('fd-c5', '—'); set('fd-c6', '—');
+      verdict('fd-v1', '', false);
+      noCalcMsg(c);
+      budget();
+      return;
+    }
+    var nc = $('fd-nocalc'); if (nc) nc.hidden = true;
     var r = M.calc(c);
     last = { c: c, r: r };
     var lenta = r.sys === 'lenta';
@@ -227,12 +274,8 @@
         show(id);
       });
     });
-    Array.prototype.forEach.call(root.querySelectorAll('input[name="fd-sys"]'), function (el) {
-      el.addEventListener('change', function () { toggleSys(); calc(); });
-    });
     Array.prototype.forEach.call(root.querySelectorAll('input, select'), function (el) {
       if (!el.id && el.type !== 'radio') return;
-      if (el.name === 'fd-sys') return;
       el.addEventListener('input', calc); el.addEventListener('change', calc);
     });
     var rs = $('fd-p-reset');
