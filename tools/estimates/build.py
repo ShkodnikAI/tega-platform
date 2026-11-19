@@ -1700,6 +1700,11 @@ def main():
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")
     print("ok", len(src))
 
+    import search_index
+    import sys as _sys
+    n = search_index.write_index(_sys.modules[__name__], ROOT / "static" / "search-index.json")
+    print("search-index ok", n, "entries")
+
 
 if __name__ == "__main__":
     main()

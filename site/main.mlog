@@ -430,7 +430,7 @@ pattern HeadTpl(_x: String) -> String {
 <meta property=\"og:url\" content=\"https://tega.plus{{ self }}\">
 <link rel=\"icon\" type=\"image/png\" href=\"/static/favicon.png\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"stylesheet\" href=\"/static/site.css?v=16\">
+<link rel=\"stylesheet\" href=\"/static/site.css?v=17\">
 <script defer src=\"https://cloud.umami.is/script.js\" data-website-id=\"680eac0a-3a18-4cde-a0f4-7c7a915b7158\"></script>
 </head>
 <body class=\"pg-{{ page }}\">
@@ -446,6 +446,10 @@ pattern HeadTpl(_x: String) -> String {
 <a href=\"{{ p }}/kontakty\">{{ t.nav_contacts }}</a>
 </nav>
 <div class=\"right\">
+<div class=\"site-search\" id=\"site-search\" role=\"combobox\" aria-haspopup=\"listbox\" aria-owns=\"site-search-results\" aria-expanded=\"false\">
+<input type=\"search\" id=\"site-search-q\" class=\"site-search-q\" placeholder=\"Поиск по сайту (на русском)\" aria-label=\"Поиск по сайту (на русском)\" autocomplete=\"off\" aria-autocomplete=\"list\" aria-controls=\"site-search-results\">
+<ul id=\"site-search-results\" class=\"site-search-results\" role=\"listbox\" hidden></ul>
+</div>
 <button type=\"button\" class=\"calc-btn\" id=\"calcOpen\">{{ t.est_tab_calc }}</button>
 <div class=\"lang\" role=\"group\" aria-label=\"{{ t.lang_aria }}\">
 <a href=\"{{ h_ru }}\" lang=\"ru\" hreflang=\"ru\" {{#if is_ru}}aria-current=\"true\"{{/if}}>RU</a>
@@ -660,7 +664,8 @@ pattern CalcWidget(_x: String) -> String {
   <button class=\"tb\" id=\"expBtn\" type=\"button\" aria-label=\"Развернуть\" title=\"Развернуть\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"10\" height=\"10\"/></svg></button>
 </div>
 </div>
-<script src=\"/static/calc.js?v=4\"></script>"
+<script src=\"/static/calc.js?v=4\"></script>
+<script src=\"/static/search.js?v=1\"></script>"
 }
 
 pattern AboutTpl(_x: String) -> String {
