@@ -27,25 +27,50 @@
     nasyp: 'Не основание: уплотнение до Ку ≥ 0,95 или замена'
   };
 
+  /* ───────── масса здания: собственный вес стен, перекрытий и кровли (ориентир, СН 2.01.01-2022, упрощённый сбор) ───────── */
+  /* кН/м стены за этаж высотой ~3 м (собственный вес стены) */
+  var WALL_SELF = { frame: 3, gas: 6, brick: 9 };
+  /* кН/м² перекрытия на 1 этаж: собственный вес конструкции + полезная нагрузка */
+  var CEIL_LOAD = { wood: 1.5, precast: 4.0, monolith: 5.0 };
+  var CEIL_NAME = { wood: 'Деревянные балки', precast: 'Сборные ЖБ плиты', monolith: 'Монолитные ЖБ' };
+  /* кН/м² горизонтальной проекции кровли: собственный вес конструкции кровли без снега */
+  var ROOF_LOAD = { light: 0.5, heavy: 1.0 };
+  var ROOF_NAME = { light: 'Лёгкая (металлочерепица, профлист, гибкая черепица)', heavy: 'Тяжёлая (керамическая, цементно-песчаная черепица, шифер)' };
+
+  function loadIndex(c) {
+    var floors = c.floors > 0 ? c.floors : 1;
+    var wallSelf = WALL_SELF[c.wall] || WALL_SELF.gas;
+    var ceilLoad = CEIL_LOAD[c.ceil] || CEIL_LOAD.precast;
+    var roofLoad = ROOF_LOAD[c.roof] || ROOF_LOAD.light;
+    return floors * wallSelf + floors * ceilLoad + roofLoad;
+  }
+
+  function loadBand(idx) { return idx < 10 ? 'light' : (idx <= 30 ? 'mid' : 'heavy'); }
+  var LOAD_BAND_RANK = { light: 0, mid: 1, heavy: 2 };
+  var LOAD_BAND_NAME = { light: 'лёгкая', mid: 'средняя', heavy: 'тяжёлая' };
+
   /* ───────── подбор типа фундамента (справочно-рекомендательный, статья «Фундаменты», раздел 3) ───────── */
   var FOUND_TYPES = [
-    { id: 'stolb', name: 'Столбчатый', soils: ['sandmid', 'coarse'], maxFloors: 1, wallOk: ['frame'], pucinOk: false, ugvOk: true, cost: [18, 22], labor: 'Низкие', term: '3–5 дней', risk: 'Высокий: неравномерная осадка опор' },
-    { id: 'mzlf', name: 'Лента МЗЛФ 400×600', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 2, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, cost: [35, 40], labor: 'Средние', term: '1–2 недели', risk: 'Средний: пучение без утепления и дренажа' },
-    { id: 'lentaZagl', name: 'Лента заглублённая монолитная', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 3, wallOk: ['gas', 'brick'], pucinOk: true, ugvOk: false, cost: [50, 58], labor: 'Высокие', term: '2,5–3,5 недели', risk: 'Средний: гидроизоляция и обратная засыпка' },
-    { id: 'lentaFbs', name: 'Лента сборная блочная (ФЛ+ФБС)', soils: ['sandmid', 'coarse'], maxFloors: 2, wallOk: ['gas', 'brick'], pucinOk: false, ugvOk: true, cost: [48, 58], labor: 'Высокие, кран', term: '1–2 недели', risk: 'Средний: швы и перевязка — главные точки риска' },
-    { id: 'plita', name: 'Плитный монолит 200–300 мм', soils: ['loam', 'sandyloam', 'sandmid', 'coarse'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, cost: [55, 60], labor: 'Средние', term: '1,5–2 недели', risk: 'Низкий: ошибки дороже всего' },
-    { id: 'ushp', name: 'УШП с рёбрами', soils: ['loam', 'sandyloam'], maxFloors: 2, wallOk: ['frame', 'gas'], pucinOk: true, ugvOk: true, cost: [60, 70], labor: 'Средние', term: '7–10 дней', risk: 'Низкий при проекте, копирование — до 15 % проблем' },
-    { id: 'svai', name: 'Сваи + ростверк', soils: ['torf', 'nasyp', 'loam', 'sandyloam'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, cost: [45, 55], labor: 'Средние', term: '1 неделя', risk: 'Средний: без геологии неизвестна несущая способность' }
+    { id: 'stolb', name: 'Столбчатый', soils: ['sandmid', 'coarse'], maxFloors: 1, wallOk: ['frame'], pucinOk: false, ugvOk: true, maxLoad: 'light', cost: [18, 22], labor: 'Низкие', term: '3–5 дней', risk: 'Высокий: неравномерная осадка опор' },
+    { id: 'mzlf', name: 'Лента МЗЛФ 400×600', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 2, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'mid', cost: [35, 40], labor: 'Средние', term: '1–2 недели', risk: 'Средний: пучение без утепления и дренажа' },
+    { id: 'lentaZagl', name: 'Лента заглублённая монолитная', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 3, wallOk: ['gas', 'brick'], pucinOk: true, ugvOk: false, maxLoad: 'heavy', cost: [50, 58], labor: 'Высокие', term: '2,5–3,5 недели', risk: 'Средний: гидроизоляция и обратная засыпка' },
+    { id: 'lentaFbs', name: 'Лента сборная блочная (ФЛ+ФБС)', soils: ['sandmid', 'coarse'], maxFloors: 2, wallOk: ['gas', 'brick'], pucinOk: false, ugvOk: true, maxLoad: 'mid', cost: [48, 58], labor: 'Высокие, кран', term: '1–2 недели', risk: 'Средний: швы и перевязка — главные точки риска' },
+    { id: 'plita', name: 'Плитный монолит 200–300 мм', soils: ['loam', 'sandyloam', 'sandmid', 'coarse'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'heavy', cost: [55, 60], labor: 'Средние', term: '1,5–2 недели', risk: 'Низкий: ошибки дороже всего' },
+    { id: 'ushp', name: 'УШП с рёбрами', soils: ['loam', 'sandyloam'], maxFloors: 2, wallOk: ['frame', 'gas'], pucinOk: true, ugvOk: true, maxLoad: 'mid', cost: [60, 70], labor: 'Средние', term: '7–10 дней', risk: 'Низкий при проекте, копирование — до 15 % проблем' },
+    { id: 'svai', name: 'Сваи + ростверк', soils: ['torf', 'nasyp', 'loam', 'sandyloam'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'heavy', cost: [45, 55], labor: 'Средние', term: '1 неделя', risk: 'Средний: без геологии неизвестна несущая способность' }
   ];
 
   function rankTypes(c) {
     var floors = c.floors > 0 ? c.floors : 1;
     var weak = c.soil === 'torf' || c.soil === 'nasyp';
+    var idx = loadIndex(c), band = loadBand(idx);
     var list = FOUND_TYPES.map(function (t) {
       var score = 0, reasons = [];
       if (t.soils.indexOf(c.soil) >= 0) score += 3; else { score -= 2; reasons.push('грунт не в типичном диапазоне применения'); }
       if (floors <= t.maxFloors) score += 2; else { score -= 3; reasons.push('этажность выше типового предела системы'); }
       if (t.wallOk.indexOf(c.wall) >= 0) score += 1;
+      if (LOAD_BAND_RANK[band] > LOAD_BAND_RANK[t.maxLoad]) { score -= 3; reasons.push('масса здания (стены + перекрытия + кровля, ' + LOAD_BAND_NAME[band] + ') выше типового предела системы'); }
+      else score += 1;
       if (c.pucin && !t.pucinOk) { score -= 2; reasons.push('пучинистый грунт плохо совместим'); }
       if (c.pucin && t.pucinOk) score += 1;
       if (c.ugv > 0 && c.ugv < 1.0 && !t.ugvOk) { score -= 2; reasons.push('высокий уровень грунтовых вод плохо совместим'); }
@@ -90,13 +115,21 @@
     function warn(level, text) { w.push({ level: level, text: text }); }
     var dfn = DFN[c.soil], R = isFinite(c.R) && c.R > 0 ? c.R : R0[c.soil];
     var bMin = WALL_MIN_B[c.wall] || 0.4;
-    var floorLoad = isFinite(c.F) && c.F > 0 ? c.F : (FLOOR_LOAD[c.wall] || 16) * c.floors + 0.4 * SNOW_MINSK * (c.plan || 1);
+    var perim = isFinite(c.perim) && c.perim > 0 ? c.perim : 2 * (c.L + c.W);
+    var S = c.L > 0 && c.W > 0 ? c.L * c.W : 0;
+    /* Погонная нагрузка F, если не задана явно: собственный вес стен (по этажам) + перекрытия и кровля,
+       приведённые к периметру несущих стен через площадь дома, + снеговая. Ориентир практики (СН 2.01.01-2022,
+       упрощённый сбор), габариты, этажность, тип перекрытий и кровли учтены — точный сбор нагрузок даёт проектировщик. */
+    var wallSelf = WALL_SELF[c.wall] || WALL_SELF.gas;
+    var ceilLoad = CEIL_LOAD[c.ceil] || CEIL_LOAD.precast;
+    var roofLoad = ROOF_LOAD[c.roof] || ROOF_LOAD.light;
+    var floorLoad = isFinite(c.F) && c.F > 0 ? c.F
+      : c.floors * wallSelf + (c.floors * ceilLoad + roofLoad + 0.4 * SNOW_MINSK) * (perim > 0 ? S / perim : 0);
     var F = floorLoad; /* кН/м, погонная */
     var h = isFinite(c.h) && c.h > 0 ? c.h : 0.6; /* высота сечения ленты, м */
     var gm = 20; /* кН/м3, средний вес фундамента с грунтом на обрезах */
     var bReq = F / (R - gm * h);
     var b = Math.max(bMin, Math.ceil(Math.max(bReq, 0) / 0.1) * 0.1);
-    var perim = isFinite(c.perim) && c.perim > 0 ? c.perim : 2 * (c.L + c.W);
     var d = c.shallow ? Math.min(h, 0.6) : dfn; /* МЗЛФ: заглубление мельче dfn при утеплённом контуре */
 
     var concrete = perim * b * h * 1.02;
@@ -218,6 +251,8 @@
   var api = {
     calc: calc, calcLenta: calcLenta, calcPlita: calcPlita, DFN: DFN, R0: R0, SOIL_NAME: SOIL_NAME, SOIL_PUCIN: SOIL_PUCIN, SOIL_NOTE: SOIL_NOTE,
     REBAR: REBAR, WALL_MIN_B: WALL_MIN_B, FLOOR_LOAD: FLOOR_LOAD, LABOR: LABOR, CONCRETE_CLASS: CONCRETE_CLASS,
+    WALL_SELF: WALL_SELF, CEIL_LOAD: CEIL_LOAD, CEIL_NAME: CEIL_NAME, ROOF_LOAD: ROOF_LOAD, ROOF_NAME: ROOF_NAME,
+    loadIndex: loadIndex, loadBand: loadBand, LOAD_BAND_NAME: LOAD_BAND_NAME,
     FOUND_TYPES: FOUND_TYPES, rankTypes: rankTypes, MIX_B225: MIX_B225, siteMix: siteMix
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -55,6 +55,7 @@
     var s = sys();
     var c = {
       sys: s, L: num('fd-L'), W: num('fd-W'), floors: num('fd-floors'), wall: val('fd-wall'),
+      ceil: val('fd-ceil'), roof: val('fd-roof'),
       soil: val('fd-soil'), R: num('fd-R'), ugv: num('fd-ugv'), pucin: checked('fd-pucin')
     };
     if (s === 'lenta') {
@@ -75,10 +76,20 @@
     return el ? el.value : 'balance';
   }
 
+  function massCfg() {
+    return { soil: val('fd-soil'), floors: num('fd-floors'), wall: val('fd-wall'), ceil: val('fd-ceil'), roof: val('fd-roof'), ugv: num('fd-ugv'), pucin: checked('fd-pucin'), priority: priority() };
+  }
+
+  function massLabel(c) {
+    var idx = M.loadIndex(c), band = M.loadBand(idx);
+    return (M.LOAD_BAND_NAME[band] || band) + ' (ориентир ' + fmt(idx, 0) + ' кН/м приведённой нагрузки на стену)';
+  }
+
   function types() {
     var host = $('fd-types'); if (!host) return;
-    var c = { soil: val('fd-soil'), floors: num('fd-floors'), wall: val('fd-wall'), ugv: num('fd-ugv'), pucin: checked('fd-pucin'), priority: priority() };
+    var c = massCfg();
     if (!c.soil) { clearNode(host); return; }
+    set('fd-g0', massLabel(c));
     var ranked = M.rankTypes(c);
     var best = ranked.length ? ranked[0].score : 0;
     var rows = ranked.map(function (it, i) {
@@ -92,7 +103,7 @@
       };
     });
     table(host, ['Система', 'у.е./м²', 'Трудозатраты', 'Срок', 'Риск и замечания'], rows);
-    verdict('fd-vtype', 'Рекомендация — по справочным ориентирам практики (статья «Фундаменты», раздел 3), не проектное решение. Точный расчёт сечения и армирования MVP считает дальше только для ленты МЗЛФ и плиты.', false);
+    verdict('fd-vtype', 'Рекомендация — по справочным ориентирам практики (статья «Фундаменты», раздел 3) и приведённой массе здания (стены + перекрытия + кровля), не проектное решение. Точный расчёт сечения и армирования MVP считает дальше только для ленты МЗЛФ и плиты.', false);
   }
 
   function budget() {
