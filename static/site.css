@@ -30,6 +30,16 @@ a{color:inherit}
 .lang{display:flex;border:1.5px solid #c6c8cd}
 .lang a{min-height:44px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 14px;font-size:15px;font-weight:600;letter-spacing:.04em;text-decoration:none;background:#fff;color:var(--ink)}
 .lang a[aria-current=true]{background:var(--ink);color:#fff}
+.site-search{position:relative}
+.site-search-q{min-height:44px;width:200px;padding:0 14px;border:1.5px solid #c6c8cd;background:#fff;color:var(--ink);font:inherit;font-size:15px}
+.site-search-q::placeholder{color:var(--muted)}
+.site-search-q:focus{outline:2px solid var(--red);outline-offset:-1px}
+.site-search-results{position:absolute;top:calc(100% + 4px);right:0;left:0;z-index:40;margin:0;padding:4px 0;list-style:none;background:#fff;border:1.5px solid var(--ink);max-height:60vh;overflow:auto;min-width:280px}
+.site-search-results li{padding:0}
+.site-search-results li.empty{padding:10px 14px;color:var(--muted);font-size:14px}
+.site-search-results li a{display:block;padding:10px 14px;text-decoration:none;color:var(--ink);font-size:15px;line-height:1.3}
+.site-search-results li a:hover,.site-search-results li.on a{background:var(--soft)}
+@media(max-width:980px){.site-search-q{width:100%}.site-search{width:100%;order:-1}}
 .tel{font-family:var(--mono);font-size:18px;text-decoration:none}
 .btn{display:inline-flex;align-items:center;min-height:52px;padding:14px 28px;background:var(--red);color:#fff;text-decoration:none;font-weight:600;font-size:17px;border:1.5px solid var(--red)}
 .btn:hover{filter:brightness(.92)}
