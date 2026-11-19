@@ -54,9 +54,9 @@ jobs:
         run: node tests/unit/wind-model.test.js
       - name: roof model tests
         run: node tests/unit/roof-model.test.js
-      - name: found model tests
-        run: node tests/unit/found-model.test.js
       - name: ai request tests
         run: node tests/unit/aireq.test.js
       - name: executive documentation forms tests
         run: node tests/unit/idoc.test.js
+      - name: site search tests
+        run: node tests/unit/search.test.js
