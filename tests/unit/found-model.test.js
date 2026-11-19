@@ -43,4 +43,16 @@ assert(p.asProvided >= p.minAs, 'шаг 200мм Ø10 проходит по ми�
 let p2 = F.calc(Object.assign({}, plitaBase, { t: 0.15 }));
 assert(p2.warns.some(w => w.level === 'yellow' && /180 мм/.test(w.text)), 'предупреждение при тонкой плите');
 
+/* ───────── подбор типа фундамента и справочный расход на месте ───────── */
+let weak = F.rankTypes({ soil: 'torf', floors: 1, wall: 'frame', ugv: 2, pucin: false, priority: 'balance' });
+assert.strictEqual(weak[0].type.id, 'svai', 'на торфе/иле первой рекомендацией должны быть сваи');
+
+let dry = F.rankTypes({ soil: 'sandmid', floors: 1, wall: 'frame', ugv: 3, pucin: false, priority: 'balance' });
+assert.strictEqual(dry[0].type.id, 'stolb', 'сухой песок, каркас, одноэтажка -> столбчатый первым');
+
+let mix = F.siteMix(10);
+near(mix.cementBags, 10 * 380 / 50, 1e-9, 'мешки цемента на 10 м3');
+near(mix.sandM3, 4.5, 1e-9, 'песок на 10 м3');
+near(mix.gravelM3, 8.5, 1e-9, 'щебень на 10 м3');
+
 console.log('found-model: ok');

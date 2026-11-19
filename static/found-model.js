@@ -6,12 +6,69 @@
 (function (root) {
   'use strict';
 
-  /* Нормативная глубина промерзания dfn, м (Минск, СП 5.01.01-2023) */
-  var DFN = { loam: 1.0, sandyloam: 1.19, sandmid: 1.27, coarse: 1.45 };
+  /* Нормативная глубина промерзания dfn, м (Минск, СП 5.01.01-2023). Для торфа/насыпного грунта
+     собственная dfn не нормируется (это не основание) — значение дано как ориентир для совместимости расчёта. */
+  var DFN = { loam: 1.0, sandyloam: 1.19, sandmid: 1.27, coarse: 1.45, torf: 1.0, nasyp: 1.0 };
   /* Ориентир практики для расчётного сопротивления грунта R0, кПа: уточняет инженерно-геологические
-     изыскания по СП 5.01.01-2023 / СП 22.13330.2016 (коэффициенты My, Mq, Mc) — это не табличное значение нормы. */
-  var R0 = { loam: 220, sandyloam: 250, sandmid: 300, coarse: 450 };
-  var SOIL_NAME = { loam: 'Суглинок', sandyloam: 'Супесь, мелкий песок', sandmid: 'Песок средний', coarse: 'Крупнообломочный' };
+     изыскания по СП 5.01.01-2023 / СП 22.13330.2016 (коэффициенты My, Mq, Mc) — это не табличное значение нормы.
+     Торф и насыпной грунт — не основания, R0 дан как ориентир нижней границы (статья, раздел 1). */
+  var R0 = { loam: 220, sandyloam: 250, sandmid: 300, coarse: 450, torf: 45, nasyp: 60 };
+  var SOIL_NAME = {
+    loam: 'Суглинок', sandyloam: 'Супесь, мелкий песок', sandmid: 'Песок средний', coarse: 'Крупнообломочный',
+    torf: 'Торф, ил, заторфованный', nasyp: 'Насыпной, свалка строительная'
+  };
+  var SOIL_PUCIN = { loam: 'Сильнопучинистый', sandyloam: 'Слабо- и среднепучинистая', sandmid: 'Непучинистый', coarse: 'Непучинистый', torf: 'Слабый, сжимаемый', nasyp: 'Любая, не нормируется' };
+  var SOIL_NOTE = {
+    loam: 'Пучение снимают утеплением и отмосткой, а не глубиной',
+    sandyloam: 'Нужна подушка и дренаж при высокой воде',
+    sandmid: 'Лучшее основание; лента и плита работают без сюрпризов',
+    coarse: 'Лучшее основание; лента и плита работают без сюрпризов',
+    torf: 'Не основание: полная выторфовка или сваи до плотных слоёв',
+    nasyp: 'Не основание: уплотнение до Ку ≥ 0,95 или замена'
+  };
+
+  /* ───────── подбор типа фундамента (справочно-рекомендательный, статья «Фундаменты», раздел 3) ───────── */
+  var FOUND_TYPES = [
+    { id: 'stolb', name: 'Столбчатый', soils: ['sandmid', 'coarse'], maxFloors: 1, wallOk: ['frame'], pucinOk: false, ugvOk: true, cost: [18, 22], labor: 'Низкие', term: '3–5 дней', risk: 'Высокий: неравномерная осадка опор' },
+    { id: 'mzlf', name: 'Лента МЗЛФ 400×600', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 2, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, cost: [35, 40], labor: 'Средние', term: '1–2 недели', risk: 'Средний: пучение без утепления и дренажа' },
+    { id: 'lentaZagl', name: 'Лента заглублённая монолитная', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 3, wallOk: ['gas', 'brick'], pucinOk: true, ugvOk: false, cost: [50, 58], labor: 'Высокие', term: '2,5–3,5 недели', risk: 'Средний: гидроизоляция и обратная засыпка' },
+    { id: 'lentaFbs', name: 'Лента сборная блочная (ФЛ+ФБС)', soils: ['sandmid', 'coarse'], maxFloors: 2, wallOk: ['gas', 'brick'], pucinOk: false, ugvOk: true, cost: [48, 58], labor: 'Высокие, кран', term: '1–2 недели', risk: 'Средний: швы и перевязка — главные точки риска' },
+    { id: 'plita', name: 'Плитный монолит 200–300 мм', soils: ['loam', 'sandyloam', 'sandmid', 'coarse'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, cost: [55, 60], labor: 'Средние', term: '1,5–2 недели', risk: 'Низкий: ошибки дороже всего' },
+    { id: 'ushp', name: 'УШП с рёбрами', soils: ['loam', 'sandyloam'], maxFloors: 2, wallOk: ['frame', 'gas'], pucinOk: true, ugvOk: true, cost: [60, 70], labor: 'Средние', term: '7–10 дней', risk: 'Низкий при проекте, копирование — до 15 % проблем' },
+    { id: 'svai', name: 'Сваи + ростверк', soils: ['torf', 'nasyp', 'loam', 'sandyloam'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, cost: [45, 55], labor: 'Средние', term: '1 неделя', risk: 'Средний: без геологии неизвестна несущая способность' }
+  ];
+
+  function rankTypes(c) {
+    var floors = c.floors > 0 ? c.floors : 1;
+    var weak = c.soil === 'torf' || c.soil === 'nasyp';
+    var list = FOUND_TYPES.map(function (t) {
+      var score = 0, reasons = [];
+      if (t.soils.indexOf(c.soil) >= 0) score += 3; else { score -= 2; reasons.push('грунт не в типичном диапазоне применения'); }
+      if (floors <= t.maxFloors) score += 2; else { score -= 3; reasons.push('этажность выше типового предела системы'); }
+      if (t.wallOk.indexOf(c.wall) >= 0) score += 1;
+      if (c.pucin && !t.pucinOk) { score -= 2; reasons.push('пучинистый грунт плохо совместим'); }
+      if (c.pucin && t.pucinOk) score += 1;
+      if (c.ugv > 0 && c.ugv < 1.0 && !t.ugvOk) { score -= 2; reasons.push('высокий уровень грунтовых вод плохо совместим'); }
+      if (weak && t.id !== 'svai') { score -= 4; reasons.push('слабый или насыпной грунт обычно требует свай либо замены грунта'); }
+      if (weak && t.id === 'svai') score += 4;
+      if (c.priority === 'cheap') score += (70 - t.cost[0]) / 10;
+      if (c.priority === 'reliable') score += (t.risk.indexOf('Низкий') === 0 ? 3 : (t.risk.indexOf('Средний') === 0 ? 1 : -1));
+      if (c.priority === 'fast') score += (t.term.indexOf('дн') >= 0 ? 2 : 0);
+      return { type: t, score: score, reasons: reasons };
+    });
+    list.sort(function (a, b) { return b.score - a.score; });
+    return list;
+  }
+
+  /* Справочные (не проектные) коэффициенты расхода на 1 м³ бетона класса В22,5 (М300) при собственном замесе:
+     типовые доли практики по ГОСТ 7473-2010 — уточняются лабораторией бетонного узла под фактические материалы. */
+  var MIX_B225 = { cementKgPerM3: 380, sandM3PerM3: 0.45, gravelM3PerM3: 0.85 };
+
+  function siteMix(concreteM3) {
+    var v = concreteM3 > 0 ? concreteM3 : 0;
+    var cementKg = v * MIX_B225.cementKgPerM3;
+    return { cementKg: cementKg, cementBags: cementKg / 50, sandM3: v * MIX_B225.sandM3PerM3, gravelM3: v * MIX_B225.gravelM3PerM3 };
+  }
   /* Минимальная конструктивная ширина ленты по СП 5.01.01-2023, м */
   var WALL_MIN_B = { frame: 0.3, gas: 0.4, brick: 0.4 };
   /* Ориентир погонной постоянной+полезной+снеговой нагрузки на 1 этаж, кН/м стены (СН 2.01.01-2022, упрощённый сбор) */
@@ -85,6 +142,7 @@
     if (c.pucin && !c.shallow) warn('yellow', 'Пучинистый грунт: для МЗЛФ обычно закладывают ленту мельче dfn с терморазрывом ЭППС и дренажом — включите «мелкое заложение».');
     if (c.soil === 'coarse' && c.pucin) warn('yellow', 'Крупнообломочный грунт обычно непучинистый: проверьте тип грунта по изысканиям.');
     if (c.floors > 2) warn('yellow', 'Свыше 2 этажей — за границей применимости MVP (до 3 этажей без спецнагрузок), проверьте нагрузку индивидуально.');
+    if (c.soil === 'torf' || c.soil === 'nasyp') warn('red', 'Торф, ил или насыпной грунт обычно не являются основанием: нужна выторфовка, замена грунта или свайный фундамент — лента здесь даёт только ориентир.');
     warn('info', 'Ширина подошвы дана по упрощённой формуле b ≥ F ÷ (R − 20·h); окончательно считает проектировщик по СП 5.01.01-2023 с коэффициентами несущей способности.');
 
     return {
@@ -141,6 +199,7 @@
     if (asProvided < minAs - 1e-6) warn('yellow', 'Шаг сетки даёт коэффициент армирования ниже 0,1 % сечения: уменьшите шаг или увеличьте диаметр.');
     if (c.ugv > 0 && c.ugv < 0.3) warn('yellow', 'Высокий уровень грунтовых вод у подошвы плиты: нужна гидроизоляция и проверка пучения.');
     if (t < 0.18 - 1e-9) warn('yellow', 'Толщина плиты меньше 180 мм — ниже типового диапазона 200–250 мм.');
+    if (c.soil === 'torf' || c.soil === 'nasyp') warn('red', 'Торф, ил или насыпной грунт обычно не являются основанием: нужна выторфовка, замена грунта или свайный фундамент — плита здесь даёт только ориентир.');
     warn('info', 'Толщина, рёбра и армирование — ориентир практики (СП 5.01.05-2025, СП 5.03.01-2020); продавливание и осадку проверяет проектировщик.');
 
     return {
@@ -156,7 +215,11 @@
     return c.sys === 'plita' ? calcPlita(c) : calcLenta(c);
   }
 
-  var api = { calc: calc, calcLenta: calcLenta, calcPlita: calcPlita, DFN: DFN, R0: R0, SOIL_NAME: SOIL_NAME, REBAR: REBAR, WALL_MIN_B: WALL_MIN_B, FLOOR_LOAD: FLOOR_LOAD, LABOR: LABOR };
+  var api = {
+    calc: calc, calcLenta: calcLenta, calcPlita: calcPlita, DFN: DFN, R0: R0, SOIL_NAME: SOIL_NAME, SOIL_PUCIN: SOIL_PUCIN, SOIL_NOTE: SOIL_NOTE,
+    REBAR: REBAR, WALL_MIN_B: WALL_MIN_B, FLOOR_LOAD: FLOOR_LOAD, LABOR: LABOR, CONCRETE_CLASS: CONCRETE_CLASS,
+    FOUND_TYPES: FOUND_TYPES, rankTypes: rankTypes, MIX_B225: MIX_B225, siteMix: siteMix
+  };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.TegaFound = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -70,12 +70,88 @@
     return c.L > 0 && c.W > 0 && c.floors > 0;
   }
 
+  function priority() {
+    var el = document.querySelector('input[name="fd-priority"]:checked');
+    return el ? el.value : 'balance';
+  }
+
+  function types() {
+    var host = $('fd-types'); if (!host) return;
+    var c = { soil: val('fd-soil'), floors: num('fd-floors'), wall: val('fd-wall'), ugv: num('fd-ugv'), pucin: checked('fd-pucin'), priority: priority() };
+    if (!c.soil) { clearNode(host); return; }
+    var ranked = M.rankTypes(c);
+    var best = ranked.length ? ranked[0].score : 0;
+    var rows = ranked.map(function (it, i) {
+      var t = it.type;
+      return {
+        cls: i === 0 && it.score >= best - 1e-9 ? 'tot' : '',
+        cells: [
+          (i === 0 ? '★ ' : '') + t.name, fmt(t.cost[0], 0) + '–' + fmt(t.cost[1], 0), t.labor, t.term,
+          it.reasons.length ? t.risk + '. ' + it.reasons.join('; ') : t.risk
+        ]
+      };
+    });
+    table(host, ['Система', 'у.е./м²', 'Трудозатраты', 'Срок', 'Риск и замечания'], rows);
+    verdict('fd-vtype', 'Рекомендация — по справочным ориентирам практики (статья «Фундаменты», раздел 3), не проектное решение. Точный расчёт сечения и армирования MVP считает дальше только для ленты МЗЛФ и плиты.', false);
+  }
+
+  function budget() {
+    var host = $('fd-bt'); if (!host) return;
+    if (!last) { clearNode(host); set('fd-b1', '—'); set('fd-b2', '—'); set('fd-b3', '—'); verdict('fd-bverdict', '', false); return; }
+    var r = last.r;
+    var mix = M.siteMix((r.concrete || 0) + (r.pad || 0));
+    var diy = checked('fd-p-diy');
+    var excavQty = diy ? 0 : r.excavVol;
+
+    var common = [
+      ['Арматура', r.steelMass, 'кг', 'rebar'],
+      ['Опалубка', r.formworkArea, 'м²', 'form'],
+      ['Экскавация и вывоз грунта', excavQty, 'м³', 'excav'],
+    ];
+    var rmx = [
+      ['Товарный бетон несущий В22,5', r.concrete, 'м³', 'rmxB225'],
+      ['Товарный бетон подбетонка В15', r.pad, 'м³', 'rmxB15'],
+    ];
+    var site = [
+      ['Цемент (на месте)', mix.cementBags, 'мешков', 'cement'],
+      ['Песок (на месте)', mix.sandM3, 'м³', 'sand'],
+      ['Щебень (на месте)', mix.gravelM3, 'м³', 'gravel'],
+    ];
+
+    function lineOf(it) {
+      var p = num('fd-p-' + it[3]), line = isFinite(p) && p >= 0 && it[1] > 0 ? p * it[1] : NaN;
+      return { row: { cells: [it[0], fmt(it[1], 1) + ' ' + it[2], isFinite(p) ? fmt(p, 2) : '—', isFinite(line) ? fmt(line, 2) : '—'] }, line: line };
+    }
+
+    var rows = [], sumCommon = 0;
+    common.forEach(function (it) { var o = lineOf(it); rows.push(o.row); if (isFinite(o.line)) sumCommon += o.line; });
+    var sumRmx = 0;
+    rmx.forEach(function (it) { var o = lineOf(it); rows.push(o.row); if (isFinite(o.line)) sumRmx += o.line; });
+    var sumSite = 0;
+    site.forEach(function (it) { var o = lineOf(it); rows.push(o.row); if (isFinite(o.line)) sumSite += o.line; });
+    var rig = num('fd-p-rig');
+    if (isFinite(rig) && rig >= 0) { rows.push({ cells: ['Миксер, доставка сыпучих и логистика', '1', 'компл.', fmt(rig, 2)] }); sumSite += rig; }
+
+    var totalRmx = sumCommon + sumRmx, totalSite = sumCommon + sumSite;
+    rows.push({ cls: 'tot', cells: ['Итого: товарный бетон', '', '', fmt(totalRmx, 2)] });
+    rows.push({ cls: 'tot', cells: ['Итого: бетон на месте', '', '', fmt(totalSite, 2)] });
+    table(host, ['Позиция', 'Количество', 'Цена, BYN за ед.', 'Сумма, BYN'], rows);
+
+    set('fd-b1', fmt(totalRmx, 2) + ' BYN');
+    set('fd-b2', fmt(totalSite, 2) + ' BYN');
+    var diff = totalSite - totalRmx;
+    set('fd-b3', (diff >= 0 ? 'на месте дороже на ' : 'на месте дешевле на ') + fmt(Math.abs(diff), 2) + ' BYN');
+    verdict('fd-bverdict', 'Цены не заложены: введите свои за единицу, суммы пересчитаются. Расход цемента/песка/щебня на месте — справочный ориентир (ГОСТ 7473-2010, практика), фактическую рецептуру уточняет лаборатория бетонного узла. Электрика, доставка арматуры и прочие позиции сметы сюда не входят.', false);
+  }
+
   function calc() {
     var c = cfg();
+    types();
     if (!valid(c)) {
       last = null;
       verdict('fd-verdict', 'Укажите длину, ширину и число этажей дома.', true);
       verdict('fd-v1', '', false);
+      budget();
       return;
     }
     var r = M.calc(c);
@@ -107,7 +183,9 @@
       set('fd-c4', fmt(r.steelMass, 0) + ' кг (сетки ' + fmt(r.steelMassGrids, 0) + ' + шпильки ' + fmt(r.studMass, 0) + ')');
       set('fd-c5', 'ЭППС под плитой ' + fmt(r.eps, 0) + ' м² (ориентир 200–300 мм)');
     }
-    verdict('fd-v1', 'Защитный слой, нахлёст и минимальный коэффициент армирования — по СП 5.03.01-2020. Окончательную схему армирования и сечение проверяет проектировщик по расчёту на несущую способность.', false);
+    set('fd-c6', r.concreteClass + ' (подбетонка ' + r.padClass + ')');
+    verdict('fd-v1', 'Защитный слой, нахлёст и минимальный коэффициент армирования — по СП 5.03.01-2020. Марка бетона — ориентир практики. Окончательную схему армирования и сечение проверяет проектировщик по расчёту на несущую способность.', false);
+    budget();
   }
 
   function apply() {
@@ -144,6 +222,11 @@
       if (!el.id && el.type !== 'radio') return;
       if (el.name === 'fd-sys') return;
       el.addEventListener('input', calc); el.addEventListener('change', calc);
+    });
+    var rs = $('fd-p-reset');
+    if (rs) rs.addEventListener('click', function () {
+      Array.prototype.forEach.call(root.querySelectorAll('input[id^="fd-p-"]'), function (e) { if (e.type === 'checkbox') e.checked = false; else e.value = ''; });
+      calc();
     });
     apply(); toggleSys(); calc();
   }
