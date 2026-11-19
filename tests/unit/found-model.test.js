@@ -55,4 +55,16 @@ near(mix.cementBags, 10 * 380 / 50, 1e-9, 'мешки цемента на 10 м3
 near(mix.sandM3, 4.5, 1e-9, 'песок на 10 м3');
 near(mix.gravelM3, 8.5, 1e-9, 'щебень на 10 м3');
 
+/* ───────── масса здания (стены + перекрытия + кровля): влияет на подбор типа и на авто-оценку нагрузки ───────── */
+let heavy3 = F.rankTypes({ soil: 'sandmid', floors: 3, wall: 'brick', ceil: 'monolith', roof: 'heavy', ugv: 3, pucin: false, priority: 'balance' });
+assert(heavy3.some(function (it) { return it.type.id === 'stolb' && it.reasons.some(function (r) { return /масса здания/.test(r); }); }), 'тяжёлая 3-этажная конструкция должна штрафовать столбчатый по массе');
+
+let light1 = F.rankTypes({ soil: 'sandmid', floors: 1, wall: 'frame', ceil: 'wood', roof: 'light', ugv: 3, pucin: false, priority: 'balance' });
+assert.strictEqual(light1[0].type.id, 'stolb', 'лёгкий каркасный одноэтажный дом на сухом песке -> столбчатый первым и без штрафа по массе');
+
+/* каркас+дерево+лёгкая кровля, 2 этажа, против кирпич+монолит+тяжёлая кровля, 2 этажа: вторая нагрузка заметно больше */
+let fLight = F.calcLenta(Object.assign({}, base, { wall: 'frame', ceil: 'wood', roof: 'light', F: undefined }));
+let fHeavy = F.calcLenta(Object.assign({}, base, { wall: 'brick', ceil: 'monolith', roof: 'heavy', F: undefined }));
+assert(fHeavy.F > fLight.F * 1.5, 'тяжёлая конструкция (кирпич+монолит+тяжёлая кровля) должна давать заметно большую погонную нагрузку, чем лёгкая (каркас+дерево+лёгкая кровля)');
+
 console.log('found-model: ok');
