@@ -67,4 +67,24 @@ let fLight = F.calcLenta(Object.assign({}, base, { wall: 'frame', ceil: 'wood', 
 let fHeavy = F.calcLenta(Object.assign({}, base, { wall: 'brick', ceil: 'monolith', roof: 'heavy', F: undefined }));
 assert(fHeavy.F > fLight.F * 1.5, 'тяжёлая конструкция (кирпич+монолит+тяжёлая кровля) должна давать заметно большую погонную нагрузку, чем лёгкая (каркас+дерево+лёгкая кровля)');
 
+/* ───────── подвал: влияет на подбор типа, не на объёмы/армирование ленты ───────── */
+let noBase = F.rankTypes({ soil: 'loam', floors: 2, wall: 'brick', ugv: 3, pucin: false, priority: 'balance', basement: false });
+let withBase = F.rankTypes({ soil: 'loam', floors: 2, wall: 'brick', ugv: 3, pucin: false, priority: 'balance', basement: true });
+assert.strictEqual(withBase[0].type.basementOk, true, 'с подвалом первой рекомендацией должна быть система с basementOk');
+assert(['lentaZagl', 'lentaFbs'].indexOf(withBase[0].type.id) >= 0, 'с подвалом первой — заглублённая лента или сборная ФБС');
+let mzlfNoBase = noBase.find(function (it) { return it.type.id === 'mzlf'; });
+let mzlfWithBase = withBase.find(function (it) { return it.type.id === 'mzlf'; });
+assert(mzlfWithBase.score < mzlfNoBase.score, 'подвал штрафует МЗЛФ (basementOk: false) относительно сценария без подвала');
+assert(mzlfWithBase.reasons.some(function (r) { return /подвал/.test(r); }), 'причина штрафа МЗЛФ упоминает подвал');
+
+let basementLenta = F.calcLenta(Object.assign({}, base, { basement: true, shallow: false }));
+near(basementLenta.concrete, F.calcLenta(Object.assign({}, base, { basement: false, shallow: false })).concrete, 1e-9, 'подвал не меняет объём бетона ленты (влияет только на подбор типа и предупреждения)');
+assert(basementLenta.warns.some(function (w) { return w.level === 'info' && /высоту сечения/.test(w.text); }), 'подвал на заглублённой ленте даёт подсказку про высоту сечения');
+
+let basementShallow = F.calcLenta(Object.assign({}, base, { basement: true, shallow: true }));
+assert(basementShallow.warns.some(function (w) { return w.level === 'yellow' && /заглублённой ленте/.test(w.text); }), 'подвал на МЗЛФ (shallow) предупреждает, что обычно нужна заглублённая лента');
+
+let basementPlita = F.calcPlita(Object.assign({}, plitaBase, { basement: true }));
+assert(basementPlita.warns.some(function (w) { return w.level === 'yellow' && /конструктивно не делают/.test(w.text); }), 'подвал на плите предупреждает, что конструктивно не делается');
+
 console.log('found-model: ok');

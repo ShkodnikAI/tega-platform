@@ -50,14 +50,17 @@
   var LOAD_BAND_NAME = { light: 'лёгкая', mid: 'средняя', heavy: 'тяжёлая' };
 
   /* ───────── подбор типа фундамента (справочно-рекомендательный, статья «Фундаменты», раздел 3) ───────── */
+  /* basementOk: практика делает подвал на заглублённой монолитной ленте или сборной ФБС — у остальных систем
+     подвал либо конструктивно не предусмотрен (плита, УШП — фундамент сам на уровне земли), либо экономически
+     не оправдан (столбчатый, свайный — нет сплошной стены по периметру ниже уровня земли). */
   var FOUND_TYPES = [
-    { id: 'stolb', name: 'Столбчатый', soils: ['sandmid', 'coarse'], maxFloors: 1, wallOk: ['frame'], pucinOk: false, ugvOk: true, maxLoad: 'light', cost: [18, 22], labor: 'Низкие', term: '3–5 дней', risk: 'Высокий: неравномерная осадка опор' },
-    { id: 'mzlf', name: 'Лента МЗЛФ 400×600', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 2, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'mid', cost: [35, 40], labor: 'Средние', term: '1–2 недели', risk: 'Средний: пучение без утепления и дренажа' },
-    { id: 'lentaZagl', name: 'Лента заглублённая монолитная', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 3, wallOk: ['gas', 'brick'], pucinOk: true, ugvOk: false, maxLoad: 'heavy', cost: [50, 58], labor: 'Высокие', term: '2,5–3,5 недели', risk: 'Средний: гидроизоляция и обратная засыпка' },
-    { id: 'lentaFbs', name: 'Лента сборная блочная (ФЛ+ФБС)', soils: ['sandmid', 'coarse'], maxFloors: 2, wallOk: ['gas', 'brick'], pucinOk: false, ugvOk: true, maxLoad: 'mid', cost: [48, 58], labor: 'Высокие, кран', term: '1–2 недели', risk: 'Средний: швы и перевязка — главные точки риска' },
-    { id: 'plita', name: 'Плитный монолит 200–300 мм', soils: ['loam', 'sandyloam', 'sandmid', 'coarse'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'heavy', cost: [55, 60], labor: 'Средние', term: '1,5–2 недели', risk: 'Низкий: ошибки дороже всего' },
-    { id: 'ushp', name: 'УШП с рёбрами', soils: ['loam', 'sandyloam'], maxFloors: 2, wallOk: ['frame', 'gas'], pucinOk: true, ugvOk: true, maxLoad: 'mid', cost: [60, 70], labor: 'Средние', term: '7–10 дней', risk: 'Низкий при проекте, копирование — до 15 % проблем' },
-    { id: 'svai', name: 'Сваи + ростверк', soils: ['torf', 'nasyp', 'loam', 'sandyloam'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'heavy', cost: [45, 55], labor: 'Средние', term: '1 неделя', risk: 'Средний: без геологии неизвестна несущая способность' }
+    { id: 'stolb', name: 'Столбчатый', soils: ['sandmid', 'coarse'], maxFloors: 1, wallOk: ['frame'], pucinOk: false, ugvOk: true, maxLoad: 'light', cost: [18, 22], labor: 'Низкие', term: '3–5 дней', risk: 'Высокий: неравномерная осадка опор', basementOk: false },
+    { id: 'mzlf', name: 'Лента МЗЛФ 400×600', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 2, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'mid', cost: [35, 40], labor: 'Средние', term: '1–2 недели', risk: 'Средний: пучение без утепления и дренажа', basementOk: false },
+    { id: 'lentaZagl', name: 'Лента заглублённая монолитная', soils: ['sandmid', 'coarse', 'sandyloam', 'loam'], maxFloors: 3, wallOk: ['gas', 'brick'], pucinOk: true, ugvOk: false, maxLoad: 'heavy', cost: [50, 58], labor: 'Высокие', term: '2,5–3,5 недели', risk: 'Средний: гидроизоляция и обратная засыпка', basementOk: true },
+    { id: 'lentaFbs', name: 'Лента сборная блочная (ФЛ+ФБС)', soils: ['sandmid', 'coarse'], maxFloors: 2, wallOk: ['gas', 'brick'], pucinOk: false, ugvOk: true, maxLoad: 'mid', cost: [48, 58], labor: 'Высокие, кран', term: '1–2 недели', risk: 'Средний: швы и перевязка — главные точки риска', basementOk: true },
+    { id: 'plita', name: 'Плитный монолит 200–300 мм', soils: ['loam', 'sandyloam', 'sandmid', 'coarse'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'heavy', cost: [55, 60], labor: 'Средние', term: '1,5–2 недели', risk: 'Низкий: ошибки дороже всего', basementOk: false },
+    { id: 'ushp', name: 'УШП с рёбрами', soils: ['loam', 'sandyloam'], maxFloors: 2, wallOk: ['frame', 'gas'], pucinOk: true, ugvOk: true, maxLoad: 'mid', cost: [60, 70], labor: 'Средние', term: '7–10 дней', risk: 'Низкий при проекте, копирование — до 15 % проблем', basementOk: false },
+    { id: 'svai', name: 'Сваи + ростверк', soils: ['torf', 'nasyp', 'loam', 'sandyloam'], maxFloors: 3, wallOk: ['frame', 'gas', 'brick'], pucinOk: true, ugvOk: true, maxLoad: 'heavy', cost: [45, 55], labor: 'Средние', term: '1 неделя', risk: 'Средний: без геологии неизвестна несущая способность', basementOk: false }
   ];
 
   function rankTypes(c) {
@@ -76,6 +79,10 @@
       if (c.ugv > 0 && c.ugv < 1.0 && !t.ugvOk) { score -= 2; reasons.push('высокий уровень грунтовых вод плохо совместим'); }
       if (weak && t.id !== 'svai') { score -= 4; reasons.push('слабый или насыпной грунт обычно требует свай либо замены грунта'); }
       if (weak && t.id === 'svai') score += 4;
+      if (c.basement) {
+        if (t.basementOk) score += 4;
+        else { score -= 5; reasons.push('подвал практически не делают на этой системе — нужна заглублённая лента или сборная ФБС'); }
+      }
       if (c.priority === 'cheap') score += (70 - t.cost[0]) / 10;
       if (c.priority === 'reliable') score += (t.risk.indexOf('Низкий') === 0 ? 3 : (t.risk.indexOf('Средний') === 0 ? 1 : -1));
       if (c.priority === 'fast') score += (t.term.indexOf('дн') >= 0 ? 2 : 0);
@@ -176,6 +183,8 @@
     if (c.soil === 'coarse' && c.pucin) warn('yellow', 'Крупнообломочный грунт обычно непучинистый: проверьте тип грунта по изысканиям.');
     if (c.floors > 2) warn('yellow', 'Свыше 2 этажей — за границей применимости MVP (до 3 этажей без спецнагрузок), проверьте нагрузку индивидуально.');
     if (c.soil === 'torf' || c.soil === 'nasyp') warn('red', 'Торф, ил или насыпной грунт обычно не являются основанием: нужна выторфовка, замена грунта или свайный фундамент — лента здесь даёт только ориентир.');
+    if (c.basement && c.shallow) warn('yellow', 'Подвал обычно делают на заглублённой ленте (ниже dfn), а не на МЗЛФ: снимите «мелкое заложение», высота сечения тогда должна быть близка к высоте стен подвала.');
+    if (c.basement && !c.shallow) warn('info', 'Для подвала высоту сечения (сейчас задаётся вручную) задайте по высоте стен подвала в свету (обычно 2,2–2,6 м) — расчёт объёмов и армирования не меняется, но подставьте нужную высоту в поле «Высота сечения ленты».');
     warn('info', 'Ширина подошвы дана по упрощённой формуле b ≥ F ÷ (R − 20·h); окончательно считает проектировщик по СП 5.01.01-2023 с коэффициентами несущей способности.');
 
     return {
@@ -233,6 +242,7 @@
     if (c.ugv > 0 && c.ugv < 0.3) warn('yellow', 'Высокий уровень грунтовых вод у подошвы плиты: нужна гидроизоляция и проверка пучения.');
     if (t < 0.18 - 1e-9) warn('yellow', 'Толщина плиты меньше 180 мм — ниже типового диапазона 200–250 мм.');
     if (c.soil === 'torf' || c.soil === 'nasyp') warn('red', 'Торф, ил или насыпной грунт обычно не являются основанием: нужна выторфовка, замена грунта или свайный фундамент — плита здесь даёт только ориентир.');
+    if (c.basement) warn('yellow', 'На плите подвал конструктивно не делают — фундамент сам лежит на уровне земли. Для подвала нужна заглублённая лента (выберите «Лента» и снимите «мелкое заложение»).');
     warn('info', 'Толщина, рёбра и армирование — ориентир практики (СП 5.01.05-2025, СП 5.03.01-2020); продавливание и осадку проверяет проектировщик.');
 
     return {
