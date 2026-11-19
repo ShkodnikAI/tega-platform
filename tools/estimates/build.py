@@ -24,6 +24,7 @@ ID_TABS = [
     ("idhub", "/ispolnitelnaya-dokumentatsiya", "id_tab_hub"),
     ("idart", "/ispolnitelnaya-dokumentatsiya/poryadok", "id_tab_art"),
     ("idact", "/ispolnitelnaya-dokumentatsiya/akty", "id_tab_act"),
+    ("idjourn", "/ispolnitelnaya-dokumentatsiya/zhurnaly", "id_tab_journ"),
     ("idterm", "/ispolnitelnaya-dokumentatsiya/sroki", "id_tab_term"),
 ]
 REF_TABS = [
@@ -1114,6 +1115,16 @@ def idoc_act():
     )
 
 
+def idoc_journ():
+    import art_idoc
+    return (
+        head("Исполнительная документация · Журналы", "Журналы",
+             "Общий журнал производства работ (семь разделов) и 13 специальных журналов по видам работ: формы по первоисточникам с образцами заполнения.")
+        + RU_ONLY + tabs("idjourn")
+        + '<div class="e-ref"><div class="e-sech"><small>01</small><h2>Журналы</h2></div>' + art_idoc.zhurnaly_body() + '</div>'
+    )
+
+
 def idoc_term():
     import art_terms
     return (
@@ -1654,6 +1665,7 @@ def main():
     src += pattern("IdHubTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_hub())
     src += pattern("IdArtTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_art())
     src += pattern("IdActTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_act())
+    src += pattern("IdJournTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_journ())
     src += pattern("IdTermTpl", '<link rel="stylesheet" href="/static/est.css?v=39">' + idoc_term())
     src += pattern("EstCalcTabs", '<link rel="stylesheet" href="/static/est.css?v=26">' + tabs("calc"))
     (ROOT / "site" / "estimates.mlog").write_text(src, encoding="utf-8")

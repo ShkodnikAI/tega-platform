@@ -77,6 +77,7 @@ pattern DictRu(_x: String) -> Map {
   id_tab_hub: "Исполнительная документация",
   id_tab_art: "Порядок и нормативы",
   id_tab_act: "Акты онлайн",
+  id_tab_journ: "Журналы",
   id_tab_term: "Сроки работ",
   id_nav_aria: "Разделы исполнительной документации",
   discuss: "Обсудить объект",
@@ -201,6 +202,7 @@ pattern DictBe(_x: String) -> Map {
   id_tab_hub: "Выканаўчая дакументацыя",
   id_tab_art: "Парадак і нарматывы",
   id_tab_act: "Акты анлайн",
+  id_tab_journ: "Журналы",
   id_tab_term: "Тэрміны работ",
   id_nav_aria: "Раздзелы выканаўчай дакументацыі",
   discuss: "Абмеркаваць аб’ект",
@@ -325,6 +327,7 @@ pattern DictEn(_x: String) -> Map {
   id_tab_hub: "Executive documentation",
   id_tab_art: "Procedure and standards",
   id_tab_act: "Acts online",
+  id_tab_journ: "Journals",
   id_tab_term: "Work terms",
   id_nav_aria: "Executive documentation sections",
   discuss: "Discuss your project",
@@ -838,6 +841,11 @@ pattern IdActPage(lang: String) -> Html {
   return Shell(lang, "/ispolnitelnaya-dokumentatsiya/akty", "est", d.id_tab_act, true, est.IdActTpl(""))
 }
 
+pattern IdJournPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/ispolnitelnaya-dokumentatsiya/zhurnaly", "est", d.id_tab_journ, true, est.IdJournTpl(""))
+}
+
 pattern IdTermPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/ispolnitelnaya-dokumentatsiya/sroki", "est", d.id_tab_term, true, est.IdTermTpl(""))
@@ -898,6 +906,7 @@ server {
   route "/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("ru") }
+  route "/ispolnitelnaya-dokumentatsiya/zhurnaly" method=GET { return IdJournPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/sroki" method=GET { return IdTermPage("ru") }
   route "/raschet-smet/formy" method=GET { return EstFormsPage("ru") }
   route "/raschet-smet/otdelka" method=GET { return EstFinPage("ru") }
@@ -924,6 +933,7 @@ server {
   route "/be/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("be") }
+  route "/be/ispolnitelnaya-dokumentatsiya/zhurnaly" method=GET { return IdJournPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/sroki" method=GET { return IdTermPage("be") }
   route "/be/raschet-smet/formy" method=GET { return EstFormsPage("be") }
   route "/be/raschet-smet/otdelka" method=GET { return EstFinPage("be") }
@@ -950,6 +960,7 @@ server {
   route "/en/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("en") }
+  route "/en/ispolnitelnaya-dokumentatsiya/zhurnaly" method=GET { return IdJournPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/sroki" method=GET { return IdTermPage("en") }
   route "/en/raschet-smet/formy" method=GET { return EstFormsPage("en") }
   route "/en/raschet-smet/otdelka" method=GET { return EstFinPage("en") }
