@@ -52,6 +52,7 @@ a.e-card:hover h3{color:var(--red)}
 .e-tbl tr.tot td{font-weight:700;border-top:1.5px solid var(--ink)}
 .e-tbl tr.ok td{font-weight:600}
 .e-tbl tr.bad td{color:#6a6d75}
+.e-tbl tr.hl td{background:rgba(227,0,15,.07);font-weight:700;box-shadow:inset 2px 0 var(--red)}
 .e-note{margin:0;font-size:14px;line-height:1.5;color:var(--muted);max-width:820px}
 .e-ref{background:rgba(255,255,255,.92)}
 .e-ref details{border-bottom:1px solid var(--line)}
