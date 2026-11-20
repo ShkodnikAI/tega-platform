@@ -45,6 +45,7 @@ REF_TABS = [
     ("wind", "/spravochniki/vetrogeneratory", "est_tab_wind"),
     ("roof", "/spravochniki/krovli", "est_tab_roof"),
     ("found", "/spravochniki/fundamenty", "est_tab_found"),
+    ("sten", "/spravochniki/steny", "est_tab_sten"),
 ]
 
 
@@ -129,6 +130,7 @@ def ref_hub():
             _card("Ветрогенераторы", "Калькулятор: ветер на высоте ступицы, годовая выработка по кривой мощности, мачта и зоны, электрика, АКБ и экономика. Статья с поправками.", "/spravochniki/vetrogeneratory", "Калькулятор"),
             _card("Кровли", "Калькулятор: площадь и уклон, пригодность 19 покрытий от плоских до керамики и солнечных, нагрузки и стропила, водоотвод, стоимость владения за 50 лет. Статья с инфографикой.", "/spravochniki/krovli", "Калькулятор"),
             _card("Пруды и биопруды", "Калькулятор: объём, оборот, насос, биофильтр, плёнка, растения и электричество. Статья об экосистеме и зимовке.", "/spravochniki/prudy", "Калькулятор готов"),
+            _card("Стены", "Семь систем наружных стен, пирог с точкой росы, утепление и армирование, монтаж, трудозатраты, стоимость владения за 30 лет и топ-15 ошибок.", "/spravochniki/steny", "Статья"),
             _card("Фундаменты", "Калькулятор (MVP): лента МЗЛФ и плита — ширина и сечение, армирование, объёмы, трудозатраты и смета-вилка. Статья: семь систем, пирог, армирование, бетон, стоимость владения и альбом чертежей.", "/spravochniki/fundamenty", "Калькулятор MVP"),
         ])
     )
@@ -1304,6 +1306,20 @@ def found():
     )
 
 
+def sten():
+    """Статья «Стены и ограждающие конструкции»: семь систем стен, пирог и точка росы, утепление,
+    армирование, монтаж, трудозатраты, стоимость владения за 30 лет, топ-15 ошибок и чек-лист.
+    Расчёт R0 системы «брус + вентфасад» исправлен относительно исходника — см. примечание в
+    art_sten.py."""
+    from art_sten import article
+    return (
+        head("Справочники · Стены", "Стены и ограждающие конструкции",
+             "Климат и режим, семь систем стен, пирог с точкой росы, утепление и армирование, монтаж и сезонность, трудозатраты, стоимость владения за 30 лет. Практика и действующие нормы Республики Беларусь.")
+        + RU_ONLY + tabs("sten")
+        + article()
+    )
+
+
 AI_CFG = {
     "water": ("Водоснабжение", [("Насос или насосная станция", "подбор по расходу и напору из расчёта, защита от сухого хода"), ("Гидроаккумулятор", "объём и давление по расчёту, мембрана для питьевой воды"), ("Трубы и фитинги водоснабжения", "диаметры и материал по расчёту, допуск для питьевой воды"), ("Водонагреватель (бойлер или проточный)", "мощность и объём по расчёту нагрева"), ("Фильтры очистки воды", "по составу воды, если он известен"), ("Запорная арматура и реле давления", "под давление системы")]),
     "sewer": ("Канализация", [("Септик или станция биоочистки", "объём и производительность по расчёту, тип грунта и уровень грунтовых вод учесть"), ("Трубы канализации и фитинги", "диаметры и уклон по расчёту, наружные рыжие или внутренние серые по назначению"), ("Ревизии, колодцы, обратные клапаны", "по схеме"), ("Дренаж или поля фильтрации", "по грунту")]),
@@ -1613,7 +1629,7 @@ def main():
     src += pattern("EstVolTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + volumes())
     src += pattern("EstQualTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + quality())
     src += pattern("EstElecTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + elec())
-    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind), ("EstRoofTpl", roof), ("EstFoundTpl", found), ("EstRepairTpl", repair)):
+    for nm, fn in (("EstWaterTpl", water), ("EstSewerTpl", sewer), ("EstHeatTpl", heat), ("EstVentTpl", vent), ("EstSolarTpl", solar), ("EstCondTpl", cond), ("EstSmartTpl", smart), ("EstPriceTpl", price), ("EstPondTpl", pond), ("EstPoolTpl", pool), ("EstBathTpl", bath), ("EstWindTpl", wind), ("EstRoofTpl", roof), ("EstFoundTpl", found), ("EstStenTpl", sten), ("EstRepairTpl", repair)):
         src += pattern(nm, '<link rel="stylesheet" href="/static/est.css?v=26">' + fn())
     src += pattern("EstFinTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + otdelka())
     src += pattern("EstFormsTpl", '<link rel="stylesheet" href="/static/est.css?v=26">' + forms())
