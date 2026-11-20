@@ -49,7 +49,7 @@ def build_index(build_py):
         ("elec", build_py.elec), ("water", build_py.water), ("sewer", build_py.sewer), ("heat", build_py.heat),
         ("vent", build_py.vent), ("solar", build_py.solar), ("cond", build_py.cond), ("smart", build_py.smart),
         ("price", build_py.price), ("pond", build_py.pond), ("pool", build_py.pool), ("bath", build_py.bath),
-        ("wind", build_py.wind), ("roof", build_py.roof), ("found", build_py.found), ("repair", build_py.repair),
+        ("wind", build_py.wind), ("roof", build_py.roof), ("found", build_py.found), ("sten", build_py.sten), ("repair", build_py.repair),
         ("fin", build_py.otdelka), ("forms", build_py.forms),
         ("idhub", build_py.idoc_hub), ("idart", build_py.idoc_art), ("idact", build_py.idoc_act),
         ("idjourn", build_py.idoc_journ), ("idterm", build_py.idoc_term),
