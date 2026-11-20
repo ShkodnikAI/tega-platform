@@ -60,3 +60,7 @@ jobs:
         run: node tests/unit/idoc.test.js
       - name: site search tests
         run: node tests/unit/search.test.js
+      - name: sten model tests
+        run: node tests/unit/sten-model.test.js
+      - name: perekr model tests
+        run: node tests/unit/perekr-model.test.js

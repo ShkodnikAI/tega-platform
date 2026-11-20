@@ -62,6 +62,7 @@ pattern DictRu(_x: String) -> Map {
   est_tab_roof: "Кровли",
   est_tab_found: "Фундаменты",
   est_tab_sten: "Стены",
+  est_tab_perekr: "Перекрытия",
   est_tab_forms: "Формы отчётов",
   est_ru_only: "Материалы раздела пока только на русском языке.",
   calc_h1: "Расчёт смет",
@@ -188,6 +189,7 @@ pattern DictBe(_x: String) -> Map {
   est_tab_roof: "Дахі",
   est_tab_found: "Фундаменты",
   est_tab_sten: "Сцены",
+  est_tab_perekr: "Перакрыцці",
   est_tab_forms: "Формы справаздач",
   est_ru_only: "Матэрыялы раздзела пакуль толькі на рускай мове.",
   calc_h1: "Расчёт кошту",
@@ -314,6 +316,7 @@ pattern DictEn(_x: String) -> Map {
   est_tab_roof: "Roofs",
   est_tab_found: "Foundations",
   est_tab_sten: "Walls",
+  est_tab_perekr: "Floors and roofs",
   est_tab_forms: "Report forms",
   est_ru_only: "The pages of this section are in Russian only for now.",
   calc_h1: "Estimate calculations",
@@ -834,6 +837,11 @@ pattern EstStenPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/steny", "est", d.est_tab_sten, true, est.EstStenTpl(""))
 }
 
+pattern EstPerekrPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/perekrytiya", "est", d.est_tab_perekr, true, est.EstPerekrTpl(""))
+}
+
 pattern EstRepairPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/tekushchiy-remont", "est", d.est_tab_repair, true, est.EstRepairTpl(""))
@@ -917,6 +925,7 @@ server {
   route "/spravochniki/krovli" method=GET { return EstRoofPage("ru") }
   route "/spravochniki/fundamenty" method=GET { return EstFoundPage("ru") }
   route "/spravochniki/steny" method=GET { return EstStenPage("ru") }
+  route "/spravochniki/perekrytiya" method=GET { return EstPerekrPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("ru") }
   route "/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("ru") }
@@ -945,6 +954,7 @@ server {
   route "/be/spravochniki/krovli" method=GET { return EstRoofPage("be") }
   route "/be/spravochniki/fundamenty" method=GET { return EstFoundPage("be") }
   route "/be/spravochniki/steny" method=GET { return EstStenPage("be") }
+  route "/be/spravochniki/perekrytiya" method=GET { return EstPerekrPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("be") }
   route "/be/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("be") }
@@ -973,6 +983,7 @@ server {
   route "/en/spravochniki/krovli" method=GET { return EstRoofPage("en") }
   route "/en/spravochniki/fundamenty" method=GET { return EstFoundPage("en") }
   route "/en/spravochniki/steny" method=GET { return EstStenPage("en") }
+  route "/en/spravochniki/perekrytiya" method=GET { return EstPerekrPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya" method=GET { return IdHubPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/poryadok" method=GET { return IdArtPage("en") }
   route "/en/ispolnitelnaya-dokumentatsiya/akty" method=GET { return IdActPage("en") }
