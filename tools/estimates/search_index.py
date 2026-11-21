@@ -47,7 +47,7 @@ def build_index(build_py):
     routes = [
         ("hub", build_py.hub), ("rhub", build_py.ref_hub), ("vol", build_py.volumes), ("qual", build_py.quality),
         ("elec", build_py.elec), ("water", build_py.water), ("sewer", build_py.sewer), ("heat", build_py.heat),
-        ("vent", build_py.vent), ("solar", build_py.solar), ("cond", build_py.cond), ("smart", build_py.smart),
+        ("vent", build_py.vent), ("solar", build_py.solar), ("cond", build_py.cond), ("heatpump", build_py.heatpump), ("smart", build_py.smart),
         ("price", build_py.price), ("pond", build_py.pond), ("pool", build_py.pool), ("bath", build_py.bath),
         ("wind", build_py.wind), ("roof", build_py.roof), ("found", build_py.found), ("sten", build_py.sten), ("perekr", build_py.perekr), ("repair", build_py.repair),
         ("fin", build_py.otdelka), ("forms", build_py.forms),

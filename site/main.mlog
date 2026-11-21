@@ -52,6 +52,7 @@ pattern DictRu(_x: String) -> Map {
   est_tab_vent: "Вентиляция",
   est_tab_solar: "Солнечные системы",
   est_tab_cond: "Кондиционирование",
+  est_tab_heatpump: "Тепловые насосы",
   est_tab_smart: "Умный дом",
   est_tab_price: "Цена работ",
   est_tab_repair: "Текущий ремонт",
@@ -179,6 +180,7 @@ pattern DictBe(_x: String) -> Map {
   est_tab_vent: "Вентыляцыя",
   est_tab_solar: "Сонечныя сістэмы",
   est_tab_cond: "Кандыцыянаванне",
+  est_tab_heatpump: "Цеплавыя насосы",
   est_tab_smart: "Разумны дом",
   est_tab_price: "Кошт работ",
   est_tab_repair: "Бягучы рамонт",
@@ -306,6 +308,7 @@ pattern DictEn(_x: String) -> Map {
   est_tab_vent: "Ventilation",
   est_tab_solar: "Solar systems",
   est_tab_cond: "Air conditioning",
+  est_tab_heatpump: "Heat pumps",
   est_tab_smart: "Smart home",
   est_tab_price: "Work pricing",
   est_tab_repair: "Current repair",
@@ -842,6 +845,11 @@ pattern EstPerekrPage(lang: String) -> Html {
   return Shell(lang, "/spravochniki/perekrytiya", "est", d.est_tab_perekr, true, est.EstPerekrTpl(""))
 }
 
+pattern EstHeatpumpPage(lang: String) -> Html {
+  let d = Dict(lang)
+  return Shell(lang, "/spravochniki/teplovye-nasosy", "est", d.est_tab_heatpump, true, est.EstHeatpumpTpl(""))
+}
+
 pattern EstRepairPage(lang: String) -> Html {
   let d = Dict(lang)
   return Shell(lang, "/raschet-smet/tekushchiy-remont", "est", d.est_tab_repair, true, est.EstRepairTpl(""))
@@ -915,6 +923,7 @@ server {
   route "/spravochniki/ventilyaciya" method=GET { return EstVentPage("ru") }
   route "/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("ru") }
   route "/spravochniki/konditsionirovanie" method=GET { return EstCondPage("ru") }
+  route "/spravochniki/teplovye-nasosy" method=GET { return EstHeatpumpPage("ru") }
   route "/spravochniki/umnyj-dom" method=GET { return EstSmartPage("ru") }
   route "/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("ru") }
   route "/raschet-smet/tekushchiy-remont" method=GET { return EstRepairPage("ru") }
@@ -944,6 +953,7 @@ server {
   route "/be/spravochniki/ventilyaciya" method=GET { return EstVentPage("be") }
   route "/be/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("be") }
   route "/be/spravochniki/konditsionirovanie" method=GET { return EstCondPage("be") }
+  route "/be/spravochniki/teplovye-nasosy" method=GET { return EstHeatpumpPage("be") }
   route "/be/spravochniki/umnyj-dom" method=GET { return EstSmartPage("be") }
   route "/be/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("be") }
   route "/be/raschet-smet/tekushchiy-remont" method=GET { return EstRepairPage("be") }
@@ -973,6 +983,7 @@ server {
   route "/en/spravochniki/ventilyaciya" method=GET { return EstVentPage("en") }
   route "/en/spravochniki/solnechnaya-generaciya" method=GET { return EstSolarPage("en") }
   route "/en/spravochniki/konditsionirovanie" method=GET { return EstCondPage("en") }
+  route "/en/spravochniki/teplovye-nasosy" method=GET { return EstHeatpumpPage("en") }
   route "/en/spravochniki/umnyj-dom" method=GET { return EstSmartPage("en") }
   route "/en/raschet-smet/cenoobrazovanie" method=GET { return EstPricePage("en") }
   route "/en/raschet-smet/tekushchiy-remont" method=GET { return EstRepairPage("en") }

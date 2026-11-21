@@ -64,3 +64,5 @@ jobs:
         run: node tests/unit/sten-model.test.js
       - name: perekr model tests
         run: node tests/unit/perekr-model.test.js
+      - name: tn (heat pump) model tests
+        run: node tests/unit/tn-model.test.js
