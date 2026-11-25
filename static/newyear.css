@@ -1,0 +1,50 @@
+/* Новогоднее оформление главной страницы: гирлянда над геро-блоком и лёгкий снегопад.
+   Скрыто по умолчанию, включается скриптом newyear.js только в сезон (конец декабря — начало января)
+   и только если у человека не включено prefers-reduced-motion. */
+.ny-garland, .ny-snow { display: none; }
+.ny-on .ny-garland, .ny-on .ny-snow { display: block; }
+
+.ny-garland {
+  width: 100%;
+  height: 34px;
+  overflow: hidden;
+  line-height: 0;
+}
+.ny-garland svg { width: 100%; height: 34px; display: block; }
+.ny-garland .bulb { animation: ny-twinkle 2.6s ease-in-out infinite; transform-origin: center; }
+.ny-garland .bulb:nth-child(3n) { animation-delay: .3s; }
+.ny-garland .bulb:nth-child(3n+1) { animation-delay: .9s; }
+.ny-garland .bulb:nth-child(3n+2) { animation-delay: 1.5s; }
+@keyframes ny-twinkle {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+.ny-snow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.ny-snow .flake {
+  position: absolute;
+  top: -10px;
+  color: #ffffff;
+  text-shadow: 0 0 3px rgba(0, 0, 0, .25);
+  animation-name: ny-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes ny-fall {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  8% { opacity: .85; }
+  92% { opacity: .85; }
+  100% { transform: translateY(420px) translateX(14px); opacity: 0; }
+}
+.hero { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ny-garland .bulb { animation: none; opacity: .85; }
+  .ny-snow { display: none !important; }
+}
