@@ -55,28 +55,22 @@
     flat: { form: 'flat', L: 8, W: 6, ov: 0.2, alpha: 2, mat: 'pvc', insT: 150 }
   };
 
-  function prices() {
-    var p = {};
-    D.forEach(function (m) { p[m.id] = num('rf-p-' + m.id); });
-    return p;
-  }
   function cfg() {
     var c = {
       form: val('rf-form'), L: num('rf-L'), W: num('rf-W'), ov: num('rf-ov'), alpha: num('rf-a'), valleys: num('rf-vl'), eaveH: num('rf-eh'),
-      mat: val('rf-mat'), insT: num('rf-ins'), lifeMode: val('rf-life'),
+      mat: val('rf-mat'), insT: num('rf-ins'),
       sk: num('rf-sk'), ce: num('rf-ce'), ct: num('rf-ct'), gOther: num('rf-go'), span: num('rf-sp'), step: num('rf-st'), b: num('rf-b'), h: num('rf-h'), grade: val('rf-gr'),
-      gutter: val('rf-gut'), horizon: num('rf-hor'), priceBase: num('rf-pb'), priceDemol: num('rf-pd'), az: val('rf-az'), pvShare: num('rf-pv'),
+      gutter: val('rf-gut'), az: val('rf-az'), pvShare: num('rf-pv'),
       pie: val('rf-pie'), insKind: val('rf-ik'), rNorm: num('rf-rn'), cross: val('rf-cr') === 'yes', ventOk: val('rf-vo'), struct: val('rf-str'), crew: num('rf-cw'), laborCover: num('rf-lc'), pvScheme: val('rf-ps'), pvVent: val('rf-pvv')
     };
-    c.prices = prices(); c.priceCover = c.prices[c.mat];
     return c;
   }
   function valid(c) {
     return c.L >= 2 && c.L <= 60 && c.W >= 2 && c.W <= 40 && c.ov >= 0 && c.ov <= 2 && c.alpha >= 0.5 && c.alpha <= 75 && c.valleys >= 0 && c.eaveH >= 1 && c.eaveH <= 20 && c.insT >= 0 && c.insT <= 500 &&
       c.sk > 0 && c.sk <= 6 && c.ce > 0 && c.ce <= 2 && c.ct > 0 && c.ct <= 1.5 && c.gOther >= 0 && c.span >= 1 && c.span <= 8 && c.step >= 0.3 && c.step <= 1.5 && c.b >= 30 && c.b <= 200 && c.h >= 75 && c.h <= 400 &&
-      c.horizon >= 10 && c.horizon <= 150 && c.pvShare >= 0 && c.pvShare <= 100 && c.rNorm >= 0 && c.rNorm <= 10 && c.crew >= 1 && c.crew <= 30 && c.laborCover >= 0;
+      c.pvShare >= 0 && c.pvShare <= 100 && c.rNorm >= 0 && c.rNorm <= 10 && c.crew >= 1 && c.crew <= 30 && c.laborCover >= 0;
   }
-  var IDS = ['rf-g1', 'rf-g2', 'rf-g3', 'rf-g4', 'rf-m1', 'rf-m2', 'rf-m3', 'rf-m4', 'rf-l1', 'rf-l2', 'rf-l3', 'rf-l4', 'rf-l5', 'rf-w1', 'rf-w2', 'rf-w3', 'rf-w4', 'rf-c1', 'rf-c2', 'rf-c3', 'rf-c4', 'rf-s1', 'rf-s2', 'rf-s3', 'rf-s4', 'rf-h1', 'rf-h2', 'rf-h3', 'rf-k1', 'rf-k2', 'rf-k3', 'rf-k4'];
+  var IDS = ['rf-g1', 'rf-g2', 'rf-g3', 'rf-g4', 'rf-m1', 'rf-m2', 'rf-m3', 'rf-m4', 'rf-l1', 'rf-l2', 'rf-l3', 'rf-l4', 'rf-l5', 'rf-w1', 'rf-w2', 'rf-w3', 'rf-w4', 'rf-s1', 'rf-s2', 'rf-s3', 'rf-s4', 'rf-h1', 'rf-h2', 'rf-h3', 'rf-k1', 'rf-k2', 'rf-k3', 'rf-k4'];
 
   /* пригодность всех покрытий к уклону */
   function drawPitch(c) {
@@ -108,7 +102,7 @@
     if (!window.TegaAI) return;
     var m = r.m, g = r.geo, q = r.q, n1 = fmt, flat = c.form === 'flat';
     var obj = [['Кровля', FORMS[c.form] + ', уклон ' + n1(c.alpha, 1) + '° (' + n1(g.pct, 0) + ' %), площадь покрытия ' + n1(g.area, 0) + ' м²'], ['План дома', n1(c.L, 1) + '×' + n1(c.W, 1) + ' м, свесы ' + n1(c.ov, 1) + ' м'],
-      ['Выбранное покрытие', m.name], ['Снеговая нагрузка', 'расчётное значение на кровле ' + n1(r.S, 2) + ' кПа (sₖ ' + n1(c.sk, 2) + ' кПа)'], ['Горизонт сравнения', n1(c.horizon, 0) + ' лет']];
+      ['Выбранное покрытие', m.name], ['Снеговая нагрузка', 'расчётное значение на кровле ' + n1(r.S, 2) + ' кПа (sₖ ' + n1(c.sk, 2) + ' кПа)']];
     var items = [{ name: m.name, qty: n1(q.cover, 0) + ' м² с запасом на раскрой ' + n1((m.waste - 1) * 100, 0) + ' %', req: 'применимо при уклоне ' + n1(c.alpha, 1) + '° по паспорту системы, сертификат и паспорт на русском языке, гарантия на материал и на монтаж отдельно' }];
     if (flat) items.push({ name: 'Пароизоляция и утеплитель плоской кровли', qty: n1(q.vapour, 0) + ' м² пароизоляции, утеплитель ' + n1(c.insT, 0) + ' мм', req: 'утеплитель с уклонообразующим слоем, несущая способность по пешеходной нагрузке' },
       { name: 'Кровельные воронки с обогревом и аварийным переливом', qty: r.outlets + ' шт', req: 'Ø и пропускная способность по расчёту, готовые манжеты для мембраны' });
@@ -134,8 +128,8 @@
     if (!valid(c)) {
       last = null; IDS.forEach(function (i) { set(i, '—'); });
       verdict('rf-verdict', 'Проверьте данные: размеры дома 2–60 × 2–40 м, свес 0–2 м, уклон 0,5–75°, снег 0–6 кПа, пролёт стропила 1–8 м, шаг 0,3–1,5 м, сечение 30–200 × 75–400 мм.', true);
-      ['rf-v1', 'rf-v2', 'rf-v3', 'rf-v4', 'rf-v6', 'rf-v7'].forEach(function (i) { verdict(i, '', false); });
-      ['rf-ch', 'rf-qt', 'rf-ct'].forEach(function (i) { var n = $(i); if (n) clearNode(n); }); set('rf-chn', '');
+      ['rf-v1', 'rf-v2', 'rf-v3', 'rf-v6', 'rf-v7'].forEach(function (i) { verdict(i, '', false); });
+      ['rf-ch', 'rf-qt'].forEach(function (i) { var n = $(i); if (n) clearNode(n); }); set('rf-chn', '');
       if (window.TegaAI) window.TegaAI.update(null); return;
     }
     var r = M.calc(c), m = r.m, g = r.geo, q = r.q;
@@ -180,21 +174,6 @@
       set('rf-w4', 'трубы не реже чем через 12 м, желоб с уклоном 3–5 мм/м');
     }
     verdict('rf-v3', '', false);
-
-    /* стоимость */
-    var own = r.priceOk;
-    set('rf-c1', own ? 'за ' + fmt(c.horizon, 0) + ' лет всего ' + fmt(r.total, 0) + ' BYN' : 'введите цену выбранного покрытия, BYN за м² с монтажом');
-    set('rf-c2', own ? fmt(r.perYear, 0) + ' BYN в год, ' + fmt(r.perM2Year, 2) + ' BYN с м² в год' : '—');
-    set('rf-c3', 'срок службы по выбранной оценке ' + fmt(r.life, 0) + ' лет, замен за горизонт ' + r.nRepl + ', остаток последней кровли ' + fmt(r.residual * 100, 0) + ' %');
-    set('rf-c4', own ? 'старт ' + fmt(r.initial, 0) + ', замены ' + fmt(r.nRepl * r.replEach, 0) + ', обслуживание ' + fmt(r.maintTotal, 0) + ', остаток −' + fmt(r.residualVal, 0) + ' BYN' : '—');
-    var costRows = r.costAll.slice().sort(function (a, b) { return (isFinite(a.perM2Year) ? a.perM2Year : 1e9) - (isFinite(b.perM2Year) ? b.perM2Year : 1e9); });
-    var best = null; costRows.forEach(function (x) { if (!best && isFinite(x.perM2Year) && x.fit !== 'no') best = x.id; });
-    var rowsC = costRows.map(function (x) {
-      return { cls: x.id === best ? 'ok' : x.fit === 'no' ? 'bad' : '', cells: [x.name, x.fit === 'ok' ? 'да' : x.fit === 'special' ? 'спецмеры' : 'нет', fmt(x.life, 0), String(x.nRepl), isFinite(x.price) ? fmt(x.price, 0) : '—', isFinite(x.perM2Year) ? fmt(x.perM2Year, 2) : '—', isFinite(x.perYear) ? fmt(x.perYear, 0) : '—'] };
-    });
-    table($('rf-ct'), ['Покрытие', 'По уклону', 'Срок, лет', 'Замен', 'Цена, BYN/м²', 'BYN/м² в год', 'BYN в год'], rowsC);
-    var cnt = costRows.filter(function (x) { return isFinite(x.perM2Year); }).length;
-    verdict('rf-v4', cnt ? (best ? 'Самое выгодное из подходящих по уклону при ваших ценах: ' + (D.filter(function (m2) { return m2.id === best; })[0].short) + '. Цены вводите с монтажом.' : 'Ни одно покрытие с ценой не подходит по уклону.') : 'Введите цены покрытий с монтажом, и таблица покажет стоимость владения по каждому.', cnt > 0 && !best);
 
     /* солнце */
     set('rf-h1', 'R кровли ' + fmt(r.rFact, 2) + ' м²·°C/Вт (поверхности ' + fmt(r.rOther, 2) + ' + утеплитель ' + fmt(c.insT, 0) + ' мм / λ ' + fmt(r.lam, 3) + ')' + (r.hasR ? ', требуется ' + fmt(c.rNorm, 2) : ', норма не задана'));
@@ -248,8 +227,6 @@
       if (el.id === 'rf-preset') { el.addEventListener('change', function () { apply(el.value); }); return; }
       el.addEventListener('input', calc); el.addEventListener('change', calc);
     });
-    var rs = $('rf-p-reset');
-    if (rs) rs.addEventListener('click', function () { Array.prototype.forEach.call(root.querySelectorAll('input[id^="rf-p-"]'), function (e) { e.value = ''; }); calc(); });
     calc();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

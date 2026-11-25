@@ -155,8 +155,8 @@
         g.notes.forEach(function (n) { if (notes.indexOf(n) < 0 && /[а-я]/i.test(n)) notes.push(n); });
       });
       var chosen = items.filter(function (it, i) { return itemState[i] !== false; });
-      sp = obj.length ? { title: ($('ai-root').getAttribute('data-title') || 'Объект'), object: obj, items: chosen, notes: notes.slice(0, 8) } : null;
-      if (obj.length && !chosen.length) { box.textContent = 'Выберите, что подбирать.'; return; }
+      sp = (obj.length || chosen.length) ? { title: ($('ai-root').getAttribute('data-title') || 'Объект'), object: obj, items: chosen, notes: notes.slice(0, 8) } : null;
+      if (items.length && !chosen.length) { box.textContent = 'Выберите, что подбирать.'; return; }
     }
     if (!sp) { box.textContent = 'Введите корректные данные расчёта на расчётных вкладках, запрос соберётся автоматически.'; return; }
     var o = opts();

@@ -165,39 +165,6 @@
       }
     }
 
-    /* стоимость владения */
-    var H = c.horizon, L = life(m, c.lifeMode);
-    r.life = L;
-    r.nRepl = Math.max(Math.ceil(H / L - 1e-9) - 1, 0);
-    var lastUsed = H - r.nRepl * L;
-    r.residual = Math.max(0, 1 - lastUsed / L);
-    r.priceOk = isFinite(c.priceCover) && c.priceCover > 0;
-    if (r.priceOk) {
-      var base = isFinite(c.priceBase) ? c.priceBase : 0, dem = isFinite(c.priceDemol) ? c.priceDemol : 0;
-      r.initial = (c.priceCover + base) * A;
-      r.replEach = (c.priceCover + dem) * A;
-      r.maintTotal = m.maint / 100 * c.priceCover * A * H;
-      r.residualVal = r.residual * c.priceCover * A;
-      r.total = r.initial + r.nRepl * r.replEach + r.maintTotal - r.residualVal;
-      r.perYear = r.total / H;
-      r.perM2Year = r.perYear / A;
-    }
-    r.costAll = [];
-    if (c.prices) {
-      D.forEach(function (mm) {
-        var p = c.prices[mm.id];
-        var LL = life(mm, c.lifeMode), nr = Math.max(Math.ceil(H / LL - 1e-9) - 1, 0), used = H - nr * LL, res = Math.max(0, 1 - used / LL);
-        var f = fit(mm, c.alpha), row = { id: mm.id, name: mm.short, fit: f, life: LL, nRepl: nr, price: p };
-        if (isFinite(p) && p > 0) {
-          var b = isFinite(c.priceBase) ? c.priceBase : 0, dm = isFinite(c.priceDemol) ? c.priceDemol : 0;
-          var AA = A;
-          row.initial = (p + b) * AA; row.total = row.initial + nr * (p + dm) * AA + mm.maint / 100 * p * AA * H - res * p * AA;
-          row.perYear = row.total / H; row.perM2Year = row.perYear / AA;
-        }
-        r.costAll.push(row);
-      });
-    }
-
     /* солнце */
     var tiltF = flatForm ? lerp(TILT_PTS, 15) : lerp(TILT_PTS, c.alpha), azF = AZ[c.az] || 1;
     var share = c.form === 'gable' ? 0.5 : c.form === 'hip' ? 0.4 : 1;

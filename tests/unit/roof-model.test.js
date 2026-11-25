@@ -1,8 +1,8 @@
-/* Проверка модели кровли: геометрия, пригодность по уклону, нагрузки и стропило, водоотвод, стоимость владения, солнце.  Запуск: node tests/unit/roof-model.test.js */
+/* Проверка модели кровли: геометрия, пригодность по уклону, нагрузки и стропило, водоотвод, солнце.  Запуск: node tests/unit/roof-model.test.js */
 const assert = require('assert');
 const R = require('../../static/roof-model.js');
 const base = { form: 'gable', L: 10, W: 8, ov: 0.5, alpha: 30, valleys: 0, mat: 'metal_tile', step: 0.6, insT: 200, sk: 1.2, ce: 1, ct: 1.1, gOther: 0.45, span: 4, b: 50, h: 200, grade: 'C24',
-  gutter: 's', eaveH: 3, horizon: 50, lifeMode: 'mid', priceCover: 40, priceBase: 20, priceDemol: 5, pvShare: 50, az: 's' };
+  gutter: 's', eaveH: 3, pvShare: 50, az: 's' };
 const mk = o => Object.assign({}, base, o);
 const near = (a, b, t, m) => assert(Math.abs(a - b) <= t, m + ': ' + a + ' vs ' + b);
 const has = (r, re, lvl) => r.warns.some(w => re.test(w.text) && (!lvl || w.level === lvl));
@@ -29,11 +29,7 @@ assert(!has(R.calc(mk({ h: 250 })), /загружено|не проходит/))
 assert.strictEqual(r.pipes, 2); assert.strictEqual(R.calc(mk({ L: 30 })).pipes, 6);
 assert.strictEqual(R.calc(mk({ form: 'flat', alpha: 2, mat: 'pvc' })).outlets, 2);
 assert.strictEqual(r.guardRows, 1); assert(has(r, /снегозадержател/, 'yellow'));
-/* стоимость владения: металлочерепица 40 лет, горизонт 50: одна замена, остаточная стоимость */
-near(r.life, 40, 1e-9, 'срок'); assert.strictEqual(r.nRepl, 1); near(r.residual, 1 - 10 / 40, 1e-9, 'остаток');
-const A = r.geo.area; near(r.total, (40 + 20) * A + (40 + 5) * A + 0.01 * 40 * A * 50 - 0.75 * 40 * A, 1e-6, 'итого');
-assert.strictEqual(R.calc(mk({ mat: 'slate', alpha: 30 })).nRepl, 0);
-assert.strictEqual(R.calc(mk({ mat: 'profil', lifeMode: 'lo' })).nRepl, 2);
+const A = r.geo.area;
 /* солнце: южный скат 50 % площади, 70 % полезной, 5,8 м² на кВт */
 near(r.pvKw, A * 0.5 * 0.7 * 0.5 / 5.8, 1e-9, 'кВтп'); near(r.pvKwh, r.pvKw * 1030 * r.pvTilt * 1, 1e-6, 'кВт·ч'); near(R.calc(mk({ az: 'n' })).pvKwh / r.pvKwh, 0.6, 1e-9, 'север');
 assert(has(R.calc(mk({ mat: 'corr_bit', alpha: 15 })), /25–30 лет/, 'yellow'));
